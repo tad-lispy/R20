@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html ng-app='R20' ng-controller='main as app'>
+<head>
+  <title>{{ app.name }}</title>
+</head>
+<body>
+  <header>
+    <h1>{{ app.name }}</h1>
+    <h2>{{ app.motto }}</h2>
+  </header>
+  
+  <section id='content'>
+    <main>
+      <div class="charging">
+        <p style='font-size: 600%; font-weight: bold'>Charging R20</p>
+        <p>
+          If it takes more then, say... 10 seconds - then it's probabily broken.
+          <a href='mailto:redakcja@radzimy.co'>Please report</a>.
+        </p>
+      </div>
+    </main>
+    
+    <aside>  
+    </aside>
+  </section>
+
+  <footer>
+    Powered by {{ app.engine }} v. {{ app.version }}<br />
+    {{ app.engine }} is a free software by {{ app.author }}.
+    Get it's source at {{ app.repo }}. Thank you :)
+  </footer>
+
+  <script
+    type='text/javascript'
+    src='https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0-rc.3/angular.min.js'>
+  </script>
+  <script
+    type='text/javascript'
+    src='/js/index.js'>
+  </script>
+
+</body>
+</html>

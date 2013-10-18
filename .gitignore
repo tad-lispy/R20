@@ -1,0 +1,7 @@
+node_modules/
+lib/
+*.sublime-project
+*.sublime-workspace
+npm-debug.log
+.watch_*
+assets/scripts/app/
