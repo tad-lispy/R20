@@ -10,7 +10,9 @@
   "license": "GPL 3",
   "dependencies": {
     "express": "~3.4.1",
-    "source-map-support": "~0.2.3"
+    "source-map-support": "~0.2.3",
+    "underscore": "~1.5.2",
+    "teacup": "~0.2.10"
   },
   "devDependencies": {
     "coffee-script": "~1.6.3"

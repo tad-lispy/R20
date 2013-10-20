@@ -1,34 +1,40 @@
 <!DOCTYPE html>
-<html ng-app='R20' ng-controller='main as app'>
+<html ng-app='R20'>
 <head>
   <title>{{ app.name }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link
+    href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"
+    rel="stylesheet">
+  <link
+    href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css"
+    rel="stylesheet">
+
+  <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!--[if lt IE 9]>
+    <script src="../../assets/js/html5shiv.js"></script>
+    <script src="../../assets/js/respond.min.js"></script>
+  <![endif]-->
+
+  <script type="text/ng-template" id="home.html">
+    <h1>Welcome home!</h1>
+  </script>
 </head>
 <body>
-  <header>
-    <h1>{{ app.name }}</h1>
-    <h2>{{ app.motto }}</h2>
-  </header>
-  
-  <section id='content'>
-    <main>
-      <div class="charging">
-        <p style='font-size: 600%; font-weight: bold'>Charging R20</p>
+  <div class="container">
+    <main ng-view>
+      <div class="text-muted" style="margin-top: 30px">
+        <h1>
+          <i class='icon-bolt'> </i>
+          Charging R20
+        </h1>
         <p>
           If it takes more then, say... 10 seconds - then it's probabily broken.
           <a href='mailto:redakcja@radzimy.co'>Please report</a>.
         </p>
       </div>
     </main>
-    
-    <aside>  
-    </aside>
-  </section>
-
-  <footer>
-    Powered by {{ app.engine }} v. {{ app.version }}<br />
-    {{ app.engine }} is a free software by {{ app.author }}.
-    Get it's source at {{ app.repo }}. Thank you :)
-  </footer>
+  </div>
 
   <script
     type='text/javascript'
@@ -36,8 +42,12 @@
   </script>
   <script
     type='text/javascript'
+    src='https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0-rc.3/angular-route.min.js'>
+  </script>
+  <script
+    type='text/javascript'
     src='/js/index.js'>
   </script>
-
+</div><!-- .container -->
 </body>
 </html>

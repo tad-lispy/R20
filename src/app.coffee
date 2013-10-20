@@ -2,25 +2,62 @@ do (require "source-map-support").install
 
 express = require "express"
 path    = require "path"
+_       = require "underscore"
+teacup  = require "teacup/lib/express"
 
 app = do express
 
 app.set "name",     "Radzimy.co"
+app.set "motto",    "Podnosimy świadomość prawną."
 app.set "engine",   "R20"
 app.set "version",  (require "../package.json").version
 app.set "repo",     (require "../package.json").repo
+
+app.use (req, res, next) ->
+  res.locals.settings = _(app.settings).pick [
+    "name"
+    "motto"
+    "engine"
+    "version"
+    "repo"
+    "env"
+  ]
+
+  res.locals.url = req.url
+
+  do next
+
+app.use express.bodyParser {}
+
+app.get "/", (req, res) -> 
+  template = require "./views/home"
+  res.send template.call res.locals
+  # res.sendfile path.resolve __dirname, "../assets/index.html"
+
+
+app.post "/search", (req, res) ->
+  res.locals.search = _(req.body).pick [
+    "query"
+  ]
+  res.locals.search.results = ({
+    url   : "##{i}"
+    type  : "question"
+    title : "Czy #{req.body.query} #{i}?"
+  } for i in [1..12])
+
+  template = require "./views/search"
+  res.send template.call res.locals
+
 # Get some dummy data
 dummy = require "./data"
 
-app.get "/", (req, res) ->
-  file = path.resolve __dirname, "../assets/index.html"
-  res.sendfile file
+app.get "/about", (req, res) ->
+  template = require "./views/home"
+  res.send template.call res.locals
 
 app.use '/js', express.static 'assets/scripts/app'
 app.use '/js', express.static 'assets/scripts/vendor'
 
-app.get "/about", (req, res) ->
-  res.json app.settings
 
 app.get "/cases", (req, res) ->
   res.json cases: dummy.cases.map (casus) -> casus.id
