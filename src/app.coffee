@@ -3,8 +3,6 @@ do (require "source-map-support").install
 express = require "express"
 path    = require "path"
 _       = require "underscore"
-teacup  = require "teacup/lib/express"
-
 app = do express
 
 app.set "name",     "Radzimy.co"
@@ -29,31 +27,20 @@ app.use (req, res, next) ->
 
 app.use express.bodyParser {}
 
-app.get "/", (req, res) -> 
-  template = require "./views/home"
-  res.send template.call res.locals
-  # res.sendfile path.resolve __dirname, "../assets/index.html"
+controllers =
+  home    : require "./controllers/home"
+  search  : require "./controllers/search"
+  about   : require "./controllers/about"
 
+app.get "/", controllers.home.get
 
-app.post "/search", (req, res) ->
-  res.locals.search = _(req.body).pick [
-    "query"
-  ]
-  res.locals.search.results = ({
-    url   : "##{i}"
-    type  : "question"
-    title : "Czy #{req.body.query} #{i}?"
-  } for i in [1..12])
+app.post "/search", controllers.search.post
 
-  template = require "./views/search"
-  res.send template.call res.locals
-
+app.get "/main", controllers.home.main
 # Get some dummy data
 dummy = require "./data"
 
-app.get "/about", (req, res) ->
-  template = require "./views/home"
-  res.send template.call res.locals
+app.get "/about", controllers.about.get
 
 app.use '/js', express.static 'assets/scripts/app'
 app.use '/js', express.static 'assets/scripts/vendor'
