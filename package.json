@@ -16,7 +16,8 @@
     "teacup": "~0.2.10",
     "stylus": "~0.38.0",
     "marked": "~0.2.9",
-    "mongoose": "~3.6.20"
+    "mongoose": "~3.6.20",
+    "underscore.string": "~2.3.3"
   },
   "devDependencies": {
     "coffee-script": "~1.6.3"

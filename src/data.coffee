@@ -18,7 +18,7 @@ module.exports =
     name      : "Efigenia Grzyb"
     role      : "Reader"
   ]
-  cases: [
+  stories: [
     id        : "b1"
     author    : "a4"
     text      : "Była ąka i nima! Tera co?"
