@@ -1,12 +1,13 @@
 {
   "name": "R20",
+  "repo": "https://github.com/lzrski/R20",
   "version": "0.0.0",
   "description": "Q&A Engine for legal questions",
   "main": "lib/app.js",
   "scripts": {
     "test": "mocha"
   },
-  "author": "Tadeusz Łazurski <tadeusz@lazurski.pl>",
+  "author": "Tadeusz Łazurski <tadeusz@lazurski.pl> (http://lazurski.pl/)",
   "license": "GPL 3",
   "dependencies": {
     "express": "~3.4.1",

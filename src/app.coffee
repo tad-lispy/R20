@@ -11,6 +11,21 @@ app.set "engine",   "R20"
 app.set "version",  (require "../package.json").version
 app.set "repo",     (require "../package.json").repo
 
+author = (require "../package.json").author.match ///
+  ^
+  \s*
+  ([^<\(]+)         # name
+  \s+
+  (?:<(.*)>)?   # e-mail
+  \s*
+  (?:\((.*)\))? # website
+  \s*
+///
+app.set "author",
+  name    : do author[1]?.trim
+  email   : do author[2]?.trim
+  website : do author[3]?.trim
+
 app.use (req, res, next) ->
   res.locals.settings = _(app.settings).pick [
     "name"
@@ -19,6 +34,7 @@ app.use (req, res, next) ->
     "version"
     "repo"
     "env"
+    "author"
   ]
 
   res.locals.url = req.url
@@ -27,10 +43,14 @@ app.use (req, res, next) ->
 
 app.use express.bodyParser {}
 
-controllers =
-  home    : require "./controllers/home"
-  search  : require "./controllers/search"
-  about   : require "./controllers/about"
+controllers = {}
+for controller in [
+  "home"
+  "search"
+  "about"
+]
+  controllers[controller] = require "./controllers/#{controller}"
+
 
 app.get "/", controllers.home.get
 
