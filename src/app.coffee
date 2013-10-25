@@ -55,13 +55,15 @@ for controller in [
   controllers[controller] = require "./controllers/#{controller}"
 
 
-app.get "/",          controllers.home.get
-app.get "/main",      controllers.home.main
+app.get   "/",          controllers.home.get
+app.get   "/main",      controllers.home.main
 
-app.post "/search",   controllers.search.post
+app.post  "/search",    controllers.search.post
 
-app.get "/story/new", controllers.story.post
-app.get "/story/:id", controllers.story.get
+app.get   "/story",     controllers.story.new
+app.post  "/story",     controllers.story.post
+app.get   "/story/:id", controllers.story.get
+app.post  "/story/:id", controllers.story.put
 
 
 app.get "/about", controllers.about.get
