@@ -76,6 +76,8 @@ dummy = require "./data"
 app.use '/js', express.static 'assets/scripts/app'
 app.use '/js', express.static 'assets/scripts/vendor'
 
+app.use '/css', express.static 'assets/styles/app'
+app.use '/css', express.static 'assets/styles/vendor'
 
 app.get "/stories", (req, res) ->
   res.json stories: dummy.stories.map (story) -> story.id
