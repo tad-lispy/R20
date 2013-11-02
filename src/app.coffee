@@ -51,6 +51,7 @@ for controller in [
   "search"
   "about"
   "story"
+  "question"
 ]
   controllers[controller] = require "./controllers/#{controller}"
 
@@ -60,10 +61,13 @@ app.get   "/main",      controllers.home.main
 
 app.post  "/search",    controllers.search.post
 
-app.get   "/story",     controllers.story.new
+app.get   "/story",     controllers.story.get
 app.post  "/story",     controllers.story.post
-app.get   "/story/:id", controllers.story.get
+app.get   "/story/:id", controllers.story.single.get
 app.post  "/story/:id", controllers.story.put
+
+app.get   "/question",  controllers.question.get
+app.post  "/question",  controllers.question.post
 
 
 app.get "/about", controllers.about.get
