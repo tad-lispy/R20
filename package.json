@@ -17,7 +17,8 @@
     "stylus": "~0.38.0",
     "marked": "~0.2.9",
     "mongoose": "~3.6.20",
-    "underscore.string": "~2.3.3"
+    "underscore.string": "~2.3.3",
+    "async": "~0.2.9"
   },
   "devDependencies": {
     "coffee-script": "~1.6.3"
