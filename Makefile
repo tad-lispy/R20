@@ -16,7 +16,7 @@ browserify:
 	mkdir -p assets/scripts/app/
 	browserify $(BROWSERIFY) > assets/scripts/app/browserified.js
 
-build: clean init browserify
+build: clean init # browserify
 	./node_modules/.bin/coffee -cm -o lib src
 	./node_modules/.bin/coffee -cm -o assets/scripts/app/ scripts/
 	
