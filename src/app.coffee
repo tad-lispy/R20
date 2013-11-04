@@ -6,8 +6,15 @@ _         = require "underscore"
 _.string  = require "underscore.string"
 mongoose  = require "mongoose"
 
+try
+  config  = require "../config.json"
+catch e
+  console.error "No configuration file in /config.json"
+  process.exit 1
+
 app = do express
 
+app.set key,        value for key, value of config
 app.set "name",     "Radzimy.co"
 app.set "motto",    "Podnosimy świadomość prawną."
 app.set "engine",   "R20"
@@ -29,6 +36,7 @@ app.set "author",
   email   : do author[2]?.trim
   website : do author[3]?.trim
 
+# Propagate some app.settings to res.locals
 app.use (req, res, next) ->
   res.locals.settings = _(app.settings).pick [
     "name"
@@ -44,10 +52,15 @@ app.use (req, res, next) ->
 
   do next
 
+app.use express.basicAuth (username, password) ->
+  _.isEqual { username, password }, app.get "auth"
+
 app.use do express.favicon
 app.use do express.bodyParser
 app.use do express.methodOverride
 app.use do express.logger
+
+
 
 # Statics
 app.use '/js', express.static 'assets/scripts/app'
