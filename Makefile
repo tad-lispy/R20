@@ -13,11 +13,11 @@ init:
 	npm install
 
 browserify:
+	mkdir -p assets/scripts/app/
 	browserify $(BROWSERIFY) > assets/scripts/app/browserified.js
 
 build: clean init browserify
 	./node_modules/.bin/coffee -cm -o lib src
-	mkdir -p assets/scripts/app/
 	./node_modules/.bin/coffee -cm -o assets/scripts/app/ scripts/
 	
 
