@@ -6,7 +6,6 @@ module.exports =
   get: (req, res) ->
     { query } = req.query
     res.locals { query }
-    # Dummy stories
     Story.find (error, stories) ->
       if error then throw error    
       

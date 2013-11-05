@@ -19,9 +19,8 @@ module.exports = renderable ->
           class: "list-group-item-text"
           _.string.prune story.text, 64
       
-    a href: "#", class: "list-group-item", =>
-      h4 class: "list-group-item-heading", "Abc def"
-      p class: "list-group-item-text", "Lorem ipsum Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit."
-    a href: "#", class: "list-group-item", =>
-      h4 class: "list-group-item-heading", "Abc def"
-      p class: "list-group-item-text", "Lorem ipsum Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit."
+    a href: "/story/", class: "list-group-item active", =>
+      h4 class: "list-group-item-heading", ->
+        i class: "icon-star"
+        text " Tell us your stroy."
+      p class: "list-group-item-text", "Share your story with us. We will try to help."
