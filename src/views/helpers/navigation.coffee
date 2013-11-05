@@ -15,6 +15,10 @@ module.exports = renderable ->
       url   : "/about"
       icon  : "group"
     ,
+      title : "Questions"
+      url   : "/question"
+      icon  : "puzzle-piece"
+    ,
       title : "Log in"
       url   : "/authenticate"
       icon  : "ok-circle"
