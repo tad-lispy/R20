@@ -13,11 +13,6 @@ template  = require "./templates/default"
 _         = require "underscore"
 _.string  = require "underscore.string"
 module.exports = renderable (data) ->
-  helper = (name, context) =>
-    fn = require "./helpers/" + name
-    context ?= @
-    fn.call context
-
   template.call @, =>
 
     div class: "panel panel-primary", =>
@@ -67,4 +62,4 @@ module.exports = renderable (data) ->
       
     else div class: "alert alert-info", "Nothing like that found. Sorry :P"
     
-    helper "story-edit-dialog"
+    @helper "story-edit-dialog"

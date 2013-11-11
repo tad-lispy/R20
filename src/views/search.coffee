@@ -11,14 +11,9 @@
 template  = require "./templates/default"
 
 module.exports = renderable (data) ->
-  helper = (name, context) =>
-    fn = require "./helpers/" + name
-    context ?= @
-    fn.call context
-
   template.call @, =>   
-    helper "search-form"
-    helper "search-results"
+    @helper "search-form"
+    @helper "search-results"
 
 
 

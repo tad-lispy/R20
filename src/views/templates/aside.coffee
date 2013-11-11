@@ -10,11 +10,6 @@ stylus  = (code) ->
   style type: "text/css", "\n" + (require "stylus").render code
 
 module.exports = renderable (content) ->  
-  helper = (name, context) =>
-    fn = require "../helpers/" + name
-    context ?= @
-    fn.call context
-
   doctype 5
   html =>
     head =>

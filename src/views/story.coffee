@@ -13,11 +13,6 @@ template  = require "./templates/default"
 marked    = require "marked"
 
 module.exports = renderable (data) ->
-  helper = (name, context) =>
-    fn = require "./helpers/" + name
-    context ?= @
-    fn.call context
-
   template.call @, =>
     @scripts.push "/js/question-typeahead.js"
     @styles.push  "/css/typeahead-bs3-fix.css"
@@ -34,7 +29,7 @@ module.exports = renderable (data) ->
           i class: "icon-edit"
           text " edit this story"
 
-    helper "story-edit-dialog"
+    @helper "story-edit-dialog", method: "PUT"
 
     # The questions
     div class: "panel panel-primary", =>
@@ -90,6 +85,7 @@ module.exports = renderable (data) ->
               action: "/story/#{@story._id}/questions/#{question._id}"
               method: "post"
               =>
+                @helper "csrf"
                 input
                   type: "hidden"
                   name: "_method"

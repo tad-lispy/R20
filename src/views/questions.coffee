@@ -12,11 +12,6 @@
 template  = require "./templates/default"
 
 module.exports = renderable (data) ->
-  helper = (name, context) =>
-    fn = require "./helpers/" + name
-    context ?= @
-    fn.call context
-
   template.call @, =>
 
     div class: "panel panel-primary", =>
@@ -93,6 +88,7 @@ module.exports = renderable (data) ->
               p "You are about to add a new legal question. Are you sure it's not already there?"
 
               form method: "post", =>
+                @helper "csrf"
                 div class: "form-group", =>
                   label for: "text", "New question text:"
                   input

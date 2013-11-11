@@ -9,8 +9,11 @@
   hr, br
   coffeescript
 }         = require "teacup"
+$ = (require "debug") "R20:helpers:story-edit-dialog"
 
-module.exports = renderable ->
+module.exports = renderable (options) ->
+  $ "%j", arguments
+  $ "%j", options
   div
       class   : "modal fade"
       id      : "story-edit-dialog"
@@ -33,6 +36,9 @@ module.exports = renderable ->
             
             div class: "modal-body", =>
               form method: "post",  =>
+                @helper "csrf"
+                if options?.method?
+                  input type: "hidden", name: "_method", value: options.method
                 div class: "form-group", =>
                   label for: "text", "What's the story?", class: "sr-only"
                   textarea

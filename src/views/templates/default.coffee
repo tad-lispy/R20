@@ -11,11 +11,6 @@ stylus  = (code) ->
   style type: "text/css", "\n" + (require "stylus").render code
 
 module.exports = renderable (content) ->  
-  helper = (name, context) =>
-    fn = require "../helpers/" + name
-    context ?= @
-    fn.call context
-
   @scripts  ?= []
   @styles   ?= []
 
@@ -36,8 +31,8 @@ module.exports = renderable (content) ->
       """
         
 
-    body =>
-      header class: "container", =>
+    body data: csrf  : @_csrf, =>
+      header class : "container", =>
         h1 @settings.name 
         h2 @settings.motto
 
@@ -56,7 +51,8 @@ module.exports = renderable (content) ->
             id    : "sidebar"
             class : "con-xs-12 col-sm-3 sidebar-offcanvas"
             =>
-              helper "navigation"
+              @helper "navigation"
+              @helper "profile-box"
 
       footer class: "container", =>
         p =>
@@ -81,6 +77,9 @@ module.exports = renderable (content) ->
         "//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"
         "//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"
         "//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.9.3/typeahead.min.js"
+        "//cdn.jsdelivr.net/jquery.cookie/1.4.0/jquery.cookie.min.js"
+        "https://login.persona.org/include.js"
+        "/js/authenticate.js"
       ].concat @scripts or []
 
       if @styles? then link rel: "stylesheet", href: url for url in @styles

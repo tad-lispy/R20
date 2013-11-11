@@ -13,11 +13,6 @@ template  = require "./templates/default"
 marked    = require "marked"
 
 module.exports = renderable (data) ->
-  helper = (name, context) =>
-    fn = require "./helpers/" + name
-    context ?= @
-    fn.call context
-
   template.call @, =>
     # Related stories
     # div class: "jumbotron", =>
