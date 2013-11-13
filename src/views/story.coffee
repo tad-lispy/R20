@@ -14,8 +14,9 @@ marked    = require "marked"
 
 module.exports = renderable (data) ->
   template.call @, =>
-    @scripts.push "/js/question-typeahead.js"
-    @styles.push  "/css/typeahead-bs3-fix.css"
+    @scripts.push "/js/assign-question.js"
+    # @scripts.push "/js/question-typeahead.js"
+    # @styles.push  "/css/typeahead-bs3-fix.css"
 
     # The story
     div class: "jumbotron", =>
@@ -34,106 +35,107 @@ module.exports = renderable (data) ->
     # The questions
     div class: "panel panel-primary", =>
       div class: "panel-heading", =>
-        h3
+        strong
           class: "panel-title"
           "Legal questions abstracted from this story"
 
+        div class: "btn-group pull-right", =>
+          button
+            type  : "button"
+            class : "btn btn-default btn-xs"
+            data  :
+              toggle: "collapse"
+              target: "#assignment-list"
+            =>
+              i class: "icon-plus-sign"
+
       div class: "panel-body", =>
-        form
-          method: "GET"
+        div 
+          id    : "assignment-list"
+          class : "collapse"
           =>
-            div class: "input-group input-group-lg", =>
-              input
-                id          : "question"
-                type        : "text"
-                name        : "text"
-                class       : "form-control"
-                placeholder : "Type to search or assign a question..."
-                data        :
-                  typeahead   : "question"
-                  target      : "#assign-question-target"
-                  source      : "#assign-question-template"
-                value       : @query
-              div class: "input-group-btn", =>
-                button
-                  class : "btn btn-primary"
-                  type  : "submit"
-                  =>
-                    i class: "icon-search"
-                    text " Search"
-
-        div id: "assign-question-target"
-
-        if @query
-          p "Did you mean:"
-          ul =>
-            (li => a href: "##{n}", "suggestion #{n}") for n in [1..4]
-
-    if @story.questions.length then div class: "list-group", =>
-      for question in @story.questions
-        a href: "/question/#{question._id}", class: "list-group-item", =>
-          span class: "badge", question.answers?.length or 0
-          h4
-            class: "list-group-item-heading"
-            question.text
-          
-          p =>
-            text "Answers by: Kot Filemon, Katiusza"
-            
-          div class: "btn-group", =>
+            # Search form
             form
-              action: "/story/#{@story._id}/questions/#{question._id}"
-              method: "post"
+              data        :
+                search      : "question"
+                target      : "#assign-questions-list"
+                source      : "#assign-question-template"
               =>
-                @helper "csrf"
-                input
-                  type: "hidden"
-                  name: "_method"
-                  value: "DELETE"
-                button
-                  type: "submit"
-                  class: "btn btn-danger btn-xs"
+                div
+                  class: "input-group input-group-sm"
                   =>
-                    i class: "icon-remove"
-                    text " unasign"
+                    input
+                      type        : "text"
+                      name        : "text"
+                      class       : "form-control"
+                      placeholder : "Type to search for a question to assign..."
+                      value       : @query
+                    div class: "input-group-btn", =>
+                      button
+                        class : "btn btn-primary"
+                        type  : "submit"
+                        =>
+                          i class: "icon-search"
+                          text " Search"
+
+            div id: "assign-questions-list", class: "well", =>
+              div class: "hide", id: "assign-question-template", =>
+                form
+                  action: "/story/#{@story._id}/questions"
+                  method: "post"
+                  =>
+                    div class: "form-group", =>
+                      input
+                        type: "hidden"
+                        name: "_id"
+                      @helper "csrf"
+                      
+                      button
+                        type  : "submit"
+                        class : "btn btn-block"
+                        data  : fill: "text"
 
 
-      
-    else div class: "alert alert-info", =>
-      p =>
-        text "No questions abstracted yet. "
-        do br
-        button 
-          class : "btn btn-default"
-          data  :
-            toggle: "modal"
-            target: "#new-question-dialog"
-          =>
-            text "assign some "
-            i class : "icon-plus-sign"
+      if @story.questions.length then div class: "list-group", =>
+        for question in @story.questions
+          a href: "/question/#{question._id}", class: "list-group-item", =>
+            span class: "badge", question.answers?.length or 0
+            h4
+              class: "list-group-item-heading"
+              question.text
+            
+            p =>
+              text "Answers by: Kot Filemon, Katiusza"
+              
+            div class: "btn-group", =>
+              form
+                action: "/story/#{@story._id}/questions/#{question._id}"
+                method: "post"
+                =>
+                  @helper "csrf"
+                  input
+                    type: "hidden"
+                    name: "_method"
+                    value: "DELETE"
+                  button
+                    type: "submit"
+                    class: "btn btn-danger btn-xs"
+                    =>
+                      i class: "icon-remove"
+                      text " unasign"
 
-    div class: "hide", id: "assign-question-template", =>
-      do hr
-      form
-        action: "/story/#{@story._id}/questions"
-        method: "post"
-        =>
-          div class: "input-group input-group-sm", =>
-            input
-              type: "hidden"
-              name: "_id"
-            input
-              name    : "text"
-              type    : "text"
-              class   : "form-control"
-              disabled: true
-
-            span class:  "input-group-btn", =>
-              button
-                class: "btn btn-default sm-col-3"
-                => 
-                  i class: "icon-puzzle-piece"
-                  text " assign"
+      else div class: "alert alert-info", =>
+        p =>
+          text "No questions abstracted yet. "
+          do br
+          button 
+            class : "btn btn-default"
+            data  :
+              toggle: "modal"
+              target: "#new-question-dialog"
+            =>
+              text "assign some "
+              i class : "icon-plus-sign"
 
     div
       class   : "modal fade"

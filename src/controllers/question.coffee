@@ -1,5 +1,6 @@
 # Question controller
 
+async     = require "async"
 _         = require "underscore"
 Story     = require "../models/Story"
 Question  = require "../models/Question"
@@ -12,7 +13,6 @@ module.exports =
       query = text: new RegExp req.query.text, "i"
       res.locals query: req.query.text
 
-    console.log query
     Question.find query, (error, questions) ->
       if error then throw error
       if (req.accepts ["json", "html"]) is "json"
@@ -37,18 +37,28 @@ module.exports =
   ":id" :
     # Single question
     get : (req, res) ->
-      Question.findById(req.params.id)
-        .exec (error, question) ->
+      async.parallel
+        question: (done) ->
+          Question.findById(req.params.id)
+            .exec (error, question) ->
+              if error then return done error
+              question.findStories (error, stories) ->
+                if error then return done error
+                done null, _.extend question.toObject(), { stories }
+        
+        suggestions: (done) ->
+          Question.find (error, questions) ->
+            if error then return done error
+            done null, { questions }
+
+        (error, data) ->
           if error then throw error
-          question.findStories (error, stories) ->
-            if error then throw error
-            console.dir stories
-            question = _.extend question.toObject(), { stories }
-            if (req.accepts ["json", "html"]) is "json"
-              res.json question
-            else
-              template = require "../views/question"
-              res.locals { question }
-              res.send template.call res.locals
+          console.dir data
+          if (req.accepts ["json", "html"]) is "json"
+            res.json data
+          else
+            template = require "../views/question"
+            res.locals data
+            res.send template.call res.locals
 
 

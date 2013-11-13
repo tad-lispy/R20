@@ -4,7 +4,7 @@
   title, meta, link, script, style
   header, main, footer, main, aside, div
   h1, h2, p
-  a, i
+  a, i, small
   br, wbr
 }       = require "teacup"
 stylus  = (code) ->
@@ -55,7 +55,7 @@ module.exports = renderable (content) ->
               @helper "profile-box"
 
       footer class: "container", =>
-        p =>
+        small =>
           i class: "icon-bolt"
           text " powered by "
           a

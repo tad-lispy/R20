@@ -10,13 +10,18 @@ module.exports = renderable ->
     url   : "/"
     icon  : "home"
   ,
-    title : "About"
-    url   : "/about"
-    icon  : "group"
+    title : "Stories"
+    url   : "/story"
+    icon  : "comment"
   ,
     title : "Questions"
     url   : "/question"
     icon  : "puzzle-piece"
+  ,
+    title : "About"
+    url   : "/about"
+    icon  : "group"
+
   ]
 
   nav class: "well sidebar-nav", =>

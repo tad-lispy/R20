@@ -112,6 +112,11 @@ module.exports =
           Story.findByIdAndUpdate req.params.id,
             $pull: questions: req.params.qid
             (error, story) ->
+              if not story
+                if (req.accepts ["json", "html"]) is "json"
+                  res.json error: "No such story"
+                else res.send "Error: No such story"
+                
               if (req.accepts ["json", "html"]) is "json"
                 res.json story
               else res.redirect "/story/#{story._id}"
