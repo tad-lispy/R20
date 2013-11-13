@@ -57,9 +57,14 @@ module.exports = renderable (content) ->
       footer class: "container", =>
         p =>
           i class: "icon-bolt"
-          text " powered by #{@settings.engine} V. #{@settings.version}. "
+          text " powered by "
+          a
+            href  : @settings.engine.repo
+            target: "_blank"
+            @settings.engine.name
+          text " v. #{@settings.engine.version}. "
           do wbr
-          text "#{@settings.engine} is "
+          text "#{@settings.engine.name} is "
           a 
             href: "/license",
             "a free software"
@@ -67,10 +72,7 @@ module.exports = renderable (content) ->
           a href: @settings.author?.website, @settings.author?.name
           text ". "
           do wbr
-          a
-            href: @settings.repo
-            "Fork it here"
-          text ". Thank you :)"
+          text "Thank you :)"
 
       # views and controllers can set @styles and @scripts to be appended here
       script type: "text/javascript", src: url for url in [
