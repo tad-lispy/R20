@@ -4,6 +4,9 @@ $ ->
     collection  = element.data "search"
     url         = "/#{collection}"
 
+    # Make sure  submit is enabled
+    element.find("[type='submit']").prop "disabled", false
+
     if (element.data "target") and (element.data "source")
       source = $ element.data "source"
       target = $ element.data "target"

@@ -72,8 +72,9 @@ module.exports = renderable (data) ->
                       value       : @query
                     div class: "input-group-btn", =>
                       button
-                        class : "btn btn-primary"
-                        type  : "submit"
+                        class   : "btn btn-primary"
+                        type    : "submit"
+                        disabled: true
                         =>
                           i class: "icon-search"
                           text " Search"
@@ -91,9 +92,9 @@ module.exports = renderable (data) ->
                       @helper "csrf"
                       
                       button
-                        type  : "submit"
-                        class : "btn btn-block"
-                        data  : fill: "text"
+                        type    : "submit"
+                        class   : "btn btn-block"
+                        data    : fill: "text"
 
 
       if @story.questions.length then div class: "list-group", =>
