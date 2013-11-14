@@ -49,21 +49,21 @@ module.exports = renderable (data) ->
             =>
               i class: "icon-plus-sign"
 
-      div class: "panel-body", =>
-        div 
-          id    : "assignment-list"
-          class : "collapse"
-          =>
+      div 
+        class : "panel-body collapse"
+        id    : "assignment-list"
+        =>
+          div class: "well", =>
             # Search form
             form
+
               data        :
                 search      : "question"
                 target      : "#assign-questions-list"
                 source      : "#assign-question-template"
               =>
-                div
-                  class: "input-group input-group-sm"
-                  =>
+                div class: "form-group", =>
+                  div class: "input-group input-group-sm", =>
                     input
                       type        : "text"
                       name        : "text"
@@ -79,7 +79,7 @@ module.exports = renderable (data) ->
                           i class: "icon-search"
                           text " Search"
 
-            div id: "assign-questions-list", class: "well", =>
+            div id: "assign-questions-list", =>
               div class: "hide", id: "assign-question-template", =>
                 form
                   action: "/story/#{@story._id}/questions"
@@ -95,6 +95,21 @@ module.exports = renderable (data) ->
                         type    : "submit"
                         class   : "btn btn-block"
                         data    : fill: "text"
+
+            div class: "form-group", =>
+              button
+                type    : "button"
+                class   : "btn btn-block btn-primary"
+                data    :
+                  toggle  : "modal"
+                  target  : "#question-edit-dialog"
+                =>
+                  i class: "icon-star"
+                  text " Add a brand new question"
+
+            @helper "question-edit-dialog",
+              action: "/question/"
+              # TODO: after submission redirect back to this page!
 
 
       if @story.questions.length then div class: "list-group", =>

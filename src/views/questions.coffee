@@ -44,7 +44,7 @@ module.exports = renderable (data) ->
                   class: "btn btn-default"
                   data:
                     toggle: "modal"
-                    target: "#new-question-dialog"
+                    target: "#question-edit-dialog"
                   =>
                     i class: "icon-plus-sign-alt"
                     text " Add"
@@ -60,41 +60,6 @@ module.exports = renderable (data) ->
           
           p "Answers by: Kot Filemon, Katiusza"
       
-    else div class: "alert alert-info", "Nothing like that found. Sorry :P"
-        
+    else div class: "alert alert-info", "Nothing like that found. Sorry :P"    
     
-    div
-      # TODO: a helper
-      class   : "modal modal-primary fade"
-      id      : "new-question-dialog"
-      tabindex: -1
-      role    : "dialog"
-      =>
-        div class: "modal-dialog", =>
-          div class: "modal-content", =>
-            
-            div class: "modal-header", =>
-              button
-                type  : "button"
-                class :"close"
-                data:
-                  dismiss: "modal"
-                aria:
-                  hidden: true
-                -> i class: "icon-remove"
-              h4 "A brand new question?"
-            
-            div class: "modal-body", =>
-              p "You are about to add a new legal question. Are you sure it's not already there?"
-
-              form method: "post", =>
-                @helper "csrf"
-                div class: "form-group", =>
-                  label for: "text", "New question text:"
-                  input
-                    type        : "text"
-                    name        : "text"
-                    class       : "form-control"
-                    placeholder : "Enter the text of a new question..."
-
-
+    @helper "question-edit-dialog"

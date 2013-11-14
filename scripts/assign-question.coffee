@@ -26,3 +26,5 @@ $ ->
 
             console.log item
             target.append item.removeClass "hide"
+
+      do element.submit
