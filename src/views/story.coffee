@@ -11,6 +11,7 @@
 }         = require "teacup"
 template  = require "./templates/default"
 marked    = require "marked"
+moment    = require "moment"
 
 module.exports = renderable (data) ->
   template.call @, =>
@@ -18,28 +19,48 @@ module.exports = renderable (data) ->
     # @scripts.push "/js/question-typeahead.js"
     # @styles.push  "/css/typeahead-bs3-fix.css"
 
+    if @draft? then div class: "alert alert-info", =>
+      text "This is a draft proposed #{moment(@draft._id.getTimestamp()).fromNow()} by #{@draft.meta.author}."
+
     # The story
     div class: "jumbotron", =>
       raw marked @story.text
-      if @story.isNew
-        button
-          class: "btn btn-default pull-right"
-          data:
-            toggle: "modal"
-            target: "#story-drafts-dialog"
-          =>
-            i class: "icon-folder-close"
-            text " see drafts"
 
-      if not @story.isNew or @story.isDraft
-        button
-          class: "btn btn-default pull-right"
-          data:
-            toggle: "modal"
-            target: "#story-edit-dialog"
-          =>
-            i class: "icon-edit"
-            text " edit this story"
+      form
+        action: "/story/#{@story._id}/"
+        method: "POST"
+        =>
+          input type: "hidden", name: "_method",  value: "PUT"
+          @helper "csrf"
+          input type: "hidden", name: "draft",    value: @draft._id
+    
+          div class: "btn-group pull-right", =>
+            button
+              class: "btn btn-default"
+              data:
+                toggle: "modal"
+                target: "#story-drafts-dialog"
+              =>
+                i class: "icon-folder-close"
+                text " see drafts"
+
+            button
+              class: "btn btn-default"
+              data:
+                toggle: "modal"
+                target: "#story-edit-dialog"
+              =>
+                i class: "icon-edit"
+                text " edit"
+
+            if @draft? then button
+              class: "btn btn-success pull-right"
+              type : "submit"
+              =>
+                i class: "icon-check-sign"
+                text " apply this draft"
+
+
 
     @helper "story-edit-dialog", method: "PUT", action: "/story/#{@story._id}"
     @helper "story-drafts-dialog"

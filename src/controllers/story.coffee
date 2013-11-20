@@ -99,44 +99,112 @@ module.exports =
           res.send template.call res.locals
 
     put: (req, res) ->
-      # Update a single story
-      Story.findById req.params.id, (error, story) =>
-          if error      then throw error
-          if not story  then return res.send "I'm sorry, but I don't know this story :("
+      $ = $.narrow "single.put"
+      # Apply a draft or save a new draft
+      if req.body._draft? then async.parallel
+        draft: (done) ->
+          draft = Entry.find
+            action: "draft"
+            _id   : req.body.draft
+            (error, draft) ->
+              if error then return done error
+              if not draft then return done Error "Draft not found"
+              done null, draft
 
-          _(story).extend _(req.body).pick [
-            "text"
-          ]
-
-          story.storeVersion author: req.session.email, (error, entry) ->
-            $ = $.narrow "storeVersion"
-            if error then throw error
-
-            $ "New version stored: %j", story
-            if (req.accepts ["json", "html"]) is "json"
-              res.json story.toJSON()
+        story: (done) -> Story.findById req.params.id, done
+        (error, result) ->
+          if error 
+            if error.message is "Draft not found"
+              if (req.accepts ["json", "html"]) is "json"
+                req.json 409, error: "Draft #{req.body.draft} not found."
+              else
+                console.dir error
+                res.redirect "/"
+            else throw error # Different error
+          
+          { story, draft } = result
+          if not story then story = new Story draft.data
+          
+          story.applyDraft draft, (error, story) ->
+          if (req.accepts ["json", "html"]) is "json" then req.json story.toJSON()
+          else res.redirect "/story/#{story._id}"
+      
+      # Save a new draft
+      else async.waterfall [
+        (done) ->
+          $ "Looking for story %s", req.params.id
+          Story.findById req.params.id, (error, story) ->
+            $ "Found: %j", story
+            if error then return done error
+            if story then story = _(story).extend _(req.body).pick [
+              "text"
+            ]
             else
-              res.redirect "/story/#{story._id}"
+              $ "Making up virtual story"
+              story = new Story
+                _id : req.params.id
+                text: req.body.text
+
+            $ "Callback with story %j", story
+            done null, story
+        (story, done) ->
+          console.dir story
+          story.saveDraft author: req.session.email, (error, draft) ->
+            $ = $.narrow "saveDraft"
+            if error then throw error
+            $ "New version stored: %j", story
+            done null, story
+        ], (error, story) ->
+          if error then throw error
+
+          if (req.accepts ["json", "html"]) is "json"
+            res.json story.toJSON()
+          else
+            res.redirect "/story/#{story._id}"
 
     draft:
       ":draft_id":
         get: (req, res) ->
           $ = $.narrow "single:draft:single"
-          Entry.findById req.params.draft_id, (error, entry) ->
-            if error then throw error
-            $ "Draft entry is %j", entry
-            if not entry or entry.action isnt "draft" or not entry.data?._id?.equals req.params.id
-              if (req.accepts ["json", "html"]) is "json" then return res.json 404, error: 404
-              else return res.send 404, "No such draft."
 
-            if (req.accepts ["json", "html"]) is "json" then res.json entry.toJSON()
+          async.waterfall [
+            (done) ->
+              Entry.findById req.params.draft_id, (error, entry) ->
+                if error then throw error
+                $ "Draft entry is %j", entry
+                if not entry or
+                  entry.action isnt "draft" or
+                  not entry.data?._id?.equals req.params.id 
+                    return done error "Not found"
+
+                return done null, entry
+
+            (draft, done) ->
+              story = new Story draft.data
+              done null, draft, story
+
+            (draft, story, done) ->
+              story.findDrafts (error, drafts) ->
+                if error then return done error
+
+                $ "Drafts are %j", drafts
+                done null, draft, story, drafts
+          ], (error, draft, story, drafts) ->
+            if error
+              if error.message is "Not found"
+                if (req.accepts ["json", "html"]) is "json"
+                  return res.json 404, error: 404
+                else
+                  return res.send 404, "I'm sorry, I can't find this draft."
+              else # different error
+                throw error 
+            
+            if (req.accepts ["json", "html"]) is "json"
+              res.json draft
             else 
-              story = new Story entry.data
-              res.locals { story }
-              res.locals.story.isDraft = yes
+              res.locals { draft, story, drafts }
               template = require "../views/story"
               res.send template.call res.locals
-
 
     questions:
       # Assign a question to a story

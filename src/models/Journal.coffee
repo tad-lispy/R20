@@ -1,9 +1,10 @@
 # # Journal plugin
 
-debug = require "debug"
-_     = require "underscore"
+debug     = require "debug"
+_         = require "underscore"
+mongoose  = require "mongoose"
 
-Entry = require "./JournalEntry"
+Entry     = require "./JournalEntry"
 
 $ = debug "R20:journal:plugin"
 
@@ -26,6 +27,11 @@ deepOmit = (object, omit) ->
 
 
 plugin = (schema, options) ->
+
+  schema.add
+    "_draft":
+      type: mongoose.Schema.ObjectId
+      ref : "journal.entry"
 
   options = _.defaults options,
     omit  : {}
@@ -66,7 +72,11 @@ plugin = (schema, options) ->
 
       Entry.find query, callback
 
-    applyDraft: (id, meta, callback) -> callback null
+    applyDraft: (id, meta, callback) ->
+      callback null
+      if draft.model isnt schema.modelName or
+        draft.data._id isnt req.params.id then return done Error "Draft doesn't match "
+
 
     saveReference: (path, id, meta, callback) ->
       if not callback and typeof meta is "function" then callback = meta
