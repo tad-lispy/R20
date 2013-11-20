@@ -13,7 +13,6 @@ template  = require "./templates/default"
 marked    = require "marked"
 
 module.exports = renderable (data) ->
-  console.dir @
   template.call @, =>
     @scripts.push "/js/assign-question.js"
     # @scripts.push "/js/question-typeahead.js"
@@ -43,7 +42,7 @@ module.exports = renderable (data) ->
             text " edit this story"
 
     @helper "story-edit-dialog", method: "PUT", action: "/story/#{@story._id}"
-
+    @helper "story-drafts-dialog"
 
     # The questions
     div class: "panel panel-primary", =>

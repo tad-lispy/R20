@@ -20,7 +20,8 @@
     "underscore.string": "~2.3.3",
     "async": "~0.2.9",
     "request": "~2.27.0",
-    "debug": "~0.7.3"
+    "debug": "~0.7.3",
+    "moment": "~2.4.0"
   },
   "devDependencies": {
     "coffee-script": "~1.6.3"

@@ -54,14 +54,15 @@ plugin = (schema, options) ->
         callback error, entry
 
     findDrafts: (query, callback) ->
-      if not callback is undefined and typeof query is "function" 
+      if not callback and typeof query is "function" 
         callback  = query
         query     = {}
       
       query = _.extend query,
-        action: "draft"
-        data  :
-          _id   : @_id
+        action    : "draft"
+        "data._id": @_id
+
+      $ "Looking for drafts wher %j", query
 
       Entry.find query, callback
 

@@ -52,40 +52,51 @@ module.exports =
       # Get a single story
       $ = $.narrow "single:get"
 
-      # filter questions by text
-      if req.query.text?
-        conditions = text: new RegExp req.query.text, "i"
-        res.locals query: req.query.text
+      async.waterfall [
+        (done) ->
+          # filter questions by text
+          if req.query.text?
+            conditions = text: new RegExp req.query.text, "i"
+            res.locals query: req.query.text
 
-      Story
-        .findById(req.params.id)
-        .populate
-          path  : "questions"
-          match : conditions
-        .exec (error, story) =>
-          if error then throw error
+          Story
+            .findById(req.params.id)
+            .populate
+              path  : "questions"
+              match : conditions
+            .exec (error, story) =>
+              if error then return done error
+              if not story then story = new Story
+                text: "*NOT YET SAVED*"
+                _id : req.params.id
 
-          if (req.accepts ["json", "html"]) is "json"
-              res.json story.toJSON() or error: 404
-          else
-            if not story then story = new Story
-              text: "*NOT YET SAVED*"
-              _id : req.params.id
+              done null, story
 
-            # TODO: be smarter - only do it when journal has some entries. + async.parallel
-            res.locals { story }
+        (story, done) -> 
+          story.findDrafts (error, drafts) ->
+            if error then return done error
+            if not drafts.length and story.isNew then return done Error "Not found"
 
-            story.findDrafts (error, drafts) ->
-              if error then throw error
-              $ "Drafts are %j", drafts
-              res.locals.drafts = drafts
+            $ "Drafts are %j", drafts
+            done null, story, drafts
+      ], (error, story, drafts) ->
+        if error
+          if error.message is "Not found"
+            if (req.accepts ["json", "html"]) is "json"
+              return res.json 404, error: 404
+            else
+              return res.send 404, "I'm sorry, I don't know this story."
+          else # different error
+            throw error 
         
-          
-            # if not story
-            #   return res.send 404, "I'm sorry, but I don't know this story :("
 
-              template = require "../views/story"
-              res.send template.call res.locals
+        if (req.accepts ["json", "html"]) is "json"
+          res.json story
+        else 
+          # TODO: be smarter - only do it when journal has some entries. + async.parallel
+          res.locals { story, drafts }
+          template = require "../views/story"
+          res.send template.call res.locals
 
     put: (req, res) ->
       # Update a single story
