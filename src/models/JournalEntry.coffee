@@ -18,9 +18,9 @@ Entry = new mongoose.Schema
     required  : yes
     validate  : (value) -> value in [
       "draft"     # New draft
+      "apply"     # Draft applied
       "remove"    # Document removed
       "reference" # Reference to subdocument proposed
-      "apply"     # Entry (draft or reference) applied
       "drop"      # Drop applied change (only reference ATM)
     ]
 

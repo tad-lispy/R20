@@ -3,6 +3,7 @@
 debug     = require "debug"
 _         = require "underscore"
 mongoose  = require "mongoose"
+async     = require "async"
 
 Entry     = require "./JournalEntry"
 
@@ -73,10 +74,49 @@ plugin = (schema, options) ->
       Entry.find query, callback
 
     applyDraft: (id, meta, callback) ->
-      callback null
-      if draft.model isnt schema.modelName or
-        draft.data._id isnt req.params.id then return done Error "Draft doesn't match "
+      $ = $.narrow "applyDraft"
 
+      if not callback and typeof meta is "function" then callback = meta
+      
+      async.waterfall [
+        (done) =>
+          $ = $.narrow "findDraft"
+          Entry.findById id, (error, draft) ->
+            if error then return done error
+            if not draft or draft.action isnt "draft" then return done Error "Draft not found"
+
+            $ "Draft found: %j", draft
+            done null, draft
+
+        (draft, done) =>
+          $ = $.narrow "applyToDocument"
+          $ "#{draft.model} = #{@constructor.modelName}"
+          $ "#{draft.data._id} = #{@_id}"
+
+          if draft.model isnt @constructor.modelName or
+             not draft.data._id.equals @_id then return done Error "Draft doesn't match document"
+
+          $ "No error!"
+          document = _(@).extend  draft.data
+          document._draft   = draft._id
+          $ "Story applied with draft: %j", document
+          done null, document, draft
+      ], (error, document, draft) =>
+        if error then return callback error
+        document.save (error) ->
+          $ = $.narrow "saveDocument"
+          if error then return callback error
+          entry = new Entry
+            action: "apply"
+            model : document.constructor.modelName
+            data  :
+              _id   : @_id
+              _draft: draft._id
+            meta  : meta
+          entry.save (error) ->
+            $ = $.narrow "saveEntry"
+            if error then callback error
+            callback null, @
 
     saveReference: (path, id, meta, callback) ->
       if not callback and typeof meta is "function" then callback = meta

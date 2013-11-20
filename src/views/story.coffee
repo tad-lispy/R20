@@ -26,39 +26,43 @@ module.exports = renderable (data) ->
     div class: "jumbotron", =>
       raw marked @story.text
 
-      form
+      buttons = renderable =>
+        div class: "btn-group pull-right", =>
+          button
+            class: "btn btn-default"
+            data:
+              toggle: "modal"
+              target: "#story-drafts-dialog"
+            =>
+              i class: "icon-folder-close"
+              text " see drafts"
+
+          button
+            class: "btn btn-default"
+            data:
+              toggle: "modal"
+              target: "#story-edit-dialog"
+            =>
+              i class: "icon-edit"
+              text " edit"
+
+          if @draft? then button
+            class: "btn btn-success pull-right"
+            type : "submit"
+            =>
+              i class: "icon-check-sign"
+              text " apply this draft"
+
+      if @draft? then form
         action: "/story/#{@story._id}/"
         method: "POST"
         =>
           input type: "hidden", name: "_method",  value: "PUT"
           @helper "csrf"
-          input type: "hidden", name: "draft",    value: @draft._id
-    
-          div class: "btn-group pull-right", =>
-            button
-              class: "btn btn-default"
-              data:
-                toggle: "modal"
-                target: "#story-drafts-dialog"
-              =>
-                i class: "icon-folder-close"
-                text " see drafts"
+          input type: "hidden", name: "_draft",    value: @draft._id
+          do buttons
 
-            button
-              class: "btn btn-default"
-              data:
-                toggle: "modal"
-                target: "#story-edit-dialog"
-              =>
-                i class: "icon-edit"
-                text " edit"
-
-            if @draft? then button
-              class: "btn btn-success pull-right"
-              type : "submit"
-              =>
-                i class: "icon-check-sign"
-                text " apply this draft"
+      else do buttons
 
 
 

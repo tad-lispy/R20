@@ -99,35 +99,32 @@ module.exports =
           res.send template.call res.locals
 
     put: (req, res) ->
-      $ = $.narrow "single.put"
+      $ = $.narrow "single:put"
       # Apply a draft or save a new draft
-      if req.body._draft? then async.parallel
-        draft: (done) ->
-          draft = Entry.find
-            action: "draft"
-            _id   : req.body.draft
-            (error, draft) ->
-              if error then return done error
-              if not draft then return done Error "Draft not found"
-              done null, draft
+      if req.body._draft? 
+        $ "Applying draft %s to story %s", req.body._draft, req.params.id
+        
+        Story.findById req.params.id, (error, story) ->
+          if error then throw error # Different error
+          if not story
+            $ "Creating virtual story"
+            story = new Story
+              _id: req.params.id
 
-        story: (done) -> Story.findById req.params.id, done
-        (error, result) ->
-          if error 
-            if error.message is "Draft not found"
-              if (req.accepts ["json", "html"]) is "json"
-                req.json 409, error: "Draft #{req.body.draft} not found."
-              else
-                console.dir error
-                res.redirect "/"
-            else throw error # Different error
-          
-          { story, draft } = result
-          if not story then story = new Story draft.data
-          
-          story.applyDraft draft, (error, story) ->
-          if (req.accepts ["json", "html"]) is "json" then req.json story.toJSON()
-          else res.redirect "/story/#{story._id}"
+          story.applyDraft req.body._draft, author: req.session.email, (error, draft) ->
+            if error
+              $ "There was en error: %s", error.message
+              if error.message is "Draft not found"
+                if (req.accepts ["json", "html"]) is "json"
+                  return req.json 409, error: "Draft #{req.body.draft} not found."
+                else
+                  return res.send 409, "Draft #{req.body.draft} not found."
+              else throw error # different error
+
+            $ "Draft applied"
+
+            if (req.accepts ["json", "html"]) is "json" then req.json story.toJSON()
+            else res.redirect "/story/#{story._id}"
       
       # Save a new draft
       else async.waterfall [
@@ -166,6 +163,7 @@ module.exports =
       ":draft_id":
         get: (req, res) ->
           $ = $.narrow "single:draft:single"
+          $ "Getting single draft"
 
           async.waterfall [
             (done) ->

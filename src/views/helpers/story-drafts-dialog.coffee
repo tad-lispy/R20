@@ -35,9 +35,17 @@ module.exports = renderable (options) ->
               h4 "Drafts of this story."
             
             div class: "modal-body", =>
-              ul =>
+              ul class: "icons-ul", =>
+                $ "Applied draft: %s", @story._draft
+                $ "View draft   : %s", @draft?._id
                 for draft in @drafts
                   li =>
+                    $ "Check: %s", draft._id
+                    if @story._draft?.equals    draft._id  then icon = "ok-circle"
+                    else if @draft?._id?.equals draft._id  then icon = "circle"
+                    else                                        icon = "circle-blank"
+
+                    i class: "icon-li icon-" + icon
                     a href: "/story/#{@story._id}/draft/#{draft._id}", =>
                       text moment(draft._id.getTimestamp()).fromNow()
                       text " by " + draft.meta.author
