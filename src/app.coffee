@@ -44,10 +44,10 @@ do -> # Initial setup
     website : do author[3]?.trim
 
 do -> # Middleware setup
-  $ = debug "R20:setup:middleware"
+  $ = $.narrow "middleware"
 
   app.use (req, res, next) ->
-    $ = debug "R20:middleware:first"
+    $ = $.narrow "first"
     $ "\n\t%s\t%s", req.method, req.url
     do next
 
@@ -75,6 +75,24 @@ do -> # Middleware setup
   app.use do express.bodyParser
   app.use do express.cookieParser
   app.use express.session secret: (app.get "site").secret or "Zdradzę wam dzisiaj potworny sekret. Jestem ciasteczkowym potworem!"
+
+  # Fake login while development
+  # TODO: get rid of it in production!
+  app.use (req, res, next) ->
+    $ = $.narrow "fake-login"
+    if (process.env.NODE_ENV is "development") and (not req.session?.email)
+      $ "doing it!"
+      { whitelist } = app.get "auth"
+      if whitelist 
+        $ "from whitelist"
+        email = _.chain(whitelist).keys().find (e) -> whitelist[e] is "administrator"
+        if email.value() then req.session.email = email.value()
+      else 
+        $ "example one"
+        req.session.email = "admin@example.com"
+
+    do next
+
   app.use (req, res, next) ->
     $ = debug "R20:middleware:session-to-locals"
     $ "Rewriting session data to "

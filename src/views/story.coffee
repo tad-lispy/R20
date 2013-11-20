@@ -13,6 +13,7 @@ template  = require "./templates/default"
 marked    = require "marked"
 
 module.exports = renderable (data) ->
+  console.dir @
   template.call @, =>
     @scripts.push "/js/assign-question.js"
     # @scripts.push "/js/question-typeahead.js"
@@ -21,16 +22,28 @@ module.exports = renderable (data) ->
     # The story
     div class: "jumbotron", =>
       raw marked @story.text
-      button
-        class: "btn btn-default pull-right"
-        data:
-          toggle: "modal"
-          target: "#story-edit-dialog"
-        =>
-          i class: "icon-edit"
-          text " edit this story"
+      if @story.isNew
+        button
+          class: "btn btn-default pull-right"
+          data:
+            toggle: "modal"
+            target: "#story-drafts-dialog"
+          =>
+            i class: "icon-folder-close"
+            text " see drafts"
 
-    @helper "story-edit-dialog", method: "PUT"
+      if not @story.isNew or @story.isDraft
+        button
+          class: "btn btn-default pull-right"
+          data:
+            toggle: "modal"
+            target: "#story-edit-dialog"
+          =>
+            i class: "icon-edit"
+            text " edit this story"
+
+    @helper "story-edit-dialog", method: "PUT", action: "/story/#{@story._id}"
+
 
     # The questions
     div class: "panel panel-primary", =>

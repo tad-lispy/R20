@@ -16,4 +16,6 @@ Story.pre "validate", (done) ->
   @questions = _.unique @questions.map (oid) -> do oid.toString
   do done
 
+Story.plugin (require "./Journal"), omit: questions: true
+
 module.exports = mongoose.model 'Story', Story

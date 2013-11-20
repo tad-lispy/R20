@@ -12,9 +12,6 @@
 $ = (require "debug") "R20:helpers:story-edit-dialog"
 
 module.exports = renderable (options) ->
-  $ "%j", arguments
-  $ "%j", options
-
   div
     class   : "modal fade"
     id      : options?.title or "question-edit-dialog"
