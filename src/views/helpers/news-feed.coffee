@@ -3,9 +3,10 @@
   div, span
   h3, h4, p
   a, i
-} = require "teacup"
-_ = require "underscore"
+}         = require "teacup"
+_         = require "underscore"
 _.string  = require "underscore.string"
+moment    = require "moment"
 
 module.exports = renderable ->
   h4 "What are we up to lately?"
@@ -22,6 +23,23 @@ module.exports = renderable ->
                 p
                   class: "list-group-item-text"
                   _.string.prune entry.data.text, 64
+                p class: "small", moment(entry._id.getTimestamp()).fromNow()
+        
+        when "apply"
+          draft = entry.data._draft
+          switch entry.model
+            when "Story"
+              a href: "/story/#{draft.data._id}", class: "list-group-item", =>
+                h4
+                  class: "list-group-item-heading"
+                  "#{entry.meta.author} applied " + (
+                    if draft.meta.author is entry.meta.author then "his own draft "
+                    else " a draft by #{draft.meta.author}"
+                  ) + "to a story."
+                p
+                  class: "list-group-item-text"
+                  _.string.prune draft.data.text, 64
+                p class: "small", moment(entry._id.getTimestamp()).fromNow()
       
     a 
       href: "#!new-story"
