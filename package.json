@@ -20,7 +20,7 @@
     "underscore.string": "~2.3.3",
     "async": "~0.2.9",
     "request": "~2.27.0",
-    "debug": "~0.7.3",
+    "debug": "git://github.com/lzrski/debug.git#master",
     "moment": "~2.4.0"
   },
   "devDependencies": {
