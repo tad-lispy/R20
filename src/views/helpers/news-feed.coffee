@@ -2,7 +2,7 @@
   renderable, tag, text
   div, span
   h3, h4, p
-  a, i
+  a, i, small
 }         = require "teacup"
 _         = require "underscore"
 _.string  = require "underscore.string"
@@ -17,29 +17,29 @@ module.exports = renderable ->
           switch entry.model 
             when "Story"
               a href: "/story/#{entry.data._id}/draft/#{entry._id}", class: "list-group-item", =>
-                h4
-                  class: "list-group-item-heading"
-                  "#{entry.meta.author} wrote a draft for a story."
+                h4 class: "list-group-item-heading", =>
+                  i class: "icon-file-text", " "
+                  text "#{entry.meta.author} wrote a draft for a story."
                 p
                   class: "list-group-item-text"
                   _.string.prune entry.data.text, 64
-                p class: "small", moment(entry._id.getTimestamp()).fromNow()
+                p => small class: "pull-right", moment(entry._id.getTimestamp()).fromNow()
         
         when "apply"
           draft = entry.data._draft
           switch entry.model
             when "Story"
               a href: "/story/#{draft.data._id}", class: "list-group-item", =>
-                h4
-                  class: "list-group-item-heading"
-                  "#{entry.meta.author} applied " + (
+                h4 class: "list-group-item-heading", =>
+                  i class: "icon-ok-sign", " "
+                  text "#{entry.meta.author} applied " + (
                     if draft.meta.author is entry.meta.author then "his own draft "
                     else " a draft by #{draft.meta.author}"
                   ) + "to a story."
                 p
                   class: "list-group-item-text"
                   _.string.prune draft.data.text, 64
-                p class: "small", moment(entry._id.getTimestamp()).fromNow()
+                p => small class: "pull-right", moment(entry._id.getTimestamp()).fromNow()
       
     a 
       href: "#!new-story"

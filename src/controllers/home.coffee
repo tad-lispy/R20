@@ -17,9 +17,7 @@ module.exports =
       .populate("data._draft")
       .exec (error, entries) ->
         $ = $.narrow "find_entries"
-        if error then throw error    
-
-        $ "Entries are: %j", entries
+        if error then throw error
         
         res.locals { entries }
         

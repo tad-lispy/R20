@@ -12,6 +12,8 @@
 template  = require "./templates/default"
 marked    = require "marked"
 moment    = require "moment"
+debug     = require "debug"
+$         = debug "R20:views:story"
 
 module.exports = renderable (data) ->
   template.call @, =>
@@ -20,7 +22,11 @@ module.exports = renderable (data) ->
     # @styles.push  "/css/typeahead-bs3-fix.css"
 
     if @draft? then div class: "alert alert-info", =>
-      text "This is a draft proposed #{moment(@draft._id.getTimestamp()).fromNow()} by #{@draft.meta.author}."
+      text "This is a draft proposed #{moment(@draft._id.getTimestamp()).fromNow()} by #{@draft.meta.author}. "
+
+      $ "Story is %j", @story
+      
+      a href: "/story/#{@story._id}/", "See actual story"
 
     # The story
     div class: "jumbotron", =>
