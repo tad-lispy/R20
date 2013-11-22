@@ -30,12 +30,40 @@ module.exports = renderable (data) ->
 
     # The story
     div class: "jumbotron", =>
-      raw marked @story.text
+      if @draft
+        raw marked @story.text
 
-      buttons = renderable =>
+        form
+          action: "/story/#{@story._id}/"
+          method: "POST"
+          =>
+            input type: "hidden", name: "_method",  value: "PUT"
+            @helper "csrf"
+            input type: "hidden", name: "_draft",    value: @draft._id
+            
+            div class: "btn-group pull-right", =>
+              button
+                class: "btn btn-success"
+                type : "submit"
+                =>
+                  i class: "icon-check-sign"
+                  text " apply this draft"
+
+              @helper "dropdown", [
+                "edit-story"
+                "show-drafts"
+              ]
+
+
+
+      else if @story.isNew 
+        p class: "text-muted", =>
+          i class: "icon-info-sign"
+          text " Not published yet "
+
         div class: "btn-group pull-right", =>
           button
-            class: "btn btn-default"
+            class: "btn btn-primary"
             data:
               toggle: "modal"
               target: "#story-drafts-dialog"
@@ -43,6 +71,10 @@ module.exports = renderable (data) ->
               i class: "icon-folder-close"
               text " see drafts"
 
+      else 
+        raw marked @story.text
+
+        div class: "btn-group pull-right", =>
           button
             class: "btn btn-default"
             data:
@@ -50,172 +82,159 @@ module.exports = renderable (data) ->
               target: "#story-edit-dialog"
             =>
               i class: "icon-edit"
-              text " edit"
+              text " make changes"
 
-          if @draft? then button
-            class: "btn btn-success pull-right"
-            type : "submit"
-            =>
-              i class: "icon-check-sign"
-              text " apply this draft"
-
-      if @draft? then form
-        action: "/story/#{@story._id}/"
-        method: "POST"
-        =>
-          input type: "hidden", name: "_method",  value: "PUT"
-          @helper "csrf"
-          input type: "hidden", name: "_draft",    value: @draft._id
-          do buttons
-
-      else do buttons
-
-
+          @helper "dropdown", [
+            "show-drafts"
+            "drop-story"
+          ]
 
     @helper "story-edit-dialog", method: "PUT", action: "/story/#{@story._id}"
     @helper "story-drafts-dialog"
 
-    # The questions
-    div class: "panel panel-primary", =>
-      div class: "panel-heading", =>
-        strong
-          class: "panel-title"
-          "Legal questions abstracted from this story"
+    if not @story.isNew and not @draft
+      # The questions
+      div class: "panel panel-primary", =>
+        div class: "panel-heading", =>
+          strong
+            class: "panel-title"
+            "Legal questions abstracted from this story"
 
-        div class: "btn-group pull-right", =>
-          button
-            type  : "button"
-            class : "btn btn-default btn-xs"
+          div class: "btn-group pull-right", =>
+            button
+              type  : "button"
+              class : "btn btn-default btn-xs"
+              data  :
+                toggle: "collapse"
+                target: "#assignment-list"
+              =>
+                i class: "icon-plus-sign"
+
+        div 
+          class : "panel-body collapse"
+          id    : "assignment-list"
+          =>
+            div class: "well", =>
+              # Search form
+              form
+
+                data        :
+                  search      : "question"
+                  target      : "#assign-questions-list"
+                  source      : "#assign-question-template"
+                =>
+                  div class: "form-group", =>
+                    div class: "input-group input-group-sm", =>
+                      input
+                        type        : "text"
+                        name        : "text"
+                        class       : "form-control"
+                        placeholder : "Type to search for a question to assign..."
+                        value       : @query
+                      div class: "input-group-btn", =>
+                        button
+                          class   : "btn btn-primary"
+                          type    : "submit"
+                          disabled: true
+                          =>
+                            i class: "icon-search"
+                            text " Search"
+
+              div id: "assign-questions-list", =>
+                div class: "hide", id: "assign-question-template", =>
+                  form
+                    action: "/story/#{@story._id}/questions"
+                    method: "post"
+                    =>
+                      div class: "form-group", =>
+                        input
+                          type: "hidden"
+                          name: "_id"
+                        @helper "csrf"
+                        
+                        button
+                          type    : "submit"
+                          class   : "btn btn-block"
+                          data    : fill: "text"
+
+              div class: "form-group", =>
+                button
+                  type    : "button"
+                  class   : "btn btn-block btn-primary"
+                  data    :
+                    toggle  : "modal"
+                    target  : "#question-edit-dialog"
+                  =>
+                    i class: "icon-star"
+                    text " Add a brand new question"
+
+              @helper "question-edit-dialog",
+                action: "/question/"
+                # TODO: after submission redirect back to this page!
+
+
+        div class: "list-group", =>
+          if @story.questions.length
+            for question in @story.questions
+              a href: "/question/#{question._id}", class: "list-group-item", =>
+                span class: "badge", question.answers?.length or 0
+                h4
+                  class: "list-group-item-heading"
+                  question.text
+                
+                p =>
+                  text "Answers by: Kot Filemon, Katiusza"
+                  
+                div class: "btn-group", =>
+                  form
+                    action: "/story/#{@story._id}/questions/#{question._id}"
+                    method: "post"
+                    =>
+                      @helper "csrf"
+                      input
+                        type: "hidden"
+                        name: "_method"
+                        value: "DELETE"
+                      button
+                        type: "submit"
+                        class: "btn btn-danger btn-xs"
+                        =>
+                          i class: "icon-remove"
+                          text " unasign"
+
+          else a
+            href: "#assign-question"
+            class: "list-group-item"
             data  :
               toggle: "collapse"
               target: "#assignment-list"
             =>
-              i class: "icon-plus-sign"
+              h4 class: "text-muted", =>
+                text " No questions abstracted yet. "
+              p class: "text-muted", =>
+                i class: "icon-plus-sign"
+                text " Do it now!"
 
-      div 
-        class : "panel-body collapse"
-        id    : "assignment-list"
+      div
+        class   : "modal fade"
+        id      : "new-question-dialog"
+        tabindex: -1
+        role    : "dialog"
         =>
-          div class: "well", =>
-            # Search form
-            form
-
-              data        :
-                search      : "question"
-                target      : "#assign-questions-list"
-                source      : "#assign-question-template"
-              =>
-                div class: "form-group", =>
-                  div class: "input-group input-group-sm", =>
-                    input
-                      type        : "text"
-                      name        : "text"
-                      class       : "form-control"
-                      placeholder : "Type to search for a question to assign..."
-                      value       : @query
-                    div class: "input-group-btn", =>
-                      button
-                        class   : "btn btn-primary"
-                        type    : "submit"
-                        disabled: true
-                        =>
-                          i class: "icon-search"
-                          text " Search"
-
-            div id: "assign-questions-list", =>
-              div class: "hide", id: "assign-question-template", =>
-                form
-                  action: "/story/#{@story._id}/questions"
-                  method: "post"
-                  =>
-                    div class: "form-group", =>
-                      input
-                        type: "hidden"
-                        name: "_id"
-                      @helper "csrf"
-                      
-                      button
-                        type    : "submit"
-                        class   : "btn btn-block"
-                        data    : fill: "text"
-
-            div class: "form-group", =>
-              button
-                type    : "button"
-                class   : "btn btn-block btn-primary"
-                data    :
-                  toggle  : "modal"
-                  target  : "#question-edit-dialog"
-                =>
-                  i class: "icon-star"
-                  text " Add a brand new question"
-
-            @helper "question-edit-dialog",
-              action: "/question/"
-              # TODO: after submission redirect back to this page!
-
-
-      if @story.questions.length then div class: "list-group", =>
-        for question in @story.questions
-          a href: "/question/#{question._id}", class: "list-group-item", =>
-            span class: "badge", question.answers?.length or 0
-            h4
-              class: "list-group-item-heading"
-              question.text
-            
-            p =>
-              text "Answers by: Kot Filemon, Katiusza"
+          div class: "modal-dialog", =>
+            div class: "modal-content", =>
               
-            div class: "btn-group", =>
-              form
-                action: "/story/#{@story._id}/questions/#{question._id}"
-                method: "post"
-                =>
-                  @helper "csrf"
-                  input
-                    type: "hidden"
-                    name: "_method"
-                    value: "DELETE"
-                  button
-                    type: "submit"
-                    class: "btn btn-danger btn-xs"
-                    =>
-                      i class: "icon-remove"
-                      text " unasign"
-
-      else div class: "alert alert-info", =>
-        p =>
-          text "No questions abstracted yet. "
-          do br
-          button 
-            class : "btn btn-default"
-            data  :
-              toggle: "modal"
-              target: "#new-question-dialog"
-            =>
-              text "assign some "
-              i class : "icon-plus-sign"
-
-    div
-      class   : "modal fade"
-      id      : "new-question-dialog"
-      tabindex: -1
-      role    : "dialog"
-      =>
-        div class: "modal-dialog", =>
-          div class: "modal-content", =>
-            
-            div class: "modal-header", =>
-              button
-                type  : "button"
-                class :"close"
-                data:
-                  dismiss: "modal"
-                aria:
-                  hidden: true
-                -> i class: "icon-remove"
-              h4 "A brand new question?"
-            
-            div class: "modal-body", =>
-              p "Add a new question"
+              div class: "modal-header", =>
+                button
+                  type  : "button"
+                  class :"close"
+                  data:
+                    dismiss: "modal"
+                  aria:
+                    hidden: true
+                  -> i class: "icon-remove"
+                h4 "A brand new question?"
+              
+              div class: "modal-body", =>
+                p "Add a new question"
 
