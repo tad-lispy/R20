@@ -91,6 +91,7 @@ module.exports = renderable (data) ->
 
     @helper "story-edit-dialog", method: "PUT", action: "/story/#{@story._id}"
     @helper "story-drafts-dialog"
+    @helper "story-drop-dialog"
 
     if not @story.isNew and not @draft
       # The questions
