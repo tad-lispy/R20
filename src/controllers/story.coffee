@@ -14,15 +14,17 @@ module.exports =
   # General
   get    : (req, res) ->
     # Get a list of stories
+    $ = $.root.narrow "list"
+    
     if req.query.text? 
       conditions = text: new RegExp req.query.text, "i"
       res.locals query: req.query.text
 
     Story
       .find(conditions)
-      .populate
-        path  : "questions"
-        select: "_id text"  
+      # .populate
+      #   path  : "questions"
+      #   select: "_id text"  
       .exec (error, stories) ->
         if error then throw error
         if (req.accepts ["json", "html"]) is "json"
@@ -34,27 +36,31 @@ module.exports =
 
   post    : (req, res) ->
     # New story
+    $ = $.root.narrow "new"
+
     story = new Story _.pick req.body, ["text"]
     story.saveDraft
       author: req.session.email
       (error, entry) ->
+        $ = $.narrow "draft_saved"
         if error then throw error
         
         if (req.accepts ["json", "html"]) is "json"
           res.json story.toJSON()
         else
-          res.redirect "/story/#{story._id}"
+          res.redirect "/story/#{story._id}/draft/#{entry._id}"
 
 
   ":id" :
-    # Single
     get   : (req, res) ->
       # Get a single story
-      $ = $.narrow "single:get"
+      $ = $.root.narrow "single"
 
       async.waterfall [
         (done) ->
-          # filter questions by text
+          # Find a story or make a virtual
+          $ = $.narrow "find"
+
           if req.query.text?
             conditions = text: new RegExp req.query.text, "i"
             res.locals query: req.query.text
@@ -73,19 +79,27 @@ module.exports =
               done null, story
 
         (story, done) -> 
+          # Find drafts
+          $ = $.narrow "find_drafts"
+
           story.findDrafts (error, drafts) ->
             if error then return done error
             if not drafts.length and story.isNew then return done Error "Not found"
 
-            $ "Drafts are %j", drafts
             done null, story, drafts
+
       ], (error, story, drafts) ->
+        # Send results
+        $ = $.narrow "send"
+
         if error
           if error.message is "Not found"
+            $ "Not found (no story and no drafts)"
             if (req.accepts ["json", "html"]) is "json"
               return res.json 404, error: 404
             else
               return res.send 404, "I'm sorry, I don't know this story."
+
           else # different error
             throw error 
         
@@ -93,36 +107,54 @@ module.exports =
         if (req.accepts ["json", "html"]) is "json"
           res.json story
         else 
-          # TODO: be smarter - only do it when journal has some entries. + async.parallel
           res.locals { story, drafts }
           template = require "../views/story"
           res.send template.call res.locals
 
     put: (req, res) ->
-      $ = $.narrow "single:put"
       # Apply a draft or save a new draft
+      $ = $.root.narrow "update"
+
       if req.body._draft? 
         $ "Applying draft %s to story %s", req.body._draft, req.params.id
         
-        Story.findById req.params.id, (error, story) ->
-          if error then throw error # Different error
-          if not story
-            $ "Creating virtual story"
-            story = new Story
-              _id: req.params.id
+        async.waterfall [
+          (done) ->
+            # Find draft
+            $ = $.narrow "find_draft"
 
-          story.applyDraft req.body._draft, author: req.session.email, (error, draft) ->
+            Entry.findById req.body._draft, (error, draft) ->
+              if error then return done error
+              if not draft then return done Error "Draft not found"
+              if not draft.data._id.equals req.params.id 
+                $ "Draft %j doesn't match story %s", draft, req.params.id
+                return done Error "Draft doesn't match story"
+              done null, draft
+
+          (draft, done) ->
+            # Apply draft
+            draft.apply author: req.session.email, (error, story) ->
+              if error then return done error
+              done null, story
+        ], (error, story) ->
             if error
               $ "There was en error: %s", error.message
-              if error.message is "Draft not found"
-                if (req.accepts ["json", "html"]) is "json"
-                  return req.json 409, error: "Draft #{req.body.draft} not found."
-                else
-                  return res.send 409, "Draft #{req.body.draft} not found."
-              else throw error # different error
+              switch error.message
+                when "Draft not found"
+                  if (req.accepts ["json", "html"]) is "json"
+                    return req.json 409, error: "Draft #{req.body.draft} not found."
+                  else
+                    return res.send 409, "Draft #{req.body.draft} not found."
+                
+                when "Draft doesn't match story"
+                  if (req.accepts ["json", "html"]) is "json"
+                    return req.json 409, error: "Draft #{req.body._draft} doesn't match story #{req.params.id}."
+                  else
+                    return res.send 409, "Draft #{req.body._draft} doesn't match story #{req.params.id}."
+                
+                else throw error # different error
 
             $ "Draft applied"
-
             if (req.accepts ["json", "html"]) is "json" then req.json story.toJSON()
             else res.redirect "/story/#{story._id}"
       
@@ -150,14 +182,14 @@ module.exports =
             $ = $.narrow "saveDraft"
             if error then throw error
             $ "New version stored: %j", story
-            done null, story
-        ], (error, story) ->
+            done null, draft
+        ], (error, draft) ->
           if error then throw error
 
           if (req.accepts ["json", "html"]) is "json"
-            res.json story.toJSON()
+            res.json draft.toJSON()
           else
-            res.redirect "/story/#{story._id}"
+            res.redirect "/story/#{req.params.id}/draft/#{draft._id}"
 
     draft:
       ":draft_id":
