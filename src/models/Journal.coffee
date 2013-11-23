@@ -59,13 +59,12 @@ plugin = (schema, options) ->
       entry.save (error) ->
         callback error, entry
 
-    findDrafts: (query, callback) ->
+    findEntries: (query, callback) ->
       if not callback and typeof query is "function" 
         callback  = query
         query     = {}
       
       query = _.extend query,
-        action    : "draft"
         "data._id": @_id
 
       Entry.find query, callback

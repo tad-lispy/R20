@@ -82,7 +82,7 @@ module.exports =
           # Find drafts
           $ = $.narrow "find_drafts"
 
-          story.findDrafts (error, drafts) ->
+          story.findEntries action: "draft", (error, drafts) ->
             if error then return done error
             if not drafts.length and story.isNew then return done Error "Not found"
 
@@ -184,7 +184,7 @@ module.exports =
             $ "New version stored: %j", story
             done null, draft
         ], (error, draft) ->
-          if error then throw error
+          if error then throw errorstory.findEntries action: "draft", (error, drafts) ->
 
           if (req.accepts ["json", "html"]) is "json"
             res.json draft.toJSON()
@@ -262,7 +262,7 @@ module.exports =
               done null, draft, story
 
             (draft, story, done) ->
-              story.findDrafts (error, drafts) ->
+              story.findEntries action: "draft", (error, drafts) ->
                 if error then return done error
 
                 $ "Drafts are %j", drafts

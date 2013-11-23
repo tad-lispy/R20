@@ -38,7 +38,8 @@ module.exports = renderable (options) ->
               ul class: "icons-ul", =>
                 for draft in @drafts
                   li =>
-                    if @story._draft?.equals    draft._id  then icon = "ok-circle"
+                    if (@story._draft?.equals   draft._id) and 
+                      not @story.isNew                     then icon = "ok-circle" 
                     else if @draft?._id?.equals draft._id  then icon = "circle"
                     else                                        icon = "circle-blank"
 
