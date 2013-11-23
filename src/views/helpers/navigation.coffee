@@ -1,6 +1,6 @@
 {
   renderable, text
-  nav, ul, li,
+  div, nav, ul, li,
   a, i
 } = require "teacup"
 
@@ -24,9 +24,10 @@ module.exports = renderable ->
 
   ]
 
-  nav class: "well sidebar-nav", =>
-    ul class: "nav nav-pills nav-stacked", =>
-      for item in items
-        li class: ("active" if item.url is @url), => a href: "#{item.url}", =>
-          i class: "icon-fixed-width icon-#{item.icon}"
-          text " " + item.title
+  div class: "panel panel-default sidebar-nav", =>
+    nav class: "panel-body", =>
+      ul class: "nav nav-pills nav-stacked", =>
+        for item in items
+          li class: ("active" if item.url is @url), => a href: "#{item.url}", =>
+            i class: "icon-fixed-width icon-#{item.icon}"
+            text " " + item.title

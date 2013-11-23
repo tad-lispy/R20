@@ -14,6 +14,7 @@ module.exports =
     Entry
       .find()
       .sort(_id: -1)
+      .limit(10)
       .populate("data._draft")
       .exec (error, entries) ->
         $ = $.narrow "find_entries"

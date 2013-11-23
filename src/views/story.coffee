@@ -15,6 +15,11 @@ moment    = require "moment"
 debug     = require "debug"
 $         = debug "R20:views:story"
 
+marked.setOptions
+  breaks      : true
+  sanitize    : true
+  smartypants : true
+
 module.exports = renderable (data) ->
   template.call @, =>
     @scripts.push "/js/assign-question.js"
@@ -23,11 +28,8 @@ module.exports = renderable (data) ->
 
     if @draft? then div class: "alert alert-info", =>
       text "This is a draft proposed #{moment(@draft._id.getTimestamp()).fromNow()} by #{@draft.meta.author}. "
-
-      $ "Story is %j", @story
-      
-      a href: "/story/#{@story._id}/", "See actual story"
-
+      a href: "/story/#{@story._id}/", class: "alert-link", "See actual story"
+      text "."
     # The story
     div class: "jumbotron", =>
       if @draft
@@ -69,7 +71,8 @@ module.exports = renderable (data) ->
               target: "#story-drafts-dialog"
             =>
               i class: "icon-folder-close"
-              text " see drafts"
+              text " see drafts "
+              # span class: "badge badge-info", @drafts.length
 
       else 
         raw marked @story.text

@@ -12,6 +12,11 @@
 marked    = require "marked"
 debug     = require "debug"
 
+marked.setOptions
+  breaks      : true
+  sanitize    : true
+  smartypants : true
+
 $         = debug "R20:helpers:story-drop-dialog"
 
 module.exports = renderable (options) ->
@@ -21,19 +26,26 @@ module.exports = renderable (options) ->
       tabindex: -1
       role    : "dialog"
       =>
-        div class: "modal-dialog modal-danger", =>
+        div class: "modal-dialog", =>
           div class: "modal-content", =>
             
-            div class: "modal-header", =>
-              button
-                type  : "button"
-                class :"close"
-                data:
-                  dismiss: "modal"
-                aria:
-                  hidden: true
-                -> i class: "icon-remove"
-              h4 "Drop this story?"
+            div
+              class: "modal-header"
+              style: """                
+                background: hsl(2, 65%, 58%);
+                border-top-right-radius: 3px;
+                border-top-left-radius: 3px;
+              """ # TODO: move to css file
+              =>
+                button
+                  type  : "button"
+                  class :"close"
+                  data:
+                    dismiss: "modal"
+                  aria:
+                    hidden: true
+                  -> i class: "icon-remove"
+                h4 "Drop this story?"
             
             div class: "modal-body", =>
               form

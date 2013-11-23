@@ -1,16 +1,17 @@
 {
   renderable, text
-  nav, ul, li,
-  h4, h5
+  div, nav, ul, li,
+  h5, h6
   a, i
 } = require "teacup"
 
 module.exports = renderable ->
 
-  nav class: "well sidebar-nav", =>
+  div class: "panel panel-default sidebar-nav", =>
+    nav class: "panel-body", =>
       if @session.email?
-        h4 @session.email
-        h5 @session.role
+        h5 @session.email
+        h6 @session.role
         ul class: "nav nav-pills nav-stacked", =>
           li => a href: "#!/logout", title: "Log out", =>
             i class: "icon-fixed-width icon-power-off"

@@ -18,7 +18,7 @@ module.exports = renderable ->
             when "Story"
               a href: "/story/#{entry.data._id}/draft/#{entry._id}", class: "list-group-item", =>
                 h4 class: "list-group-item-heading", =>
-                  i class: "icon-file-text", " "
+                  i class: "icon-edit", " "
                   text "#{entry.meta.author} wrote a draft for a story."
                 p
                   class: "list-group-item-text"
