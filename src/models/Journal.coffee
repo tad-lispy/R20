@@ -29,13 +29,30 @@ deepOmit = (object, omit) ->
 
 plugin = (schema, options) ->
 
+  options = _.defaults options,
+    omit  : {}
+
   schema.add
     "_draft":
       type: mongoose.Schema.ObjectId
       ref : "journal.entry"
 
-  options = _.defaults options,
-    omit  : {}
+
+  schema.statics.findByIdOrCreate = (id, data, callback) ->
+    $ = $.root.narrow "find_by_id_or_create"
+    if (not callback) and (typeof data is "function")
+      callback  = data
+      data      = {}
+    # TODO: ability to return a promise if callback is absent
+
+    data._id = id
+
+
+    @findById id, (error, document) =>
+      if error then return callback error
+      $ = $.narrow "find_by_id"
+      if not document then document = new @ data
+      callback null, document
 
   schema.methods = 
 
@@ -67,7 +84,10 @@ plugin = (schema, options) ->
       query = _.extend query,
         "data._id": @_id
 
-      Entry.find query, callback
+      Entry
+        .find(query)
+        .sort(_id: -1)
+        .exec callback
 
 
     saveReference: (path, id, meta, callback) ->

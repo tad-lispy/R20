@@ -10,7 +10,9 @@
   coffeescript
 }         = require "teacup"
 moment    = require "moment"
+_         = require "underscore"
 debug     = require "debug"
+
 $         = debug "R20:helpers:story-drafts-dialog"
 
 module.exports = renderable (options) ->
@@ -36,7 +38,7 @@ module.exports = renderable (options) ->
             
             div class: "modal-body", =>
               ul class: "icons-ul", =>
-                for draft in @drafts
+                for draft in ( _(@journal).filter (entry) -> entry.action is "draft" )
                   li =>
                     if (@story._draft?.equals   draft._id) and 
                       not @story.isNew                     then icon = "ok-circle" 

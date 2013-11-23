@@ -12,7 +12,7 @@ $ = debug "R20:controllers:story"
 
 module.exports =
   # General
-  get    : (req, res) ->
+  get: (req, res) ->
     # Get a list of stories
     $ = $.root.narrow "list"
     
@@ -34,7 +34,7 @@ module.exports =
           res.locals { stories }
           res.send template.call res.locals
 
-  post    : (req, res) ->
+  post: (req, res) ->
     # New story
     $ = $.root.narrow "new"
 
@@ -59,36 +59,36 @@ module.exports =
       async.waterfall [
         (done) ->
           # Find a story or make a virtual
-          $ = $.narrow "find"
+          $ = $.narrow "find_story"
 
-          if req.query.text?
-            conditions = text: new RegExp req.query.text, "i"
-            res.locals query: req.query.text
+          if req.query.query?
+            conditions = text: new RegExp req.query.query, "i"
+            res.locals query: req.query.query
 
-          Story
-            .findById(req.params.id)
-            .populate
-              path  : "questions"
-              match : conditions
-            .exec (error, story) =>
+
+          Story.findByIdOrCreate req.params.id,
+            text: "**VIRTUAL**: this story is not saved. Some drafts for it exists though."
+            (error, story) ->
               if error then return done error
-              if not story then story = new Story
-                text: "*NOT YET SAVED*"
-                _id : req.params.id
-
-              done null, story
+              story.populate
+                path  : "questions"
+                match : conditions
+                (error, story) ->
+                  if error then return done error
+                  done null, story
+              
 
         (story, done) -> 
-          # Find drafts
-          $ = $.narrow "find_drafts"
+          # Find journal entries
+          $ = $.narrow "find_journal_entries"
 
-          story.findEntries action: "draft", (error, drafts) ->
+          story.findEntries (error, entries) ->
             if error then return done error
-            if not drafts.length and story.isNew then return done Error "Not found"
+            if not entries.length and story.isNew then return done Error "Not found"
 
-            done null, story, drafts
+            done null, story, entries
 
-      ], (error, story, drafts) ->
+      ], (error, story, journal) ->
         # Send results
         $ = $.narrow "send"
 
@@ -102,12 +102,11 @@ module.exports =
 
           else # different error
             throw error 
-        
 
         if (req.accepts ["json", "html"]) is "json"
           res.json story
-        else 
-          res.locals { story, drafts }
+        else
+          res.locals { story, journal }
           template = require "../views/story"
           res.send template.call res.locals
 
@@ -161,30 +160,22 @@ module.exports =
       # Save a new draft
       else async.waterfall [
         (done) ->
-          $ "Looking for story %s", req.params.id
-          Story.findById req.params.id, (error, story) ->
-            $ "Found: %j", story
-            if error then return done error
-            if story then story = _(story).extend _(req.body).pick [
-              "text"
-            ]
-            else
-              $ "Making up virtual story"
-              story = new Story
-                _id : req.params.id
-                text: req.body.text
+          Story.findByIdOrCreate req.params.id,
+            text: "**VIRTUAL**: this story is not saved. Some drafts for it exists though."
+            (error, story) ->
+              if error then return done error
+              _(story).extend _(req.body).pick [
+                "text"
+              ]
+              done null, story
 
-            $ "Callback with story %j", story
-            done null, story
         (story, done) ->
-          console.dir story
           story.saveDraft author: req.session.email, (error, draft) ->
             $ = $.narrow "saveDraft"
             if error then throw error
-            $ "New version stored: %j", story
             done null, draft
         ], (error, draft) ->
-          if error then throw errorstory.findEntries action: "draft", (error, drafts) ->
+          if error then throw error
 
           if (req.accepts ["json", "html"]) is "json"
             res.json draft.toJSON()
@@ -240,16 +231,72 @@ module.exports =
 
 
     draft:
+      get   : (req, res) ->
+        # Get a list of single story's drafts
+        $ = $.root.narrow "single:drafts:list"
+
+        async.waterfall [
+          (done) ->
+            # Find a story or make a virtual
+            $ = $.narrow "find_story"
+
+            Story.findByIdOrCreate req.params.id,
+              text: "**VIRTUAL**: this story is not saved. Some drafts for it exists though."
+              (error, story) ->
+                if error then return done error
+                _(story).extend _(req.body).pick [
+                  "text"
+                ]
+                done null, story
+          (story, done) ->
+            # Find a drafts
+            $ = $.narrow "find_drafts"
+
+            conditions = action: "draft"
+
+            if req.query.query?
+              conditions["data.text"] = new RegExp req.query.query, "i"
+              res.locals query: req.query.text
+
+            $ "conditions are: ", conditions
+
+
+            story.findEntries conditions, (error, drafts) ->
+              if error then return done error
+              if not drafts then return done Error "Not found"
+              done null, drafts
+        ], (error, drafts) ->
+          $ = $.narrow "send"
+
+          if error
+            if error.message is "Not found"
+              $ "Not found (no story and no drafts)"
+              if (req.accepts ["json", "html"]) is "json"
+                return res.json 404, error: 404
+              else
+                return res.send 404, "I'm sorry, I don't know this story."
+
+            else # different error
+              throw error 
+
+          res.json drafts
+
+          # if (req.accepts ["json", "html"]) is "json"
+          #   res.json story
+          # else
+          #   res.locals { story, journal }
+          #   template = require "../views/story"
+          #   res.send template.call res.locals
+
+
       ":draft_id":
         get: (req, res) ->
           $ = $.narrow "single:draft:single"
-          $ "Getting single draft"
 
           async.waterfall [
             (done) ->
               Entry.findById req.params.draft_id, (error, entry) ->
                 if error then throw error
-                $ "Draft entry is %j", entry
                 if not entry or
                   entry.action isnt "draft" or
                   not entry.data?._id?.equals req.params.id 
@@ -265,7 +312,6 @@ module.exports =
               story.findEntries action: "draft", (error, drafts) ->
                 if error then return done error
 
-                $ "Drafts are %j", drafts
                 done null, draft, story, drafts
           ], (error, draft, story, drafts) ->
             if error
