@@ -33,9 +33,9 @@ module.exports = renderable ->
                 h4 class: "list-group-item-heading", =>
                   i class: "icon-ok-sign", " "
                   text "#{entry.meta.author} applied " + (
-                    if draft.meta.author is entry.meta.author then "his own draft "
+                    if draft.meta.author is entry.meta.author then "his own draft"
                     else " a draft by #{draft.meta.author}"
-                  ) + "to a story."
+                  ) + " to a story."
                 p
                   class: "list-group-item-text"
                   _.string.prune draft.data.text, 64
