@@ -79,7 +79,32 @@ plugin = (schema, options) ->
       if not callback and typeof options is "function" then callback = options
       callback null
 
-    dropReference: (id, callback) ->
+    dropReference: (id, callback) -> callback null
+
+    removeDocument: (meta, callback) ->
+      # Remove document from collection while preserving all drafts.
+      # Snapshot of the document will be stored in a journal.
+      $ = $.root.narrow "remove_document"
+
+      entry = new Entry
+        action: "remove"
+        model : @constructor.modelName
+        data  : do @toObject
+        meta  : meta
+
+      entry.save (error) =>
+        if error then return callback error
+
+        @remove (error) ->
+          if error then return entry.remove (entry_error) ->
+            $ "There was en error removing document. We have to remove entry now."
+            if entry_error then throw entry_error # Shit!
+            return callback error
+
+          callback null, entry
+
+
+
 
 
 

@@ -191,6 +191,54 @@ module.exports =
           else
             res.redirect "/story/#{req.params.id}/draft/#{draft._id}"
 
+    delete: (req, res) ->
+      # Delete a single story
+      $ = $.root.narrow "delete"
+
+      async.waterfall [
+        (done) ->
+          # Find a story
+          $ = $.narrow "find"
+
+          Story
+            .findById(req.params.id)
+            .exec (error, story) =>
+              if error then return done error
+              if not story then return done Error "Not found"
+
+              done null, story
+
+        (story, done) -> 
+          # Drop the story
+          $ = $.narrow "drop_story"
+
+          story.removeDocument author: req.session.email, (error, entry) ->
+            if error then return done error
+            
+            done null, entry
+
+      ], (error, entry) ->
+        # Send results
+        $ = $.narrow "send"
+
+        if error
+          if error.message is "Not found"
+            $ "Story not found."
+            if (req.accepts ["json", "html"]) is "json"
+              return res.json 404, error: 404
+            else
+              return res.send 404, "I'm sorry, I don't know this story. Can't drop it."
+
+          else # different error
+            throw error 
+        
+
+        if (req.accepts ["json", "html"]) is "json"
+          res.json entry
+        else 
+          res.redirect "/story/#{req.params.id}"
+
+
     draft:
       ":draft_id":
         get: (req, res) ->

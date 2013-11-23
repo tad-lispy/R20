@@ -41,6 +41,19 @@ module.exports = renderable ->
                   _.string.prune draft.data.text, 64
                 p => small class: "pull-right", moment(entry._id.getTimestamp()).fromNow()
       
+        when "remove"
+          document = entry.data
+          switch entry.model
+            when "Story"
+              a href: "/story/#{document._id}", class: "list-group-item", =>
+                h4 class: "list-group-item-heading", =>
+                  i class: "icon-remove-sign", " "
+                  text "#{entry.meta.author} removed a story."
+                p
+                  class: "list-group-item-text"
+                  _.string.prune document.text, 64
+                p => small class: "pull-right", moment(entry._id.getTimestamp()).fromNow()
+        
     a 
       href: "#!new-story"
       class: "list-group-item active"
