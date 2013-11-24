@@ -54,7 +54,7 @@ plugin = (schema, options) ->
       if not document then document = new @ data
       callback null, document
 
-  schema.methods = 
+  schema.methods = _(schema.methods).extend
 
     saveDraft: (meta, callback) ->
       $ = $.narrow "save_draft"

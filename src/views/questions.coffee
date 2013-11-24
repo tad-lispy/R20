@@ -16,42 +16,29 @@ module.exports = renderable (data) ->
   
   template.call @, =>
   
-    div class: "panel panel-primary", =>
-      div class: "panel-heading", =>
-        h3
-          class: "panel-title"
-          "Legal questions abstracted from reader stories"
+    form
+      method: "GET"
+      =>
+        div class: "input-group input-group-lg", =>
+          input
+            id          : "query"
+            type        : "text"
+            name        : "query"
+            class       : "form-control"
+            placeholder : "Type to search or create new..."
+            value       : @query
+          div class: "input-group-btn", =>
+            button
+              class : "btn btn-primary"
+              type  : "submit"
+              =>
+                i class: "icon-search"
+                text " Search"
 
-      div class: "panel-body", =>
-        form
-          method: "GET"
-          =>
-            div class: "input-group input-group-lg", =>
-              input
-                id          : "question"
-                type        : "text"
-                name        : "text"
-                class       : "form-control"
-                placeholder : "Type to search or create new..."
-                value       : @query
-              div class: "input-group-btn", =>
-                button
-                  class : "btn btn-primary"
-                  type  : "submit"
-                  =>
-                    i class: "icon-search"
-                    text " Search"
+            @helper "dropdown", ["new-question"]
 
-                button
-                  class: "btn btn-default"
-                  data:
-                    toggle: "modal"
-                    target: "#question-edit-dialog"
-                  =>
-                    i class: "icon-plus-sign-alt"
-                    text " Add"
-
-
+    do hr
+    
     if @questions.length then div class: "list-group", =>
       for question in @questions
         a href: "/question/#{question._id}", class: "list-group-item", =>

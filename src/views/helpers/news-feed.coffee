@@ -51,70 +51,91 @@ module.exports = renderable ->
     for entry in @entries
 
       switch entry.model 
-        when "Story"
-
-          switch entry.action
-            when "draft" then item
-              icons   : [ "comment-alt", "plus-sign" ]
-              url     : "/story/#{entry.data._id}/draft/#{entry._id}"
-              body    : "#{entry.meta.author} wrote a draft for a story."
-              excerpt : entry.data.text
-              time    : do entry._id.getTimestamp
-              class   : "info"
         
-            when "apply" 
-              draft = entry.data._draft
-              item 
-                icons   : [ "comment-alt", "ok-circle" ]
-                url     : "/story/#{draft.data._id}/"
-                body    : ->
-                  whose = if draft.meta.author is entry.meta.author
-                    "his own draft"
-                  else
-                    " a draft by #{draft.meta.author}"
-                    
-                  p "#{entry.meta.author} applied #{whose} to a story"
-                excerpt : draft.data.text
-                time    : do entry._id.getTimestamp
-                class   : "success"
-                    
-            when "remove" then item
-              icons   : [ "comment-alt", "remove" ]
-              url     : "/story/#{entry.data._id}/"
-              body    : "#{entry.meta.author} removed a story."
-              excerpt : entry.data.text
+        # Stories related entries
+        # -----------------------
+
+        when "Story" then switch entry.action
+        
+          when "draft" then item
+            icons   : [ "comment-alt", "plus-sign" ]
+            url     : "/story/#{entry.data._id}/draft/#{entry._id}"
+            body    : "#{entry.meta.author} wrote a draft for a story."
+            excerpt : entry.data.text
+            time    : do entry._id.getTimestamp
+            class   : "info"
+      
+          when "apply" 
+            draft = entry.data._draft
+            item 
+              icons   : [ "comment-alt", "ok-circle" ]
+              url     : "/story/#{draft.data._id}/"
+              body    : ->
+                whose = if draft.meta.author is entry.meta.author
+                  "his own draft"
+                else
+                  " a draft by #{draft.meta.author}"
+                  
+                p "#{entry.meta.author} applied #{whose} to a story"
+              excerpt : draft.data.text
               time    : do entry._id.getTimestamp
-              class   : "danger"
-            else item
-              body    : "Something happened to a story"
-              url     : "/story/entry.data._id"
+              class   : "success"
+                  
+          when "remove" then item
+            icons   : [ "comment-alt", "remove" ]
+            url     : "/story/#{entry.data._id}/"
+            body    : "#{entry.meta.author} removed a story."
+            excerpt : entry.data.text
+            time    : do entry._id.getTimestamp
+            class   : "danger"
+          
+          else item
+            body    : "Something (#{entry.action}) happened to a story"
+            url     : "/story/entry.data._id"
+            time    : do entry._id.getTimestamp
+
+
+        # Questions related entries
+        # -------------------------
+
+        when "Question" then switch entry.action
+
+          when "draft" then item
+            icons   : [ "question-sign" ]
+            url     : "/question/#{entry.data._id}/draft/#{entry._id}"
+            body    : "#{entry.meta.author} wrote a new draft for a question."
+            excerpt : entry.data.text
+            time    : do entry._id.getTimestamp
+            class   : "info"
+          
+          when "apply" 
+            draft = entry.data._draft
+            item 
+              icons   : [ "comment-alt", "ok-circle" ]
+              url     : "/story/#{draft.data._id}/"
+              body    : ->
+                whose = if draft.meta.author is entry.meta.author
+                  "his own draft"
+                else
+                  " a draft by #{draft.meta.author}"
+                  
+                p "#{entry.meta.author} applied #{whose} to a story"
+              excerpt : draft.data.text
               time    : do entry._id.getTimestamp
+              class   : "success"
+                  
+          when "remove" then item
+            icons   : [ "comment-alt", "remove" ]
+            url     : "/story/#{entry.data._id}/"
+            body    : "#{entry.meta.author} removed a story."
+            excerpt : entry.data.text
+            time    : do entry._id.getTimestamp
+            class   : "danger"
+          
+          else item
+            body    : "Something (#{entry.action}) happened to a story"
+            url     : "/story/entry.data._id"
+            time    : do entry._id.getTimestamp
 
         else item
           time    : do entry._id.getTimestamp
-
-          # document = entry.data
-          # switch entry.model
-          #   when "Story"
-          #     a href: "/story/#{document._id}", class: "list-group-item", =>
-          #       h4 class: "list-group-item-heading", =>
-          #         i class: "icon-remove-sign", " "
-          #         text "#{entry.meta.author} removed a story."
-          #       p
-          #         class: "list-group-item-text"
-          #         _.string.prune document.text, 64
-          #       p => small class: "pull-right", moment(entry._id.getTimestamp()).fromNow()
-        
-  #   a 
-  #     href: "#!new-story"
-  #     class: "list-group-item active"
-  #     data:
-  #       toggle: "modal"
-  #       target: "#story-edit-dialog"
-  #     =>
-  #       h4 class: "list-group-item-heading", ->
-  #         i class: "icon-star"
-  #         text " Tell us your stroy."
-  #       p class: "list-group-item-text", "Share your story with us. We will try to help."
-
-  # @helper "story-edit-dialog", action: "/story/"

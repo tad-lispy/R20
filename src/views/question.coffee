@@ -14,6 +14,8 @@ template  = require "./templates/default"
 marked    = require "marked"
 
 module.exports = renderable (data) ->
+  @page = title: @question.text
+
   template.call @, =>
     h1 @question.text
     h4 class: "text-muted", "Answers"

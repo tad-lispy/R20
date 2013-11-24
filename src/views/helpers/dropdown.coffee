@@ -42,8 +42,18 @@ module.exports = renderable (items) =>
           toggle: "modal"
           target: "#story-edit-dialog"
         =>
-          i class: "icon-edit"
+          i class: "icon-plus-sign"
           text " tell us a story"
+
+    "new-question": =>
+      a 
+        href: "#edit-question"
+        data:
+          toggle: "modal"
+          target: "#question-edit-dialog"
+        =>
+          i class: "icon-plus-sign"
+          text " add a brand new question"
 
 
   button
