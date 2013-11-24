@@ -47,7 +47,6 @@ item      = renderable (options) =>
     p class: "text-right", => small moment(options.time).fromNow()
 
 module.exports = renderable ->
-  h4 "What are we up to lately?"
   div class: "list-group", =>
     for entry in @entries
 

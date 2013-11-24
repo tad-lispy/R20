@@ -61,6 +61,7 @@ do -> # Middleware setup
       "repo"
       "env"
       "author"
+      "site"
     ]
 
     res.locals.url = req.url

@@ -7,6 +7,10 @@
   a, i, small
   br, wbr
 }       = require "teacup"
+
+debug   = require "debug"
+$       = debug "R20:templates:default"
+
 stylus  = (code) ->
   style type: "text/css", "\n" + (require "stylus").render code
 
@@ -28,15 +32,21 @@ module.exports = renderable (content) ->
       stylus """
         footer
           white-space nowrap
+
+        .page-header
+          h1
+            white-space nowrap
       """
         
 
-    body data: csrf  : @_csrf, =>
-      header class : "container", =>
-        h1 @settings.name 
-        h2 @settings.motto
-
+    body =>
       div class: "container", id: "content", =>
+        header class : "page-header", =>
+          h1 =>
+            text @settings.site.name + " "
+            do wbr
+            small @page_title or @settings.site.motto
+
         div class: "row", =>
           tag "main", class: "col-xs-12 col-sm-9", =>
             # button 

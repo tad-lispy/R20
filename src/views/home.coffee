@@ -11,8 +11,10 @@
 template  = require "./templates/default"
 
 module.exports = renderable (data) ->
-  template.call @, =>   
+
+  template.call @, =>
     @helper "search-form"
+    do hr
     @helper "news-feed"
 
 
