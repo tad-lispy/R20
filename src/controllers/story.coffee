@@ -46,7 +46,7 @@ module.exports =
         if error then throw error
         
         if (req.accepts ["json", "html"]) is "json"
-          res.json story.toJSON()
+          res.json entry.toJSON()
         else
           res.redirect "/story/#{story._id}/draft/#{entry._id}"
 
@@ -263,8 +263,10 @@ module.exports =
 
             story.findEntries conditions, (error, drafts) ->
               if error then return done error
-              if not drafts then return done Error "Not found"
+              if story.isNew and not drafts.length then return done Error "Not found"
+              # TODO: above is true when drafts exist, but conditions are not met. It's not what it suppose to do. It should only be true when there is no story and no drafts at all.
               done null, drafts
+
         ], (error, drafts) ->
           $ = $.narrow "send"
 
@@ -281,6 +283,7 @@ module.exports =
 
           res.json drafts
 
+          # TODO: html output. Do we need it?
           # if (req.accepts ["json", "html"]) is "json"
           #   res.json story
           # else
