@@ -294,10 +294,11 @@ module.exports =
 
       ":draft_id":
         get: (req, res) ->
-          $ = $.narrow "single:draft:single"
+          $ = $.root.narrow "single:draft:single"
 
           async.waterfall [
             (done) ->
+              $ = $.narrow "find_draft"
               Entry.findById req.params.draft_id, (error, entry) ->
                 if error then throw error
                 if not entry or
@@ -308,15 +309,19 @@ module.exports =
                 return done null, entry
 
             (draft, done) ->
+              $ = $.narrow "create_story"
               story = new Story draft.data
               done null, draft, story
 
+
             (draft, story, done) ->
+              $ = $.narrow "find_other_drafts"
               story.findEntries action: "draft", (error, drafts) ->
                 if error then return done error
 
                 done null, draft, story, drafts
           ], (error, draft, story, drafts) ->
+            $ = $.narrow "send"
             if error
               if error.message is "Not found"
                 if (req.accepts ["json", "html"]) is "json"
@@ -325,11 +330,14 @@ module.exports =
                   return res.send 404, "I'm sorry, I can't find this draft."
               else # different error
                 throw error 
+
+            $ "Drafts are: %j", drafts
             
             if (req.accepts ["json", "html"]) is "json"
               res.json draft
             else 
-              res.locals { draft, story, drafts }
+              res.locals { draft, story, journal: drafts }
+
               template = require "../views/story"
               res.send template.call res.locals
 
