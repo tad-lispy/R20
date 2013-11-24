@@ -9,13 +9,8 @@
   hr, br
   coffeescript
 }         = require "teacup"
-marked    = require "marked"
+markdown  = require "./markdown"
 debug     = require "debug"
-
-marked.setOptions
-  breaks      : true
-  sanitize    : true
-  smartypants : true
 
 $         = debug "R20:helpers:story-drop-dialog"
 
@@ -57,7 +52,7 @@ module.exports = renderable (options) ->
                   p "Do you really want to drop this story?"
                   
                   div class: "well", =>
-                    raw marked @story.text
+                    markdown @story.text
                   
                   p "Dropping a story is roughly equivalent to unpublishing it. It can be undone. All drafts will be preserved."
 

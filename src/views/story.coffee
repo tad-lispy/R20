@@ -10,15 +10,10 @@
   coffeescript
 }         = require "teacup"
 template  = require "./templates/default"
-marked    = require "marked"
+markdown  = require "./helpers/markdown"
 moment    = require "moment"
 debug     = require "debug"
 $         = debug "R20:views:story"
-
-marked.setOptions
-  breaks      : true
-  sanitize    : true
-  smartypants : true
 
 module.exports = renderable (data) ->
   template.call @, =>
@@ -33,7 +28,7 @@ module.exports = renderable (data) ->
     # The story
     div class: "jumbotron", =>
       if @draft
-        raw marked @story.text
+        markdown @story.text
 
         form
           action: "/story/#{@story._id}/"
@@ -75,7 +70,7 @@ module.exports = renderable (data) ->
               # span class: "badge badge-info", @drafts.length
 
       else 
-        raw marked @story.text
+        markdown @story.text
 
         div class: "btn-group pull-right", =>
           button
