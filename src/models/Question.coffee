@@ -9,8 +9,9 @@ Question  = new mongoose.Schema
     type      : String
     required  : yes
     unique    : yes
-  answers   : [ Answer ]
+  # answers   : [ Answer ]
 
+# TODO: answers has to be in their own collection and to point to a question.
 Answer    = new mongoose.Schema
   text      :
     type      : String
@@ -20,7 +21,27 @@ Answer    = new mongoose.Schema
     ref       : 'Participant'
     required  : yes
 
-Question.methods.findStories = (callback) ->
-  Story.find questions: @._id, callback
+Question.methods.findStories = (conditions, callback) ->
+  if (not callback) and typeof conditions is "function"
+    callback = conditions
+    conditions = {}
+
+  conditions.questions = @._id
+
+  Story.find conditions, callback
+
+Question.methods.findAnswers = (conditions, callback) ->
+  return callback null, []
+  
+  if (not callback) and typeof conditions is "function"
+    callback = conditions
+    conditions = {}
+
+  conditions.question = @._id
+
+  Answer.find conditions, callback
+
+Question.plugin (require "./Journal"), omit: answers: true
+
 
 module.exports = mongoose.model 'Question', Question

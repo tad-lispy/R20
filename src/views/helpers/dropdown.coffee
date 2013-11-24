@@ -35,6 +35,16 @@ module.exports = renderable (items) =>
           i class: "icon-edit"
           text " make changes"
 
+    "new-story": =>
+      a 
+        href: "#edit-story"
+        data:
+          toggle: "modal"
+          target: "#story-edit-dialog"
+        =>
+          i class: "icon-edit"
+          text " tell us a story"
+
 
   button
     class : "btn btn-default  dropdown-toggle"

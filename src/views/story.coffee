@@ -120,6 +120,7 @@ module.exports = renderable (data) ->
                 target: "#assignment-list"
               =>
                 i class: "icon-plus-sign"
+                text " assign"
 
         div 
           class : "panel-body collapse"

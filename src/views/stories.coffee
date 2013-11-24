@@ -3,7 +3,7 @@
   div, main, aside, nav
   ul, li
   h3, h4, p
-  i, span
+  i, span, strong
   a
   form, button, input, textarea, label
   hr
@@ -15,13 +15,13 @@ _.string  = require "underscore.string"
 module.exports = renderable (data) ->
   template.call @, =>
 
-    div class: "panel panel-primary", =>
-      div class: "panel-heading", =>
-        h3
-          class: "panel-title"
-          "Stories submitted by readers"
+    # div class: "panel panel-primary", =>
+    #   div class: "panel-heading clearfix", =>
+    #     h3
+    #       class: "panel-title"
+    #       "Stories submitted by readers"
 
-      div class: "panel-body", =>
+    #   div class: "panel-body", =>
         form
           method: "GET"
           =>
@@ -40,26 +40,19 @@ module.exports = renderable (data) ->
                   =>
                     i class: "icon-search"
                     text " Search"
+                @helper "dropdown", ["new-story"]
 
-                button
-                  class: "btn btn-default"
-                  data:
-                    toggle: "modal"
-                    target: "#story-edit-dialog"
-                  =>
-                    i class: "icon-plus-sign-alt"
-                    text " Add"
+        do hr
 
-
-    if @stories.length then div class: "list-group", =>
-      for story in @stories
-        a href: "/story/#{story._id}", class: "list-group-item", =>
-          span class: "badge", story.questions.length
-          h4
-            class: "list-group-item-heading"
-            _.string.prune story.text, 256
+        if @stories.length then div class: "list-group", =>
+          for story in @stories
+            a href: "/story/#{story._id}", class: "list-group-item", =>
+              span class: "badge", story.questions.length
+              h4
+                class: "list-group-item-heading"
+                _.string.prune story.text, 256
+              
           
-      
-    else div class: "alert alert-info", "Nothing like that found. Sorry :P"
+        else div class: "alert alert-info", "Nothing like that found. Sorry :P"
     
     @helper "story-edit-dialog"
