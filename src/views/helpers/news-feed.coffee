@@ -56,7 +56,7 @@ module.exports = renderable ->
 
           switch entry.action
             when "draft" then item
-              icons   : [ "comment-alt", "edit" ]
+              icons   : [ "comment-alt", "plus-sign" ]
               url     : "/story/#{entry.data._id}/draft/#{entry._id}"
               body    : "#{entry.meta.author} wrote a draft for a story."
               excerpt : entry.data.text
@@ -66,7 +66,7 @@ module.exports = renderable ->
             when "apply" 
               draft = entry.data._draft
               item 
-                icons   : [ "comment-alt", "check" ]
+                icons   : [ "comment-alt", "ok-circle" ]
                 url     : "/story/#{draft.data._id}/"
                 body    : ->
                   whose = if draft.meta.author is entry.meta.author
