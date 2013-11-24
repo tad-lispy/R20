@@ -1,6 +1,7 @@
 {
   renderable, tag, text, raw
   div, main, aside, nav
+  table, th, tr, td
   ul, li
   h3, h4, p
   i, span, strong
@@ -34,45 +35,36 @@ module.exports = renderable (options) ->
                 aria:
                   hidden: true
                 => i class: "icon-remove"
-              h4 "Drafts of this story."
+              h4 "Drafts of this story"
             
             div class: "modal-body", =>
-              ul class: "icons-ul", =>
+               table class: "table table-hover table-condensed table-striped", =>
+                tr =>
+                  th => span class: "sr-only", "state"
+                  th "author"
+                  th "time"
+
                 for draft in ( _(@journal).filter (entry) -> entry.action is "draft" )
-                  li =>
-                    if (@story._draft?.equals   draft._id) and 
-                      not @story.isNew                     then icon = "ok-circle" 
-                    else if @draft?._id?.equals draft._id  then icon = "circle"
-                    else                                        icon = "circle-blank"
+                  applied = @story._draft.equals  draft._id
+                  chosen  = @draft?._id?.equals   draft._id
 
-                    i class: "icon-li icon-" + icon
-                    a href: "/story/#{@story._id}/draft/#{draft._id}", =>
-                      text moment(draft._id.getTimestamp()).fromNow()
-                      text " by " + draft.meta.author
+                  if      chosen  then  icon = "circle"
+                  else if applied then  icon = "ok-circle" 
+                  else                  icon = "circle-blank"
+                  
+                  time    = moment(draft._id.getTimestamp()).fromNow()
+                  author  = draft.meta.author 
 
+                  tr class: (if chosen then "active" else if applied then "success"), =>
+  
+                    td =>
+                      i class: "icon-li icon-" + icon
+                      span class: "sr-only", if chosen then "chosen" else if applied then "applied"
 
+                    td =>
+                      if not applied then a href: "/story/#{@story._id}/draft/#{draft._id}", author
+                      else strong author
 
-              # form
-              #   method: "post"
-              #   action: options?.action
-              #   =>
-              #     @helper "csrf"
-              #     if options?.method?
-              #       input type: "hidden", name: "_method", value: options.method
-              #     div class: "form-group", =>
-              #       label for: "text", "What's the story?", class: "sr-only"
-              #       textarea
-              #         name        : "text"
-              #         class       : "form-control"
-              #         rows        : 8
-              #         style       : "resize: none"
-              #         placeholder : "Give us the facts, we will give you the law..."
-              #         @story?.text
-
-              #     div class: "form-group", =>
-              #       button
-              #         type        : "submit"
-              #         class       : "btn btn-primary"
-              #         =>
-              #           i class: "icon-check-sign"
-              #           text " Ok"
+                    td =>
+                      if not applied then a href: "/story/#{@story._id}/draft/#{draft._id}", time
+                      else strong time

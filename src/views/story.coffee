@@ -21,19 +21,24 @@ module.exports = renderable (data) ->
     # @scripts.push "/js/question-typeahead.js"
     # @styles.push  "/css/typeahead-bs3-fix.css"
 
-    if @draft? then div class: "alert alert-info clearfix", =>
-      text "This is a draft proposed #{moment(@draft._id.getTimestamp()).fromNow()} by #{@draft.meta.author}. "
-      a
-        href  : "/story/#{@story._id}/"
-        class : "btn btn-default btn-xs pull-right"
-        =>
-          i class: "icon-arrow-left"
-          text " See actual story"
+    if @draft?
+      applied = @story._draft.equals @draft._id
+      div class: "alert alert-#{if applied then 'success' else 'info'} clearfix", =>
+      
+        text "This is a draft proposed #{moment(@draft._id.getTimestamp()).fromNow()} by #{@draft.meta.author}. "
+        if applied then text "It is currently applied."
+
+        a
+          href  : "/story/#{@story._id}/"
+          class : "btn btn-default btn-xs pull-right"
+          =>
+            i class: "icon-arrow-left"
+            text " See actual story"
 
     # The story
     div class: "jumbotron", =>
       if @draft
-        markdown @story.text
+        markdown @draft.data.text
 
         form
           action: "/story/#{@story._id}/"
@@ -46,8 +51,9 @@ module.exports = renderable (data) ->
             
             div class: "btn-group pull-right", =>
               button
-                class: "btn btn-success"
-                type : "submit"
+                class   : "btn btn-success"
+                type    : "submit"
+                disabled: applied
                 =>
                   i class: "icon-check-sign"
                   text " apply this draft"

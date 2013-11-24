@@ -310,9 +310,11 @@ module.exports =
 
             (draft, done) ->
               $ = $.narrow "create_story"
-              story = new Story draft.data
-              done null, draft, story
-
+              Story.findByIdOrCreate draft.data._id,
+                text: "**VIRTUAL**: this story is not saved. Some drafts for it exists though."
+                (error, story) ->
+                  if error then return done error
+                  done null, draft, story
 
             (draft, story, done) ->
               $ = $.narrow "find_other_drafts"
@@ -330,8 +332,6 @@ module.exports =
                   return res.send 404, "I'm sorry, I can't find this draft."
               else # different error
                 throw error 
-
-            $ "Drafts are: %j", drafts
             
             if (req.accepts ["json", "html"]) is "json"
               res.json draft
