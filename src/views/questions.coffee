@@ -12,8 +12,10 @@
 template  = require "./templates/default"
 
 module.exports = renderable (data) ->
+  @page = title: "Legal questions of interest"
+  
   template.call @, =>
-
+  
     div class: "panel panel-primary", =>
       div class: "panel-heading", =>
         h3

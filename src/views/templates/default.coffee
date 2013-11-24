@@ -35,7 +35,7 @@ module.exports = renderable (content) ->
 
         .page-header
           h1
-            white-space nowrap
+            white-space wrap
       """
         
 
@@ -44,8 +44,8 @@ module.exports = renderable (content) ->
         header class : "page-header", =>
           h1 =>
             text @settings.site.name + " "
-            do wbr
-            small @page_title or @settings.site.motto
+            br class: "visible-xs visible-sm"
+            small @page?.title or @settings.site.motto
 
         div class: "row", =>
           tag "main", class: "col-xs-12 col-sm-9", =>

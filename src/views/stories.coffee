@@ -13,6 +13,8 @@ template  = require "./templates/default"
 _         = require "underscore"
 _.string  = require "underscore.string"
 module.exports = renderable (data) ->
+  @page = title: "Cases provided by our readers"
+  
   template.call @, =>
 
     # div class: "panel panel-primary", =>

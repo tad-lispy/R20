@@ -16,6 +16,8 @@ debug     = require "debug"
 $         = debug "R20:views:story"
 
 module.exports = renderable (data) ->
+  @page = title: "The case of #{ moment(@story._id.getTimestamp()).format 'LL' }"
+
   template.call @, =>
     @scripts.push "/js/assign-question.js"
     # @scripts.push "/js/question-typeahead.js"
