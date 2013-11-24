@@ -21,10 +21,15 @@ module.exports = renderable (data) ->
     # @scripts.push "/js/question-typeahead.js"
     # @styles.push  "/css/typeahead-bs3-fix.css"
 
-    if @draft? then div class: "alert alert-info", =>
+    if @draft? then div class: "alert alert-info clearfix", =>
       text "This is a draft proposed #{moment(@draft._id.getTimestamp()).fromNow()} by #{@draft.meta.author}. "
-      a href: "/story/#{@story._id}/", class: "alert-link", "See actual story"
-      text "."
+      a
+        href  : "/story/#{@story._id}/"
+        class : "btn btn-default btn-xs pull-right"
+        =>
+          i class: "icon-arrow-left"
+          text " See actual story"
+
     # The story
     div class: "jumbotron", =>
       if @draft
@@ -33,6 +38,7 @@ module.exports = renderable (data) ->
         form
           action: "/story/#{@story._id}/"
           method: "POST"
+          class : "clearfix"
           =>
             input type: "hidden", name: "_method",  value: "PUT"
             @helper "csrf"
@@ -58,7 +64,7 @@ module.exports = renderable (data) ->
           i class: "icon-info-sign"
           text " Not published yet "
 
-        div class: "btn-group pull-right", =>
+        div class: "clearfix", => div class: "btn-group pull-right", =>
           button
             class: "btn btn-primary"
             data:
@@ -72,7 +78,7 @@ module.exports = renderable (data) ->
       else 
         markdown @story.text
 
-        div class: "btn-group pull-right", =>
+        div class: "clearfix", => div class: "btn-group pull-right", =>
           button
             class: "btn btn-default"
             data:
