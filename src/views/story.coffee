@@ -24,7 +24,9 @@ module.exports = renderable (data) ->
     # @styles.push  "/css/typeahead-bs3-fix.css"
 
     if @draft?
-      applied = @story._draft.equals @draft._id
+      applied  = @story._draft?.equals @draft._id
+      applied ?= no
+      
       div class: "alert alert-#{if applied then 'success' else 'info'} clearfix", =>
       
         text "This is a draft proposed #{moment(@draft._id.getTimestamp()).fromNow()} by #{@draft.meta.author}. "

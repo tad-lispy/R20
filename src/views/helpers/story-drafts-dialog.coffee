@@ -19,7 +19,6 @@ $         = debug "R20:helpers:story-drafts-dialog"
 module.exports = renderable (options) ->
   div
     # TODO: DRY - universal draft list for stories, questions, answers and profiles
-    
     class   : "modal fade"
     id      : "story-drafts-dialog"
     tabindex: -1
@@ -47,8 +46,9 @@ module.exports = renderable (options) ->
                 th "time"
 
               for draft in ( _(@journal).filter (entry) -> entry.action is "draft" )
-                applied = @story._draft.equals  draft._id
-                chosen  = @draft?._id?.equals   draft._id
+                applied  = @story._draft?.equals @draft._id
+                applied ?= no
+                chosen   = @draft?._id?.equals   draft._id
 
                 if      chosen  then  icon = "circle"
                 else if applied then  icon = "ok-circle" 

@@ -21,7 +21,8 @@ module.exports = renderable (data) ->
 
   template.call @, =>
     if @draft?
-      applied = @question._draft?.equals @draft._id
+      applied  = @question._draft?.equals @draft._id
+      applied ?= no
 
       div class: "alert alert-#{if applied then 'success' else 'info'} clearfix", =>
       
@@ -50,6 +51,7 @@ module.exports = renderable (data) ->
             input type: "hidden", name: "_draft",    value: @draft._id
             
             div class: "btn-group pull-right", =>
+              $ "Applied? %j", applied
               button
                 class   : "btn btn-success"
                 type    : "submit"
