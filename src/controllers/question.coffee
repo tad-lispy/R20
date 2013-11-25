@@ -47,22 +47,26 @@ module.exports =
   ":id" :
     # Single question
     get : (req, res) ->
-      async.parallel
-        question: (done) ->
-          Question.findById(req.params.id)
-            .exec (error, question) ->
+      async.waterfall [
+        (done) ->
+          Question.findByIdOrCreate req.params.id,
+            text: "**VIRTUAL**: this question is not saved. Some drafts for it exists though."
+            (error, question) ->
               if error then return done error
-              question.findStories (error, stories) ->
-                if error then return done error
-                done null, _.extend question.toObject(), { stories }
-        
-        (error, data) ->
+              done null, question
+
+        (question, done) ->
+          question.findStories (error, stories) ->
+            if error then return done error
+            done null, question, stories
+
+      ], (error, question, stories) ->
           if error then throw error
           if (req.accepts ["json", "html"]) is "json"
-            res.json data
+            res.json { question, stories }
           else
             template = require "../views/question"
-            res.locals data
+            res.locals { question, stories }
             res.send template.call res.locals
 
     draft:

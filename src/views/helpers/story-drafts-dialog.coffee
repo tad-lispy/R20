@@ -18,53 +18,55 @@ $         = debug "R20:helpers:story-drafts-dialog"
 
 module.exports = renderable (options) ->
   div
-      class   : "modal fade"
-      id      : "story-drafts-dialog"
-      tabindex: -1
-      role    : "dialog"
-      =>
-        div class: "modal-dialog", =>
-          div class: "modal-content", =>
-            
-            div class: "modal-header", =>
-              button
-                type  : "button"
-                class : "close"
-                data:
-                  dismiss: "modal"
-                aria:
-                  hidden: true
-                => i class: "icon-remove"
-              h4 "Drafts of this story"
-            
-            div class: "modal-body", =>
-               table class: "table table-hover table-condensed table-striped", =>
-                tr =>
-                  th => span class: "sr-only", "state"
-                  th "author"
-                  th "time"
+    # TODO: DRY - universal draft list for stories, questions, answers and profiles
+    
+    class   : "modal fade"
+    id      : "story-drafts-dialog"
+    tabindex: -1
+    role    : "dialog"
+    =>
+      div class: "modal-dialog", =>
+        div class: "modal-content", =>
+          
+          div class: "modal-header", =>
+            button
+              type  : "button"
+              class : "close"
+              data:
+                dismiss: "modal"
+              aria:
+                hidden: true
+              => i class: "icon-remove"
+            h4 "Drafts of this story"
+          
+          div class: "modal-body", =>
+             table class: "table table-hover table-condensed table-striped", =>
+              tr =>
+                th => span class: "sr-only", "state"
+                th "author"
+                th "time"
 
-                for draft in ( _(@journal).filter (entry) -> entry.action is "draft" )
-                  applied = @story._draft.equals  draft._id
-                  chosen  = @draft?._id?.equals   draft._id
+              for draft in ( _(@journal).filter (entry) -> entry.action is "draft" )
+                applied = @story._draft.equals  draft._id
+                chosen  = @draft?._id?.equals   draft._id
 
-                  if      chosen  then  icon = "circle"
-                  else if applied then  icon = "ok-circle" 
-                  else                  icon = "circle-blank"
-                  
-                  time    = moment(draft._id.getTimestamp()).fromNow()
-                  author  = draft.meta.author 
+                if      chosen  then  icon = "circle"
+                else if applied then  icon = "ok-circle" 
+                else                  icon = "circle-blank"
+                
+                time    = moment(draft._id.getTimestamp()).fromNow()
+                author  = draft.meta.author 
 
-                  tr class: (if chosen then "active" else if applied then "success"), =>
-  
-                    td =>
-                      i class: "icon-li icon-" + icon
-                      span class: "sr-only", if chosen then "chosen" else if applied then "applied"
+                tr class: (if chosen then "active" else if applied then "success"), =>
 
-                    td =>
-                      if not applied then a href: "/story/#{@story._id}/draft/#{draft._id}", author
-                      else strong author
+                  td =>
+                    i class: "icon-li icon-" + icon
+                    span class: "sr-only", if chosen then "chosen" else if applied then "applied"
 
-                    td =>
-                      if not applied then a href: "/story/#{@story._id}/draft/#{draft._id}", time
-                      else strong time
+                  td =>
+                    if not applied then a href: "/story/#{@story._id}/draft/#{draft._id}", author
+                    else strong author
+
+                  td =>
+                    if not applied then a href: "/story/#{@story._id}/draft/#{draft._id}", time
+                    else strong time

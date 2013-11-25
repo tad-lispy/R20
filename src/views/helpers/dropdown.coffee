@@ -15,6 +15,7 @@ module.exports = renderable (items) =>
         =>
           i class: "icon-folder-close"
           text " show drafts"
+
     "drop-story": =>
       a 
         href: "#drop-story"
@@ -44,6 +45,26 @@ module.exports = renderable (items) =>
         =>
           i class: "icon-plus-sign"
           text " tell us a story"
+
+    "show-question-drafts": (title) =>
+      a 
+        href: "#show-question-drafts"
+        data:
+          toggle: "modal"
+          target: "#question-drafts-dialog"
+        =>
+          i class: "icon-folder-close"
+          text " show drafts"
+    
+    "edit-question": =>
+      a 
+        href: "#edit-question"
+        data:
+          toggle: "modal"
+          target: "#question-edit-dialog"
+        =>
+          i class: "icon-edit"
+          text " make changes"
 
     "new-question": =>
       a 
