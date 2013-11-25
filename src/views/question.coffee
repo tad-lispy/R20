@@ -61,8 +61,19 @@ module.exports = renderable (data) ->
                   text " apply this draft"
 
               @helper "dropdown", [
-                "edit-question"
-                "show-question-drafts"
+                title : "make changes"
+                href  : "#edit-question"
+                icon  : "edit"
+                data  :
+                  toggle: "modal"
+                  target: "#question-edit-dialog"
+              ,
+                title : "show drafts"
+                href  : "#show-drafts"
+                icon  : "folder-close"
+                data  :
+                  toggle: "modal"
+                  target: "#drafts-dialog"
               ]
 
       else if @question.isNew 
@@ -95,11 +106,24 @@ module.exports = renderable (data) ->
               text " make changes"
 
           @helper "dropdown", [
-            "show-question-drafts"
-            # "drop-question"
+            title : "show drafts"
+            href  : "#show-drafts"
+            icon  : "folder-close"
+            data  :
+              toggle: "modal"
+              target: "#drafts-dialog"
+          ,
+            title : "remove question"
+            href  : "#remove-question"
+            icon  : "remove-sign"
+            data  :
+              toggle: "modal"
+              target: "#remove-dialog"
           ]
+        @helper "remove-dialog", type: "question"
 
-
+    @helper "drafts-dialog", type: "question"
+    @helper "question-edit-dialog", method: "PUT", action: "/question/#{@question._id}"
 
 
     h4 class: "text-muted", "Answers"

@@ -111,15 +111,15 @@ module.exports = renderable ->
           when "apply" 
             draft = entry.data._draft
             item 
-              icons   : [ "comment-alt", "ok-circle" ]
-              url     : "/story/#{draft.data._id}/"
+              icons   : [ "question-sign" ]
+              url     : "/question/#{draft.data._id}/"
               body    : ->
                 whose = if draft.meta.author is entry.meta.author
                   "his own draft"
                 else
                   " a draft by #{draft.meta.author}"
                   
-                p "#{entry.meta.author} applied #{whose} to a story"
+                p "#{entry.meta.author} applied #{whose} to a question"
               excerpt : draft.data.text
               time    : do entry._id.getTimestamp
               class   : "success"

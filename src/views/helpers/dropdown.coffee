@@ -5,77 +5,6 @@
 } = require "teacup"
 
 module.exports = renderable (items) =>
-  links =
-    "show-drafts": (title) =>
-      a 
-        href: "#show-drafts"
-        data:
-          toggle: "modal"
-          target: "#story-drafts-dialog"
-        =>
-          i class: "icon-folder-close"
-          text " show drafts"
-
-    "drop-story": =>
-      a 
-        href: "#drop-story"
-        data:
-          toggle: "modal"
-          target: "#story-drop-dialog"
-        =>
-          i class: "icon-remove-sign"
-          text " drop this story"
-
-    "edit-story": =>
-      a 
-        href: "#edit-story"
-        data:
-          toggle: "modal"
-          target: "#story-edit-dialog"
-        =>
-          i class: "icon-edit"
-          text " make changes"
-
-    "new-story": =>
-      a 
-        href: "#edit-story"
-        data:
-          toggle: "modal"
-          target: "#story-edit-dialog"
-        =>
-          i class: "icon-plus-sign"
-          text " tell us a story"
-
-    "show-question-drafts": (title) =>
-      a 
-        href: "#show-question-drafts"
-        data:
-          toggle: "modal"
-          target: "#question-drafts-dialog"
-        =>
-          i class: "icon-folder-close"
-          text " show drafts"
-    
-    "edit-question": =>
-      a 
-        href: "#edit-question"
-        data:
-          toggle: "modal"
-          target: "#question-edit-dialog"
-        =>
-          i class: "icon-edit"
-          text " make changes"
-
-    "new-question": =>
-      a 
-        href: "#edit-question"
-        data:
-          toggle: "modal"
-          target: "#question-edit-dialog"
-        =>
-          i class: "icon-plus-sign"
-          text " add a brand new question"
-
 
   button
     class : "btn btn-default  dropdown-toggle"
@@ -86,4 +15,10 @@ module.exports = renderable (items) =>
       span class: "sr-only", "Toggle dropdown"
 
   ul class: "dropdown-menu", role: "menu", =>
-    (li => do links[item]) for item in items
+    li => for item in items
+      a 
+        href: item.href
+        data: item.data
+        =>
+          i class: "icon-" + item.icon or "cog"
+          text " " + item.title

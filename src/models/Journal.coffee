@@ -82,6 +82,7 @@ plugin = (schema, options) ->
         query     = {}
       
       query = _.extend query,
+        model     : @constructor.modelName
         "data._id": @_id
 
       Entry

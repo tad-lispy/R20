@@ -63,11 +63,25 @@ module.exports = renderable (data) ->
                   text " apply this draft"
 
               @helper "dropdown", [
-                "edit-story"
-                "show-drafts"
+                title : "make changes"
+                href  : "#edit-story"
+                icon  : "edit"
+                data  :
+                  toggle: "modal"
+                  target: "#story-edit-dialog"
+              ,
+                title : "show drafts"
+                href  : "#show-drafts"
+                icon  : "folder-close"
+                data  :
+                  toggle: "modal"
+                  target: "#drafts-dialog"
               ]
 
-
+        @helper "story-edit-dialog",
+          method  : "PUT"
+          action  : "/story/#{@story._id}"
+          document: @draft.data
 
       else if @story.isNew 
         p class: "text-muted", =>
@@ -79,7 +93,7 @@ module.exports = renderable (data) ->
             class: "btn btn-primary"
             data:
               toggle: "modal"
-              target: "#story-drafts-dialog"
+              target: "#drafts-dialog"
             =>
               i class: "icon-folder-close"
               text " see drafts "
@@ -99,13 +113,28 @@ module.exports = renderable (data) ->
               text " make changes"
 
           @helper "dropdown", [
-            "show-drafts"
-            "drop-story"
+            title : "show drafts"
+            href  : "#show-drafts"
+            icon  : "folder-close"
+            data  :
+              toggle: "modal"
+              target: "#drafts-dialog"
+          ,
+            title : "drop story"
+            href  : "#drop-story"
+            icon  : "remove-sign"
+            data  :
+              toggle: "modal"
+              target: "#story-drop-dialog"
           ]
 
-    @helper "story-edit-dialog", method: "PUT", action: "/story/#{@story._id}"
-    @helper "story-drafts-dialog"
-    @helper "story-drop-dialog"
+          @helper "story-edit-dialog",
+            method  : "PUT"
+            action  : "/story/#{@story._id}"
+
+          @helper "story-drop-dialog"
+
+    @helper "drafts-dialog", type: "story"
 
     if not @story.isNew and not @draft
       # The questions

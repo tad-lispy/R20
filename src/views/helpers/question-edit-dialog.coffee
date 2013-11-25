@@ -14,7 +14,7 @@ $ = (require "debug") "R20:helpers:story-edit-dialog"
 module.exports = renderable (options) ->
   div
     class   : "modal fade"
-    id      : options?.title or "question-edit-dialog"
+    id      : "question-edit-dialog"
     tabindex: -1
     role    : "dialog"
     =>
@@ -44,6 +44,11 @@ module.exports = renderable (options) ->
               action: options?.action
               =>
                 @helper "csrf"
+                if options?.method? then input
+                  type  : "hidden"
+                  name  : "_method"
+                  value : options.method
+
                 div class: "form-group", =>
                   div class: "input-group", =>
                     label for: "text", class: "sr-only", "Question text:"
@@ -51,6 +56,7 @@ module.exports = renderable (options) ->
                       type        : "text"
                       name        : "text"
                       class       : "form-control"
+                      value       : if @draft? then @draft.data.text else if @question? then @question.text
                       placeholder : "Enter the text of a question..."
                     div class: "input-group-btn", =>
                       button

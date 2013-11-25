@@ -35,7 +35,14 @@ module.exports = renderable (data) ->
                 i class: "icon-search"
                 text " Search"
 
-            @helper "dropdown", ["new-question"]
+            @helper "dropdown", [
+              title : "new question"
+              icon  : "plus-sign"
+              data  :
+                toggle: "modal"
+                target: "#question-edit-dialog"
+              herf  : "#new-question"
+            ]
 
     do hr
     

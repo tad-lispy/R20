@@ -17,10 +17,11 @@ debug     = require "debug"
 $         = debug "R20:helpers:story-drafts-dialog"
 
 module.exports = renderable (options) ->
+
   div
     # TODO: DRY - universal draft list for stories, questions, answers and profiles
     class   : "modal fade"
-    id      : "story-drafts-dialog"
+    id      : "drafts-dialog"
     tabindex: -1
     role    : "dialog"
     =>
@@ -36,7 +37,7 @@ module.exports = renderable (options) ->
               aria:
                 hidden: true
               => i class: "icon-remove"
-            h4 "Drafts of this story"
+            h4 "Drafts of this #{options.type}"
           
           div class: "modal-body", =>
              table class: "table table-hover table-condensed table-striped", =>
@@ -46,8 +47,10 @@ module.exports = renderable (options) ->
                 th "time"
 
               for draft in ( _(@journal).filter (entry) -> entry.action is "draft" )
-                applied  = @story._draft?.equals @draft._id
-                applied ?= no
+                applied = chosen = no
+                if options?.type? and @[options.type]._draft?
+                  applied  = @[options.type]._draft.equals draft._id
+
                 chosen   = @draft?._id?.equals   draft._id
 
                 if      chosen  then  icon = "circle"
@@ -64,9 +67,13 @@ module.exports = renderable (options) ->
                     span class: "sr-only", if chosen then "chosen" else if applied then "applied"
 
                   td =>
-                    if not applied then a href: "/story/#{@story._id}/draft/#{draft._id}", author
+                    if not applied then a
+                      href: "/#{options.type}/#{@[options.type]._id}/draft/#{draft._id}"
+                      author
                     else strong author
 
                   td =>
-                    if not applied then a href: "/story/#{@story._id}/draft/#{draft._id}", time
+                    if not applied then a
+                      href: "/#{options.type}/#{@[options.type]._id}/draft/#{draft._id}"
+                      time
                     else strong time

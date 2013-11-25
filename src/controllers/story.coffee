@@ -1,8 +1,8 @@
 # Search controller
 
-_     = require "underscore"
-async = require "async"
-debug = require "debug"
+_         = require "underscore"
+async     = require "async"
+debug     = require "debug"
 
 Story     = require "../models/Story"
 Question  = require "../models/Question"
@@ -300,11 +300,12 @@ module.exports =
             (done) ->
               $ = $.narrow "find_draft"
               Entry.findById req.params.draft_id, (error, entry) ->
-                if error then throw error
-                if not entry or
-                  entry.action isnt "draft" or
-                  not entry.data?._id?.equals req.params.id 
-                    return done error "Not found"
+                if  error then throw error
+                if (not entry) or
+                   (entry.action  isnt "draft") or
+                   (entry.model   isnt "Story") or
+                    not (entry.data?._id?.equals req.params.id)
+                      return done Error "Not found"
 
                 return done null, entry
 
