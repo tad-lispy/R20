@@ -39,7 +39,7 @@ module.exports = renderable (content) ->
       """
         
 
-    body =>
+    body data: csrf: @_csrf, =>
       div class: "container", id: "content", =>
         header class : "page-header", =>
           h1 =>
