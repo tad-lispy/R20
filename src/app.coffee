@@ -239,18 +239,23 @@ do -> # Load controllers\
     # eg. app.get / (req, res) ->
     setup = (fragment, value, path = "") ->
       $ = $ = debug "R20:setup:controllers" + path.replace /\//g, ":"
+      if fragment in [
+        "_model"
+        "_options"
+      ] then return $ "skipping %s", fragment
+
       if (fragment in terms) and (typeof value is "function")
         path ?= "/"
         $ fragment
         app[fragment] path, value
         
       else 
-        path += "/" + fragment
         if typeof value isnt "object" then throw Error  =  """
           Error loading #{name} controller for path #{path}.
           Only object or function with name indicating valid http method can be used in controllers.
         """
 
+        path += "/" + fragment
         for fragment, subvalue of value
           setup fragment, subvalue, path
 

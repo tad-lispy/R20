@@ -21,9 +21,8 @@ Entry     = require "../models/JournalEntry"
 #   module.exports = Controller Story, options
 
 class Controller
-  constructor: (@model, @options = {}) ->
+  constructor: (@_model, @_options = {}) ->
 
-module.exports = 
   # General
   get    : (req, res) ->
     # Get a list of all questions
@@ -244,6 +243,7 @@ module.exports =
               template = require "../views/question"
               res.send template.call res.locals
 
-
-
+c = new Controller Question
+console.log "Controller is a %s: %j", typeof c, c
+module.exports = c
 
