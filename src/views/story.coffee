@@ -20,6 +20,7 @@ module.exports = renderable (data) ->
 
   template.call @, =>
     @scripts.push "/js/assign-question.js"
+    @scripts.push "//cdnjs.cloudflare.com/ajax/libs/jquery.form/3.45/jquery.form.min.js"
     # @scripts.push "/js/question-typeahead.js"
     # @styles.push  "/css/typeahead-bs3-fix.css"
 
@@ -162,7 +163,6 @@ module.exports = renderable (data) ->
             div class: "well", =>
               # Search form
               form
-
                 data        :
                   search      : "question"
                   target      : "#assign-questions-list"
@@ -172,7 +172,7 @@ module.exports = renderable (data) ->
                     div class: "input-group input-group-sm", =>
                       input
                         type        : "text"
-                        name        : "text"
+                        name        : "query"
                         class       : "form-control"
                         placeholder : "Type to search for a question to assign..."
                         value       : @query

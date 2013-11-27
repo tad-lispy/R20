@@ -30,9 +30,9 @@ module.exports = renderable (data) ->
       =>
         div class: "input-group input-group-lg", =>
           input
-            id          : "story"
+            id          : "query"
             type        : "text"
-            name        : "text"
+            name        : "query"
             class       : "form-control"
             placeholder : "Type to search for story..."
             value       : @query
