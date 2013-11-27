@@ -403,3 +403,21 @@ module.exports = class Controller
                 if (req.accepts ["json", "html"]) is "json"
                   res.json document
                 else res.redirect "/#{options.singular}/#{document._id}#assignment"
+
+        ":referenced_id":
+          delete: (req, res) ->
+            operation = $pull: {}
+            operation["$pull"][reference.path] = req.params.referenced_id
+
+            model.findByIdAndUpdate req.params.document_id,
+              operation
+              (error, document) ->
+                if not document
+                  if (req.accepts ["json", "html"]) is "json"
+                    res.json error: "No such #{options.singular}"
+                  else res.send "Error: 404"
+                  
+                if (req.accepts ["json", "html"]) is "json"
+                  res.json document
+                else res.redirect "/#{options.singular}/#{document._id}"
+
