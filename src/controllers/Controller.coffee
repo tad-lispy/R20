@@ -46,7 +46,7 @@ module.exports = class Controller
           if (req.accepts ["json", "html"]) is "json"
             res.json documents
           else
-            template = require "../views/questions"
+            template = require "../views/#{options.plural}"
             res.locals[options.plural] = documents
             res.send template.call res.locals
 

@@ -1,16 +1,36 @@
-# Search controller
+# # Story controller
 
-_         = require "underscore"
-async     = require "async"
-debug     = require "debug"
+Story       = require "../models/Story"
+Question    = require "../models/Question"
+Controller  = require "./Controller"
 
-Story     = require "../models/Story"
-Question  = require "../models/Question"
-Entry     = require "../models/JournalEntry"
+debug       = require "debug"
+$           = debug "R20:controllers:story"
 
-$ = debug "R20:controllers:story"
+module.exports = new Controller Story,
+  list:
+    prepareConditions: (req, res, done) ->
+      if req.query.query? 
+        conditions = text: new RegExp req.query.query, "i"
+        res.locals query: req.query.query
+      done null, conditions
+  new:
+    fields: [
+      "text"
+    ]
+    prepareMeta: (req, res, done) -> done null,
+      author: req.session.email
 
-module.exports =
+  single:
+    getAdditionalDocuments: (story, done) ->
+      # Find related questions
+      story.populate "questions", (error, story) ->
+        if error then return done error
+        $ "After population the story is: %j", story
+        done null, {}
+
+
+old = 
   # General
   get: (req, res) ->
     # Get a list of stories
