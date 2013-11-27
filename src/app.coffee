@@ -239,10 +239,6 @@ do -> # Load controllers\
     # eg. app.get / (req, res) ->
     setup = (fragment, value, path = "") ->
       $ = $ = debug "R20:setup:controllers" + path.replace /\//g, ":"
-      if fragment in [
-        "_model"
-        "_options"
-      ] then return $ "skipping %s", fragment
 
       if (fragment in terms) and (typeof value is "function")
         path ?= "/"
@@ -259,7 +255,7 @@ do -> # Load controllers\
         for fragment, subvalue of value
           setup fragment, subvalue, path
 
-    setup name, controller
+    setup name, controller.paths or controller
 
 app.get "/", (req, res) ->
   $ = debug "R20:home-redirect"
