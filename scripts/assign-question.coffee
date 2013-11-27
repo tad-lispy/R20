@@ -16,15 +16,12 @@ $ ->
         do event.preventDefault
         do target.empty
         $.get url, text: search.val(), (data) ->
-          console.dir data
           for doc in data
             item = do source.clone
             for key, value of doc
-              console.log "#{key} = #{value}"
               item.find("[name='#{key}']").val value
               item.find("[data-fill='#{key}']").html value
 
-            console.log item
             target.append item.removeClass "hide"
 
       do element.submit

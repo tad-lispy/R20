@@ -91,7 +91,7 @@ module.exports = renderable ->
           
           else item
             body    : "Something (#{entry.action}) happened to a story"
-            url     : "/story/entry.data._id"
+            url     : "/story/#{entry.data._id}"
             time    : do entry._id.getTimestamp
 
 
@@ -125,16 +125,16 @@ module.exports = renderable ->
               class   : "success"
                   
           when "remove" then item
-            icons   : [ "comment-alt", "remove" ]
-            url     : "/story/#{entry.data._id}/"
-            body    : "#{entry.meta.author} removed a story."
+            icons   : [ "question-sign" ]
+            url     : "/question/#{entry.data._id}/"
+            body    : "#{entry.meta.author} removed a question."
             excerpt : entry.data.text
             time    : do entry._id.getTimestamp
             class   : "danger"
           
           else item
-            body    : "Something (#{entry.action}) happened to a story"
-            url     : "/story/entry.data._id"
+            body    : "Something (#{entry.action}) happened to a question"
+            url     : "/question/#{entry.data._id}"
             time    : do entry._id.getTimestamp
 
         else item

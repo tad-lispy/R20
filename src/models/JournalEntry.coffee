@@ -40,7 +40,6 @@ Entry = new mongoose.Schema
 
 Entry.method "apply", (meta, callback) ->
   $ = $.narrow "apply"
-  $ "Applying entry %s"
 
   if not callback and typeof meta is "function" then callback = meta
 
