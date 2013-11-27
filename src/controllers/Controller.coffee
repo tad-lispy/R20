@@ -1,7 +1,7 @@
 # # Controller class
 #
 # Constructor takes a model and options
-# returns object with actual controller logic in paths
+# constructs ab object with actual controller logic in paths
 # 
 
 async     = require "async"
@@ -15,14 +15,15 @@ $         = debug "R20:controllers:question"
 module.exports = class Controller
   constructor: (@model, @options = {}) ->    
     $.scope = "R20:controller:" + @model.modelName
-    $ "Hello!"
     {
       model
       options
     } = @
     options = _(options).defaults
-      singular: do model.modelName.toLowerCase
-      plural  : model.collection.name
+      singular  : do model.modelName.toLowerCase
+      plural    : model.collection.name
+      references: {}  # TODO: build default references by inspecting model
+                      # be smart :)
 
     @paths =
       # General
@@ -341,3 +342,64 @@ module.exports = class Controller
 
                   template = require "../views/#{options.singular}"
                   res.send template.call res.locals
+
+    $ = $.root.narrow "references"
+    for name, reference of options.references
+      $ = $.narrow name
+      # TODO: reference defaults
+
+      @paths[":document_id"][name] =
+        
+        get: (req, res) ->
+          async.waterfall [
+            (done)            -> model.findById req.params.document_id, done
+            (document, done)  -> 
+              ids = document.get reference.path
+              if typeof ids in "array"
+                reference.model.find _id: $in: ids, done
+              else
+                reference.model.findById ids, done
+          ], (error, referenced) ->
+            if error then throw error
+            res.json referenced
+
+        post: (req, res) ->
+          async.parallel
+            document   : (done) ->
+              $ "Looking for document"
+              model.findById req.params.document_id, (error, document) ->
+                if error then return done error
+                if not document then return done Error "Main document not found"
+                done null, document
+
+            referenced  : (done) ->
+              $ "Looking for referenced document"
+              reference.model.findById req.body._id, (error, referenced) ->
+                if error then return done error
+                if not referenced then return done Error "Referenced document not found"
+                done null, referenced
+            
+            (error, assignment) ->
+              # TODO: handle not found errors
+              if error then throw error
+              # TODO: move to reference  JournalEntry 
+              
+              {
+                document
+                referenced
+              } = assignment
+
+              field = document.get reference.path
+              if reference.type is "has many"
+                field.push referenced._id
+              else
+                field    = referenced._id
+
+              document.set reference.path, field
+
+              document.save (error, document) ->
+                $ "Saving reference"
+                if error then throw error
+                if (req.accepts ["json", "html"]) is "json"
+                  res.json document
+                else res.redirect "/#{options.singular}/#{document._id}#assignment"

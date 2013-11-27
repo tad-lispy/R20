@@ -29,6 +29,14 @@ module.exports = new Controller Story,
         $ "After population the story is: %j", story
         done null, {}
 
+  # This should go to Journal plugin
+  references:
+    question:
+      path      : "questions"
+      type      : "has many"
+      model     : Question
+      journaling: true
+
 
 old = 
   # General

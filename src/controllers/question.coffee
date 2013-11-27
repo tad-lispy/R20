@@ -29,3 +29,4 @@ module.exports = new Controller Question,
       else question.findStories (error, stories) ->
         if error then return done error
         done null, { stories }
+
