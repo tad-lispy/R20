@@ -11,6 +11,9 @@ Story = new mongoose.Schema
     type      : mongoose.Schema.ObjectId
     ref       : 'Question'
   ]
+  author      :
+    type        : mongoose.Schema.ObjectId
+    ref         : "Participant"
 
 Story.pre "validate", (done) ->
   @questions = _.unique @questions.map (oid) -> do oid.toString

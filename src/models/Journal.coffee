@@ -4,6 +4,7 @@ debug     = require "debug"
 _         = require "underscore"
 mongoose  = require "mongoose"
 async     = require "async"
+util      = require "util"
 
 Entry     = require "./JournalEntry"
 
@@ -32,10 +33,35 @@ plugin = (schema, options) ->
   options = _.defaults options,
     omit  : {}
 
+  # _draft field points to currently applied draft
   schema.add
     "_draft":
       type: mongoose.Schema.ObjectId
-      ref : "journal.entry"
+      ref : "Journal.Entry"
+
+  # Discover paths with references
+  $ = $.root.narrow "discover_references"
+  schema.statics.references = []
+
+  schema.eachPath (path, description) ->
+    $ "Looking at %s", path
+    { type } = description.options 
+    if not type then return
+    $ "It has a type: %s (%s)", type, typeof type
+    if util.isArray type
+      relation = "has many"
+      type     = type[0]
+    else 
+      relation = "has one"
+      # TODO: never discovers singular references
+      # They doesn't expose ref - type is a function!
+      # Maybe discover by inspecting schema.tree?
+    $ "Relation is %s", relation
+    if type.ref?
+      model = type.ref
+      reference = { path, relation, model }
+      $ "Found %j", reference
+      schema.statics.references.push reference
 
 
   schema.statics.findByIdOrCreate = (id, data, callback) ->
@@ -76,30 +102,27 @@ plugin = (schema, options) ->
       entry.save (error) ->
         callback error, entry
 
-    findEntries: (query, callback) ->
-      if not callback and typeof query is "function" 
-        callback  = query
-        query     = {}
+    saveReference: (path, document, meta, callback) ->
+      if not callback and typeof meta is "function" 
+        callback  = meta
+        meta      = {}
       
-      query = _.extend query,
-        model     : @constructor.modelName
-        "data._id": @_id
+      if document.constructor.modelName isnt 
 
-      Entry
-        .find(query)
-        .sort(_id: -1)
-        .exec callback
+      entry = new Entry
+        action: "reference"
+        model : @constructor.modelName
+        data  :
+          path      : path
+          main      : @_id
+          referenced: document._id 
+        meta  : meta
 
+      entry.save (error) ->
+        if error then callback error
+        callback null, entry
 
-    saveReference: (path, id, meta, callback) ->
-      if not callback and typeof meta is "function" then callback = meta
-      callback null
-
-    applyReference: (id, callback) ->
-      if not callback and typeof options is "function" then callback = options
-      callback null
-
-    dropReference: (id, callback) -> callback null
+    removeReference: (path, document, callback) -> callback null
 
     removeDocument: (meta, callback) ->
       # Remove document from collection while preserving all drafts.
@@ -123,11 +146,18 @@ plugin = (schema, options) ->
 
           callback null, entry
 
+    findEntries: (query, callback) ->
+      if not callback and typeof query is "function" 
+        callback  = query
+        query     = {}
+      
+      query = _.extend query,
+        model     : @constructor.modelName
+        "data._id": @_id
 
-
-
-
-
-    
+      Entry
+        .find(query)
+        .sort(_id: -1)
+        .exec callback
 
 module.exports = plugin
