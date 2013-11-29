@@ -19,6 +19,7 @@ do -> # Initial setup
     config  = require "../config.json"
   catch e
     $ "Error: no configuration file in /config.json"
+    $ e
     process.exit 1
 
 
@@ -83,7 +84,7 @@ do -> # Middleware setup
     $ = $.narrow "fake-login"
     if (process.env.NODE_ENV is "development") and (not req.session?.email)
       $ "doing it!"
-      { whitelist } = app.get "auth"
+      { whitelist } = app.get "participants"
       if whitelist 
         $ "from whitelist"
         email = _.chain(whitelist).keys().find (e) -> whitelist[e] is "administrator"
@@ -160,7 +161,7 @@ do -> # Authentication setup
       $ = debug "R20:auth:login:post:verifier"
       if error then throw error
       if body.status is "okay"
-        { whitelist } = app.get "auth"
+        { whitelist } = app.get "participants"
         if whitelist 
           $ "There is a whitelist: %j", whitelist
           unless body.email of whitelist
