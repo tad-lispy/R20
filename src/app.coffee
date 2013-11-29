@@ -80,20 +80,48 @@ do -> # Middleware setup
 
   # Fake login while development
   # TODO: get rid of it in production!
-  app.use (req, res, next) ->
-    $ = $.narrow "fake-login"
-    if (process.env.NODE_ENV is "development") and (not req.session?.email)
-      $ "doing it!"
-      { whitelist } = app.get "participants"
-      if whitelist 
-        $ "from whitelist"
-        email = _.chain(whitelist).keys().find (e) -> whitelist[e] is "administrator"
-        if email.value() then req.session.email = email.value()
-      else 
-        $ "example one"
-        req.session.email = "admin@example.com"
+  fakeLogin = (options) ->
+    (req, res, next) ->
+      $ = $.narrow "fake-login"
+      return do next unless (
+        (process.env.NODE_ENV is "development") and
+        (not req.session?.participant?)
+      )
 
-    do next
+      { email, role } = options
+      $ "Doing it for %s!", email or role
+      { whitelist } = app.get "participants"
+      if (not email) and whitelist # If email is not set, then role is required
+        $ "Looking up whitelist for first %s", role
+        email = _.chain(whitelist).keys().find((e) -> whitelist[e] is role).value()
+
+      if email then app.authenticate req, res, email, next
+      else 
+        $ "Email not found. Authenticating example user."
+        app.authenticate "admin@example.com", next
+
+  # app.use fakeLogin email: "piotrmarekpaszkowski@gmail.com"
+
+  app.authenticate = (req, res, email, done) ->
+    { whitelist } = app.get "participants"
+    if whitelist 
+      $ "There is a whitelist: %j", whitelist
+      unless email of whitelist
+        $ "%s not in the whitetelist %j", email, whitelist
+        return done Error "Not in the whitelist"
+
+      role = whitelist[email]
+      $ "%s logged in as %s.",  email, role
+      req.session.email = email
+      req.session.role  = role
+
+      res.cookie "email", email
+      do done
+      
+    else # no whitelist
+      done Error "Not implemented yet."
+      # throw Error "Open (non whitelist) authentication not implemented yet"
+
 
   app.use (req, res, next) ->
     $ = debug "R20:middleware:session-to-locals"
@@ -139,17 +167,10 @@ do -> # Content Security Policy and other security related logic
     do next
 
 do -> # Authentication setup
-  # app.use (req, res, next) ->
-  #   $ = debug "R20:middleware:user-cookie"
-  #   if req.session.email
-  #     $ "Setting email cookie to %s.", req.session.email
-      
-  #   else 
-  #     $ "Not logged in."
-  #   do next
+  $ = $.root.narrow "auth"
 
   app.post "/auth/login", (req, res) ->
-    $ = debug "R20:auth:login:post"
+    $ = $.narrow "login"
     verifier =
         url   : (app.get "auth").verifier
         json  : true
@@ -158,33 +179,22 @@ do -> # Authentication setup
           audience  : (app.get "auth").audience
 
     request.post verifier, (error, response, body) =>
-      $ = debug "R20:auth:login:post:verifier"
+      $ = $.narrow "verification"
       if error then throw error
-      if body.status is "okay"
-        { whitelist } = app.get "participants"
-        if whitelist 
-          $ "There is a whitelist: %j", whitelist
-          unless body.email of whitelist
-            $ "%s not in the whitetelist %j", body.email, whitelist
-            return res.json 403, status: "forbiden"
+      if body.status is "okay" then app.authenticate req, res, body.email, (error) ->
+        if error 
+          if error.message is "Not in the whitelist"
+            # res.json 403, status: "forbiden"
+          else throw error
 
-          role = whitelist[body.email]
-          $ "%s logged in as %s.",  body.email, role
-          req.session.email = body.email
-          req.session.role  = role
-
-          res.cookie "email", body.email
-          res.json status: "okay"
-        else # no whitelist
-          res.json 501, status: "Not implemented yet."
-          throw Error "Open (non whitelist) authentication not implemented yet"
+        res.json status: "okay"
 
       else # Not okay :(
         $ "Login attempt failed. %j", { response, body }
         res.json 501, status: "failed"
 
   app.post "/auth/logout", (req, res) ->
-    $ = debug "R20:auth:logout:post"
+    $ = $.narrow "logout"
     $ "%s logging out.", req.session?.email
 
     if not req.session?.email?
@@ -192,9 +202,9 @@ do -> # Authentication setup
       return res.json 403, status: "not logged in."
 
     req.session.destroy (error) ->
-      $ = debug "R20:auth:logout:post:session:destroy"
+      $ = $.narrow "session_destroy"
       if error then throw error
-      $ "Session destroyed"
+      $ "done"
       res.json status: "okay"
 
 do -> # Make sure that only authenticated users can post, put and delete:
