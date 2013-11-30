@@ -130,102 +130,18 @@ app.use (req, res, next) ->
 
   do next
 
-# Load participant profile
-Participant = require "./models/Participant"
-app.use (req, res, next) ->
-  $ = $.root.narrow "profile"
-  $ "Going"
-  if req.session?.email?
-    $ "Loading profile"
-
-    { 
-      roles
-      whitelist
-      anonymous
-    }         = app.get "participants"
-    { email } = req.session
-    
-    async.waterfall [
-      (done)              ->
-        # Find profile
-        $ "Looking"
-        Participant.findOne { email }, done
-      
-      (participant, done) ->
-        # Create new if necessary
-        $ "Are we there?"
-        if participant 
-          $ "Found %j", participant
-          done null, participant
-        
-        else
-          $ "Not found. Making one up!"
-          config = app.get "participants"
-          if email of whitelist then data = whitelist[email]
-          else data = anonymous
-          data.email = email
-
-          participant = new Participant data
-          done null, participant
-
-          # participant.save done
-
-      (participant, done) ->
-        # Set default role and capabilities
-        if not participant.roles.length 
-          role = _(roles).keys()[0]
-          participant.roles.push [ role ]
-
-        capabilities = {}
-        for role in participant.roles
-          for name, value of roles[role]
-            capabilities[name] = capabilities[name] or value
-
-        $ "Role capabilities are %j", capabilities
-        
-        _(participant.can).defaults capabilities
-
-        done null, participant
-        
-      (participant, done) ->
-        $ "Profile is %j", participant
-        res.locals.participant = do participant.toObject
-        $ "Done."
-        do done
-    ], next
-  else
-    $ "Not logged in. Done."
-    do next
-
 # Authentication setup
 $ = $.root.narrow "auth"
 
 # Fake login while development
-# TODO: get rid of it in production!
-fakeLogin = (options) ->
-  (req, res, next) ->
-    $ = $.narrow "fake-login"
-    return do next unless (
-      (process.env.NODE_ENV is "development") and
-      (not req.session?.participant?)
-    )
+app.use (require "./middleware/fake-login")
+  role: "Administrator"
+  whitelist: (app.get "participants").whitelist
 
-    { email, role } = options
-    $ "Doing it for %s!", email or role
-    { whitelist } = app.get "participants"
-    if (not email) and whitelist # If email is not set, then role is required
-      $ "Looking up whitelist for first %s", role
-      email = _.chain(whitelist).keys().find((e) -> whitelist[e].role is role).value()
+# Load participant profile
+profile = require "./middleware/profile"
+app.use profile participants: app.get "participants"
 
-    if email then authenticate req, res, email, next
-    else 
-      $ "Email not found. Authenticating example user."
-      authenticate "admin@example.com", next
-
-# app.use fakeLogin role: "Administrator"
-# Broken. It seems navigator.id is too smart for that :)
-# Probabilly you would have to disable it if fake login happens.
-# Too much fuss.
 
 authenticate = (req, res, email, done) ->
   $ = $.narrow "authenticate"
@@ -246,6 +162,7 @@ authenticate = (req, res, email, done) ->
   else # no whitelist
     done Error "Not implemented yet."
     # throw Error "Open (non whitelist) authentication not implemented yet"
+
 
 app.post "/auth/login", (req, res) ->
   $ = $.narrow "login"

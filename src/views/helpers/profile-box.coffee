@@ -10,18 +10,19 @@ debug     = require "debug"
 $         = debug   "R20:views:helpers:profile-box"
 
 module.exports = renderable ->
-  $ "Profile is: %j", @participant
   div class: "panel panel-default sidebar-nav", =>
     nav class: "panel-body", =>
       if @participant?
         h5 @participant.name
         h6 @participant.roles.join ", "
-        ul class: "nav nav-pills nav-stacked", =>
-          li => a href: "#!/logout", title: "Log out", =>
-            i class: "icon-fixed-width icon-power-off"
-            text " Log out"        
-      else
-        ul class: "nav nav-pills nav-stacked", =>
-          li => a href: "#!/authenticate", title: "Log in", =>
-            i class: "icon-fixed-width icon-ok-circle"
-            text " Log in"
+        unless @_fake_login
+          ul class: "nav nav-pills nav-stacked", =>
+            li => a href: "#!/logout", title: "Log out", =>
+              i class: "icon-fixed-width icon-power-off"
+              text " Log out"        
+      else 
+        unless @_fake_login 
+          ul class: "nav nav-pills nav-stacked", =>
+            li => a href: "#!/authenticate", title: "Log in", =>
+              i class: "icon-fixed-width icon-ok-circle"
+              text " Log in"

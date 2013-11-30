@@ -20,7 +20,7 @@ module.exports = new Controller Question,
       "text"
     ]
     prepareMeta: (req, res, done) -> done null,
-      author: req.session.email
+      author: res.locals.participant._id
 
   single:
     getAdditionalDocuments: (question, done) ->
@@ -29,4 +29,15 @@ module.exports = new Controller Question,
       else question.findStories (error, stories) ->
         if error then return done error
         done null, { stories }
+
+  single_draft:
+    populate:
+      path  : "meta.author"
+      model : "Participant"
+    # prepareDraft: (draft, done) ->
+    #   $ "Preparing draft"
+    #   draft.populate
+    #     path  : "meta.author"
+    #     model : "Participant"
+    #     done
 

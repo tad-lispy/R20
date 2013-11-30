@@ -60,7 +60,7 @@ module.exports = renderable ->
           when "draft" then item
             icons   : [ "comment-alt", "plus-sign" ]
             url     : "/story/#{entry.data._id}/draft/#{entry._id}"
-            body    : "#{entry.meta.author} wrote a draft for a story."
+            body    : "#{entry.meta.author.name} wrote a draft for a story."
             excerpt : entry.data.text
             time    : do entry._id.getTimestamp
             class   : "info"
@@ -71,12 +71,12 @@ module.exports = renderable ->
               icons   : [ "comment-alt", "ok-circle" ]
               url     : "/story/#{draft.data._id}/"
               body    : ->
-                whose = if draft.meta.author is entry.meta.author
+                whose = if draft.meta.author._id is entry.meta.author._id
                   "his own draft"
                 else
-                  " a draft by #{draft.meta.author}"
+                  " a draft by #{draft.meta.author.name}"
                   
-                p "#{entry.meta.author} applied #{whose} to a story"
+                p "#{entry.meta.author.name} applied #{whose} to a story"
               excerpt : draft.data.text
               time    : do entry._id.getTimestamp
               class   : "success"
@@ -84,7 +84,7 @@ module.exports = renderable ->
           when "remove" then item
             icons   : [ "comment-alt", "remove" ]
             url     : "/story/#{entry.data._id}/"
-            body    : "#{entry.meta.author} removed a story."
+            body    : "#{entry.meta.author.name} removed a story."
             excerpt : entry.data.text
             time    : do entry._id.getTimestamp
             class   : "danger"
@@ -103,7 +103,7 @@ module.exports = renderable ->
           when "draft" then item
             icons   : [ "question-sign" ]
             url     : "/question/#{entry.data._id}/draft/#{entry._id}"
-            body    : "#{entry.meta.author} wrote a new draft for a question."
+            body    : "#{entry.meta.author.name} wrote a new draft for a question."
             excerpt : entry.data.text
             time    : do entry._id.getTimestamp
             class   : "info"
@@ -114,12 +114,12 @@ module.exports = renderable ->
               icons   : [ "question-sign" ]
               url     : "/question/#{draft.data._id}/"
               body    : ->
-                whose = if draft.meta.author is entry.meta.author
+                whose = if draft.meta.author._id is entry.meta.author._id
                   "his own draft"
                 else
-                  " a draft by #{draft.meta.author}"
+                  " a draft by #{draft.meta.author.name}"
                   
-                p "#{entry.meta.author} applied #{whose} to a question"
+                p "#{entry.meta.author.name} applied #{whose} to a question"
               excerpt : draft.data.text
               time    : do entry._id.getTimestamp
               class   : "success"
@@ -127,7 +127,7 @@ module.exports = renderable ->
           when "remove" then item
             icons   : [ "question-sign" ]
             url     : "/question/#{entry.data._id}/"
-            body    : "#{entry.meta.author} removed a question."
+            body    : "#{entry.meta.author.name} removed a question."
             excerpt : entry.data.text
             time    : do entry._id.getTimestamp
             class   : "danger"

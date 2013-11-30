@@ -58,7 +58,7 @@ module.exports = renderable (options) ->
                 else                  icon = "circle-blank"
                 
                 time    = moment(draft._id.getTimestamp()).fromNow()
-                author  = draft.meta.author 
+                author  = draft.meta.author
 
                 tr class: (if chosen then "active" else if applied then "success"), =>
 
@@ -69,8 +69,8 @@ module.exports = renderable (options) ->
                   td =>
                     if not applied then a
                       href: "/#{options.type}/#{@[options.type]._id}/draft/#{draft._id}"
-                      author
-                    else strong author
+                      author.name
+                    else strong author.name
 
                   td =>
                     if not applied then a

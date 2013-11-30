@@ -1,7 +1,8 @@
 # Home controller
 
-Story = require "../models/Story"
-Entry = require "../models/JournalEntry"
+Story       = require "../models/Story"
+Entry       = require "../models/JournalEntry"
+# Participant = require "../models/Participant"
 
 debug = require "debug"
 $     = debug "R20:controllers:home"
@@ -16,6 +17,10 @@ module.exports =
       .sort(_id: -1)
       .limit(10)
       .populate("data._draft")
+      .populate(
+        path  : "meta.author"
+        model : "Participant"
+      )
       .exec (error, entries) ->
         $ = $.narrow "find_entries"
         if error then throw error
