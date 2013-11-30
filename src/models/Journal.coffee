@@ -146,18 +146,26 @@ plugin = (schema, options) ->
 
           callback null, entry
 
-    findEntries: (query, callback) ->
-      if not callback and typeof query is "function" 
-        callback  = query
-        query     = {}
+    findEntries: (conditions, callback) ->
+      if not callback and typeof conditions is "function" 
+        callback    = conditions
+        conditions  = {}
       
-      query = _.extend query,
+      _(conditions).extend conditions,
         model     : @constructor.modelName
         "data._id": @_id
 
-      Entry
-        .find(query)
+      query = Entry
+        .find(conditions)
         .sort(_id: -1)
-        .exec callback
+
+      { populate } = options
+      if populate?
+        if typeof populate isnt "array" then populate = [ populate ]
+        for spec in populate
+          $ "Populating %s of %s with %s", spec.path, @constructor.modelName, spec.model
+          query.populate spec
+ 
+      query.exec callback
 
 module.exports = plugin

@@ -34,10 +34,4 @@ module.exports = new Controller Question,
     populate:
       path  : "meta.author"
       model : "Participant"
-    # prepareDraft: (draft, done) ->
-    #   $ "Preparing draft"
-    #   draft.populate
-    #     path  : "meta.author"
-    #     model : "Participant"
-    #     done
 

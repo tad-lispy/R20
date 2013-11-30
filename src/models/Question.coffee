@@ -41,7 +41,12 @@ Question.methods.findAnswers = (conditions, callback) ->
 
   Answer.find conditions, callback
 
-Question.plugin (require "./Journal"), omit: answers: true
+Question.plugin (require "./Journal"),
+  omit:
+    answers: true
+  populate:
+    path  : "meta.author"
+    model : "Participant"
 
 
 module.exports = mongoose.model 'Question', Question

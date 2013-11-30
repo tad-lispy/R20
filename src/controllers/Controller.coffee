@@ -18,7 +18,7 @@ module.exports = class Controller
     {
       model
       options
-    } = @
+    }       = @
     options = _(options).defaults
       singular  : do model.modelName.toLowerCase
       plural    : model.collection.name
@@ -81,7 +81,7 @@ module.exports = class Controller
 
       ":document_id" :
         get : (req, res) ->
-          # Store a draft for new question
+          # get a single document
           action = "single"
           $ = $.root.narrow action
           $ "Getting a singe %s", options.singular
@@ -89,9 +89,9 @@ module.exports = class Controller
           options[action] ?= {}
           _(options[action]).defaults
             getAdditionalDocuments: (document, done) -> done null, {}
-            drafts:
-              # TODO: the other way around :)
-              populate: options.single_draft.populate or (draft, done) -> done null, draft
+            # drafts:
+            #   # TODO: the other way around :)
+            #   populate: options.single_draft.populate or (draft, done) -> done null, draft
 
           async.waterfall [
             (done) ->
@@ -115,7 +115,6 @@ module.exports = class Controller
                   if error then return done error
                   if not data.journal.length and document.isNew
                     return done Error "Not found"
-                  # TODO: populate entries on model level!
                   done null, document, data.additionalDocuments, data.journal
             
           ], (error, document, additionalDocuments, journal) ->
@@ -295,6 +294,7 @@ module.exports = class Controller
               options[action] ?= {}
               _(options[action]).defaults
                 transformDraft: (draft, done) -> done null, draft
+                populate      : []
 
               async.waterfall [
                 (done) ->
@@ -306,21 +306,23 @@ module.exports = class Controller
                        (entry.model   isnt model.modelName) or
                         not (entry.data?._id?.equals req.params.document_id)
                           return done Error "Not found"
-
+                    
                     return done null, entry
 
                 (draft, done) ->
-                  if options[action].populate?
-                    $ "Populating draft %j", draft
-                    { populate } = options[action]
-                    if typeof populate isnt "array" then populate = [ populate ]
-                    async.each populate,
-                      (spec, next) ->
-                        $ "Looking for %s with id %s", spec.model, draft.get spec.path
-                        draft.populate spec, next
-                      (error) ->
-                        $ "All done: %j", draft
-                        done error, draft
+                  { populate } = options[action]
+                  if not populate.length then return done null, draft
+                  if typeof populate isnt "array" then populate = [ populate ]
+
+                  $ "Populating fields %j of draft %j", populate, draft
+                  
+                  async.each populate,
+                    (spec, next) ->
+                      $ "Looking for %s with id %s", spec.model, draft.get spec.path
+                      draft.populate spec, next
+                    (error) ->
+                      $ "All done: %j", draft
+                      done error, draft
 
                 (draft, done) ->
                   $ = $.narrow "find_or_create_document"
@@ -338,19 +340,20 @@ module.exports = class Controller
                   $ = $.narrow "find_other_drafts"
                   document.findEntries action: "draft", (error, journal) ->
                     if error then return done error
-                    if options[action].populate?
-                      # TODO: DRY
-                      # TODO: populate in query, not per document
-                      { populate } = options[action]
-                      if typeof populate isnt "array" then populate = [ populate ]
-                      for entry in journal
-                        async.each populate,
-                          (spec, next) ->
-                            $ "Looking for %s with id %s", spec.model, entry.get spec.path
-                            entry.populate spec, next
-                          (error) ->
-                            $ "All done: %j", entry
-                            done error, draft, document, journal
+                    done error, draft, document, journal
+                    # if options[action].populate?
+                    #   # TODO: DRY
+                    #   # TODO: populate in query, not per document
+                    #   { populate } = options[action]
+                    #   if typeof populate isnt "array" then populate = [ populate ]
+                    #   for entry in journal
+                    #     async.each populate,
+                    #       (spec, next) ->
+                    #         $ "Looking for %s with id %s", spec.model, entry.get spec.path
+                    #         entry.populate spec, next
+                    #       (error) ->
+                    #         $ "All done: %j", entry
+                    #         done error, draft, document, journal
 
               ], (error, draft, document, journal) ->
                 $ = $.narrow "send"

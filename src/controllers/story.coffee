@@ -19,7 +19,7 @@ module.exports = new Controller Story,
       "text"
     ]
     prepareMeta: (req, res, done) -> done null,
-      author: req.session.email
+      author: res.locals.participant._id
 
   single:
     getAdditionalDocuments: (story, done) ->
