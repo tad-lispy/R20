@@ -167,10 +167,7 @@ module.exports = class Controller
                   done null, meta, draft
 
               (meta, draft, done) ->
-                $ "Doing draft.apply"
-                console.dir draft
                 draft.apply meta, (error, document) ->
-                  $ "Draft apply callback"
                   done error, document
             ], (error, document) ->
               # Send
@@ -421,3 +418,5 @@ module.exports = class Controller
                   res.json document
                 else res.redirect "/#{options.singular}/#{document._id}"
 
+
+  # TODO: static method to load (clutters app now)

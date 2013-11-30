@@ -3,15 +3,19 @@
   div, nav, ul, li,
   h5, h6
   a, i
-} = require "teacup"
+}         = require "teacup"
+_         = require "underscore"
+_.string  = require "underscore.string"
+debug     = require "debug"
+$         = debug   "R20:views:helpers:profile-box"
 
 module.exports = renderable ->
-
+  $ "Profile is: %j", @participant
   div class: "panel panel-default sidebar-nav", =>
     nav class: "panel-body", =>
-      if @session.email?
-        h5 @session.email
-        h6 @session.role
+      if @participant?
+        h5 @participant.name
+        h6 @participant.roles.join ", "
         ul class: "nav nav-pills nav-stacked", =>
           li => a href: "#!/logout", title: "Log out", =>
             i class: "icon-fixed-width icon-power-off"

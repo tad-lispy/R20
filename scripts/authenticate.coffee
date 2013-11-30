@@ -7,7 +7,10 @@ $ ->
         assertion : assertion
         _csrf: csrf
         (data) ->
-          do window.location.reload
+          console.dir data
+          if data.status is "okay"
+            do window.location.reload
+          else console.log "Not okay?"
 
     onlogout    : ->
       $.post "/auth/logout",
