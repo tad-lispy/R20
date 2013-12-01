@@ -19,8 +19,15 @@ Story.pre "validate", (done) ->
 Story.plugin (require "./Journal"),
   omit:
     questions: true
-  populate:
+  populate: [
     path  : "meta.author"
     model : "Participant"
+  ,
+    path  : "data.main_doc"
+    model : "Story"
+  ,
+    path  : "data.referenced_doc"
+    model : "Question"
+  ]
 
 module.exports = mongoose.model 'Story', Story

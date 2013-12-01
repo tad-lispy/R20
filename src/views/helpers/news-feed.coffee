@@ -4,7 +4,7 @@
   div, span, pre
   h3, h4, p
   hr
-  a, i, small, strong
+  a, i, small, strong, em
 }         = require "teacup"
 _         = require "underscore"
 _.string  = require "underscore.string"
@@ -36,7 +36,8 @@ item      = renderable (options) =>
         else p options.body
           
       if options.excerpt? 
-        div
+        if typeof options.excerpt is "function" then do options.excerpt
+        else div
           style: """          
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -51,6 +52,7 @@ module.exports = renderable ->
     for entry in @entries
 
       switch entry.model 
+        # TODO: OMG DRY!
         
         # Stories related entries
         # -----------------------
@@ -89,19 +91,60 @@ module.exports = renderable ->
             time    : do entry._id.getTimestamp
             class   : "danger"
 
-          when "reference" then item
-            icons   : [ "comment-alt", "question-sign" ]
-            url     : "/story/#{entry.data._id}/"
-            body    : "#{entry.meta.author.name} referenced a question to a story."
-            excerpt : "TODO: populate story and question to display text"
-            time    : do entry._id.getTimestamp
-            class   : "success"
+          when "reference" 
+            console.dir entry
+            item
+              icons   : [ "comment-alt", "question-sign" ]
+              url     : "/story/#{entry.data.main_doc._id}/"
+              body    : "#{entry.meta.author.name} referenced a question to a story."
+              excerpt : ->
+                div
+                  style: """          
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    overflow: hidden;
+                  """
+                  =>
+                    strong "S: " 
+                    em _.string.stripTags render =>
+                      markdown entry.data.main_doc.text
+                div
+                  style: """          
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    overflow: hidden;
+                  """
+                  =>
+                    strong "Q: " + _.string.stripTags render =>
+                      markdown entry.data.referenced_doc.text
+              time    : do entry._id.getTimestamp
+              class   : "success"
           
           when "unreference" then item
             icons   : [ "comment-alt", "question-sign" ]
-            url     : "/story/#{entry.data._id}/"
+            url     : "/story/#{entry.data.main_doc._id}/"
             body    : "#{entry.meta.author.name} removed a question from a story."
-            excerpt : "TODO: populate story and question to display text"
+            excerpt : ->
+              div
+                style: """          
+                  text-overflow: ellipsis;
+                  white-space: nowrap;
+                  overflow: hidden;
+                """
+                =>
+                  strong "S: " 
+                  em _.string.stripTags render =>
+                    markdown entry.data.main_doc.text
+              div
+                style: """          
+                  text-overflow: ellipsis;
+                  white-space: nowrap;
+                  overflow: hidden;
+                """
+                =>
+                  strong "Q: "
+                  strong style: "text-decoration: line-through", _.string.stripTags render =>
+                    markdown entry.data.referenced_doc.text
             time    : do entry._id.getTimestamp
             class   : "danger"
 

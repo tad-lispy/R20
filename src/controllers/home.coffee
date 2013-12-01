@@ -21,6 +21,14 @@ module.exports =
         path  : "meta.author"
         model : "Participant"
       )
+      .populate(
+        path  : "data.main_doc"
+        model : "Story"
+      )
+      .populate(
+        path  : "data.referenced_doc"
+        model : "Question"
+      )
       .exec (error, entries) ->
         $ = $.narrow "find_entries"
         if error then throw error

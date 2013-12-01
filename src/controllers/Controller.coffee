@@ -89,10 +89,8 @@ module.exports = class Controller
           
           options[action] ?= {}
           _(options[action]).defaults
-            getAdditionalDocuments: (document, done) -> done null, {}
-            # drafts:
-            #   # TODO: the other way around :)
-            #   populate: options.single_draft.populate or (draft, done) -> done null, draft
+            transformation  : (document, done) -> process.nextTick -> done null, document
+            other_documents : (document, done) -> process.nextTick -> done null, {}
 
           async.waterfall [
             (done) ->
@@ -109,16 +107,22 @@ module.exports = class Controller
             
             (document, done) ->
               async.parallel
-                additionalDocuments: (done) ->
-                  options[action].getAdditionalDocuments document, done
-                journal: (done) -> document.findEntries done
+                other_documents: (done) ->
+                  options[action].other_documents document, done
+
+                transformation: (done) ->
+                  options[action].transformation  document, done
+
+                journal       : (done) ->
+                  document.findEntries done
+
                 (error, data) ->
                   if error then return done error
                   if not data.journal.length and document.isNew
                     return done Error "Not found"
-                  done null, document, data.additionalDocuments, data.journal
+                  done null, data.transformation, data.other_documents, data.journal
             
-          ], (error, document, additionalDocuments, journal) ->
+          ], (error, document, other_documents, journal) ->
             # Send results
             $ = $.narrow "send"
 
@@ -136,7 +140,7 @@ module.exports = class Controller
               res.json document
             else
               res.locals[options.singular] = document
-              res.locals additionalDocuments
+              res.locals other_documents
               res.locals { journal }
 
               template = require "../views/#{options.singular}"
@@ -294,8 +298,7 @@ module.exports = class Controller
               
               options[action] ?= {}
               _(options[action]).defaults
-                transformDraft: (draft, done) -> done null, draft
-                populate      : []
+                transformation: (draft, done) -> process.nextTick -> done null, draft
 
               async.waterfall [
                 (done) ->
@@ -310,20 +313,8 @@ module.exports = class Controller
                     
                     return done null, entry
 
-                (draft, done) ->
-                  { populate } = options[action]
-                  if not populate.length then return done null, draft
-                  if typeof populate isnt "array" then populate = [ populate ]
-
-                  $ "Populating fields %j of draft %j", populate, draft
-                  
-                  async.each populate,
-                    (spec, next) ->
-                      $ "Looking for %s with id %s", spec.model, draft.get spec.path
-                      draft.populate spec, next
-                    (error) ->
-                      $ "All done: %j", draft
-                      done error, draft
+                # Run transformation (to populate, etc.)
+                options[action].transformation
 
                 (draft, done) ->
                   $ = $.narrow "find_or_create_document"
@@ -342,19 +333,6 @@ module.exports = class Controller
                   document.findEntries action: "draft", (error, journal) ->
                     if error then return done error
                     done error, draft, document, journal
-                    # if options[action].populate?
-                    #   # TODO: DRY
-                    #   # TODO: populate in query, not per document
-                    #   { populate } = options[action]
-                    #   if typeof populate isnt "array" then populate = [ populate ]
-                    #   for entry in journal
-                    #     async.each populate,
-                    #       (spec, next) ->
-                    #         $ "Looking for %s with id %s", spec.model, entry.get spec.path
-                    #         entry.populate spec, next
-                    #       (error) ->
-                    #         $ "All done: %j", entry
-                    #         done error, draft, document, journal
 
               ], (error, draft, document, journal) ->
                 $ = $.narrow "send"
@@ -470,8 +448,8 @@ module.exports = class Controller
                   action: "reference"
                   model : model.modelName
                   data  :
-                    _id           : document_id
-                    referenced_id : referenced._id
+                    main_doc      : document_id
+                    referenced_doc: referenced._id
                     path          : reference_path
                   meta  : assignment.meta
                 entry.save (error, entry) ->
@@ -532,8 +510,8 @@ module.exports = class Controller
                   action: "unreference"
                   model : model.modelName
                   data  : {
-                    _id           : document_id
-                    referenced_id : referenced_id
+                    main_doc      : document_id
+                    referenced_doc: referenced_id
                     path          : reference_path
                   }
                   meta  : meta

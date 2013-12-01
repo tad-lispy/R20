@@ -22,14 +22,24 @@ module.exports = new Controller Story,
       author: res.locals.participant._id
 
   single:
-    getAdditionalDocuments: (story, done) ->
+    transformation: (story, done) ->
       # Find related questions
       story.populate "questions", (error, story) ->
         if error then return done error
         $ "After population the story is: %j", story
-        done null, {}
+        done null, story
 
   single_draft:
+    transformation: (draft, done) ->
+      # populate author
+      draft.populate
+        path  : "meta.author"
+        model : "Participant"
+        (error, draft) ->
+          if error then return done error
+          $ "After population the draft is: %j", draft
+          done null, draft
+
     populate:
       path  : "meta.author"
       model : "Participant"

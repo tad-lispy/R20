@@ -4,6 +4,7 @@ debug       = require "debug"
 $           = debug "R20:controllers:question"
 
 Question    = require "../models/Question"
+Story       = require "../models/Question"
 
 Controller  = require "./Controller"
 
@@ -23,15 +24,19 @@ module.exports = new Controller Question,
       author: res.locals.participant._id
 
   single:
-    getAdditionalDocuments: (question, done) ->
-      # Find related stories
-      if question.isNew then done null, question, []
-      else question.findStories (error, stories) ->
-        if error then return done error
-        done null, { stories }
+    other_documents: (question, done) ->
+      $ "Looking for story with question %s", question._id
+      question.findStories (error, stories) -> done error, { stories }
+
 
   single_draft:
-    populate:
-      path  : "meta.author"
-      model : "Participant"
+    # populate author
+    transformation: (draft, done) ->
+      draft.populate
+        path  : "meta.author"
+        model : "Participant"
+        (error, draft) ->
+          if error then return done error
+          $ "After population the draft is: %j", draft
+          done null, draft
 

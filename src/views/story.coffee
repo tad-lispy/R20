@@ -30,7 +30,7 @@ module.exports = renderable (data) ->
       
       div class: "alert alert-#{if applied then 'success' else 'info'} clearfix", =>
       
-        text "This is a draft proposed #{moment(@draft._id.getTimestamp()).fromNow()} by #{@draft.meta.author}. "
+        text "This is a draft proposed #{moment(@draft._id.getTimestamp()).fromNow()} by #{@draft.meta.author.name}. "
         if applied then text "It is currently applied."
 
         a
