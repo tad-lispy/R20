@@ -144,14 +144,15 @@ module.exports = renderable (data) ->
           for story in @stories
             div 
               class: "item #{'active' if n is 0}"
-              =>
-                div
-                  style: """
-                    height: 200px;
-                    overflow: hidden;
-                    padding: 30px 100px;
-                  """
-                  => markdown story.text
+              => 
+                a href: "/story/#{story._id}", =>
+                  div
+                    style: """
+                      height: 200px;
+                      overflow: hidden;
+                      padding: 30px 100px;
+                    """
+                    => markdown story.text
                 
             n++
 
