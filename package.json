@@ -1,7 +1,7 @@
 {
   "name": "R20",
   "repo": "https://github.com/lzrski/R20",
-  "version": "0.5.4",
+  "version": "0.6.0",
   "description": "Q&A Engine for legal questions",
   "main": "lib/app.js",
   "scripts": {
