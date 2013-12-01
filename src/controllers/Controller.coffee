@@ -3,13 +3,14 @@
 # Constructor takes a model and options
 # constructs ab object with actual controller logic in paths
 # 
+# TODO: Too long! Modularize.
 
 async     = require "async"
 _         = require "underscore"
 Entry     = require "../models/JournalEntry"
 
 debug     = require "debug"
-$         = debug "R20:controllers:question"
+$         = debug "R20:Controllers:factory"
 
 
 module.exports = class Controller
@@ -22,7 +23,7 @@ module.exports = class Controller
     options = _(options).defaults
       singular  : do model.modelName.toLowerCase
       plural    : model.collection.name
-      references: {}  # TODO: build default references by inspecting model
+      references: []  # TODO: build default references by inspecting model
                       # be smart :)
 
     @paths =
@@ -52,7 +53,7 @@ module.exports = class Controller
             res.send template.call res.locals
 
       post: (req, res) ->
-        # Store a draft for new question
+        # Store a draft for new document
         action = "new"
         $ = $.root.narrow action
         
@@ -194,7 +195,7 @@ module.exports = class Controller
                   else throw error # different error
 
               $ "Draft applied"
-              if (req.accepts ["json", "html"]) is "json" then req.json question.toJSON()
+              if (req.accepts ["json", "html"]) is "json" then req.json document.toJSON()
               else res.redirect "/#{options.singular}/#{document._id}"
           
           # Save a new draft
@@ -226,10 +227,10 @@ module.exports = class Controller
                   if (req.accepts ["json", "html"]) is "json"
                     res.json draft.toJSON()
                   else
-                    res.redirect "/question/#{req.params.document_id}/draft/#{draft._id}"
+                    res.redirect "/#{options.singular}/#{req.params.document_id}/draft/#{draft._id}"
 
         delete: (req, res) ->
-          # Store a draft for new question
+          # Remove a document
           action = "remove"
           $ = $.root.narrow action
           $ "Removing a singe %s", options.singular
@@ -378,26 +379,53 @@ module.exports = class Controller
                   res.send template.call res.locals
 
     $ = $.root.narrow "references"
-    for name, reference of options.references
-      $ = $.narrow name
-      # TODO: reference defaults
+    references        = model.references
+    _(references).union options.references
 
-      @paths[":document_id"][name] =
-        
+    $ "References are: %j", references
+
+    setup_reference_paths = (reference_model, reference_relation, reference_path) =>
+      $ = $.root.narrow reference.path
+      $ "building reference paths for %j", {reference_model, reference_relation, reference_path}
+      @paths[":document_id"][reference.path] =
         get: (req, res) ->
           async.waterfall [
             (done)            -> model.findById req.params.document_id, done
             (document, done)  -> 
-              ids = document.get reference.path
-              if typeof ids in "array"
-                reference.model.find _id: $in: ids, done
+              if not document then return done Error "Not found"
+              $ "%s %s %s", model.modelName, reference_relation, reference_model.modelName
+
+              if reference_relation is "has many"
+                ids = document.get reference_path
+                $ "Ids are (%s) %j ", typeof ids, ids
+                reference_model.find _id: $in: ids, done
               else
-                reference.model.findById ids, done
+                id = document.get reference_path
+                reference_model.findById id, done
+                  
           ], (error, referenced) ->
-            if error then throw error
+            if error 
+              if error.message is "Not found"
+                if (req.accepts ["json", "html"]) is "json"
+                  return res.json 404, error: 404
+                else
+                  return res.send 404, "I'm sorry, I can't find this #{options.singular}."
+              else throw error
             res.json referenced
 
         post: (req, res) ->
+          # Remove a reference
+          action = "reference_" + reference_path
+          $ = $.root.narrow action
+                     
+          options[action] ?= {}
+          _(options[action]).defaults
+            prepareMeta: options.new.prepareMeta
+
+          { 
+            document_id
+          } = req.params
+
           async.parallel
             document   : (done) ->
               $ "Looking for document"
@@ -408,10 +436,13 @@ module.exports = class Controller
 
             referenced  : (done) ->
               $ "Looking for referenced document"
-              reference.model.findById req.body._id, (error, referenced) ->
+              reference_model.findById req.body._id, (error, referenced) ->
                 if error then return done error
                 if not referenced then return done Error "Referenced document not found"
                 done null, referenced
+
+            meta        : (done) -> 
+              options[action].prepareMeta req, res, done
             
             (error, assignment) ->
               # TODO: handle not found errors
@@ -423,37 +454,107 @@ module.exports = class Controller
                 referenced
               } = assignment
 
-              field = document.get reference.path
-              if reference.type is "has many"
+              field = document.get reference_path
+              if reference_relation is "has many"
                 field.push referenced._id
               else
                 field    = referenced._id
 
-              document.set reference.path, field
+              document.set reference_path, field
 
               document.save (error, document) ->
                 $ "Saving reference"
                 if error then throw error
-                if (req.accepts ["json", "html"]) is "json"
-                  res.json document
-                else res.redirect "/#{options.singular}/#{document._id}#assignment"
+
+                entry = new Entry
+                  action: "reference"
+                  model : model.modelName
+                  data  :
+                    _id           : document_id
+                    referenced_id : referenced._id
+                    path          : reference_path
+                  meta  : assignment.meta
+                entry.save (error, entry) ->
+                  if (req.accepts ["json", "html"]) is "json"
+                    res.json document
+                  else res.redirect "/#{options.singular}/#{document._id}#assignment"
 
         ":referenced_id":
           delete: (req, res) ->
-            operation = $pull: {}
-            operation["$pull"][reference.path] = req.params.referenced_id
+            # Remove a reference
+            action = "unreference_" + reference_path
+            $ = $.root.narrow action
+                       
+            options[action] ?= {}
+            _(options[action]).defaults
+              prepareMeta: options.new.prepareMeta
 
-            model.findByIdAndUpdate req.params.document_id,
-              operation
-              (error, document) ->
-                if not document
-                  if (req.accepts ["json", "html"]) is "json"
-                    res.json error: "No such #{options.singular}"
-                  else res.send "Error: 404"
+            { 
+              document_id
+              referenced_id
+            } = req.params
+
+
+            conditions = _id: document_id
+            conditions[reference_path] = referenced_id
+
+            if reference_relation is "has many"
+              operation = $pull: {}
+              operation["$pull"][reference_path] = referenced_id
+            else
+              operation = {}
+              operation[reference_path] = null
+
+            $ "Removing reference to %s (%s) from %s (%s)",
+              reference_model.modelName
+              referenced_id
+              model.modelName
+              document_id
+            
+            async.waterfall [
+              # Try to do it
+              (done)  -> model.findOneAndUpdate conditions, operation, done
+              
+              # Check if anything happened. I so, save an entry
+              (document, done) ->
+                if not document then return done Error "Reference not found in document"
+                done null, document
+              
+              # Prepare metadata for journal
+              (document, done) ->
+                console.dir {req, res, done}
+                options[action].prepareMeta req, res, (error, meta) ->
+                  done error, document, meta
+
+              # Save entry in a journa;
+              (document, meta, done) ->
+                entry = new Entry
+                  action: "unreference"
+                  model : model.modelName
+                  data  : {
+                    _id           : document_id
+                    referenced_id : referenced_id
+                    path          : reference_path
+                  }
+                  meta  : meta
+                entry.save (error, entry) -> done error, document, entry
+
+            ], (error, document, entry) ->
+                if error then switch error.message
+                  when "Reference not found in document"
+                    if (req.accepts ["json", "html"]) is "json"
+                      res.json 409, error: "Reference not found in document"
+                    else res.send "Error: 404"
                   
                 if (req.accepts ["json", "html"]) is "json"
                   res.json document
-                else res.redirect "/#{options.singular}/#{document._id}"
+                else res.redirect "/#{options.singular}/#{document_id}"
 
+    for reference in references
+      setup_reference_paths (model.model reference.model), reference.relation, reference.path
+
+    
+        
+        
 
   # TODO: static method to load (clutters app now)

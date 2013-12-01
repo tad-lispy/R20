@@ -88,7 +88,23 @@ module.exports = renderable ->
             excerpt : entry.data.text
             time    : do entry._id.getTimestamp
             class   : "danger"
+
+          when "reference" then item
+            icons   : [ "comment-alt", "question-sign" ]
+            url     : "/story/#{entry.data._id}/"
+            body    : "#{entry.meta.author.name} referenced a question to a story."
+            excerpt : "TODO: populate story and question to display text"
+            time    : do entry._id.getTimestamp
+            class   : "success"
           
+          when "unreference" then item
+            icons   : [ "comment-alt", "question-sign" ]
+            url     : "/story/#{entry.data._id}/"
+            body    : "#{entry.meta.author.name} removed a question from a story."
+            excerpt : "TODO: populate story and question to display text"
+            time    : do entry._id.getTimestamp
+            class   : "danger"
+
           else item
             body    : "Something (#{entry.action}) happened to a story"
             url     : "/story/#{entry.data._id}"

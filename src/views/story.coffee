@@ -188,7 +188,7 @@ module.exports = renderable (data) ->
               div id: "assign-questions-list", =>
                 div class: "hide", id: "assign-question-template", =>
                   form
-                    action: "/story/#{@story._id}/question"
+                    action: "/story/#{@story._id}/questions"
                     method: "post"
                     =>
                       div class: "form-group", =>
@@ -232,7 +232,7 @@ module.exports = renderable (data) ->
                   
                 div class: "btn-group", =>
                   form
-                    action: "/story/#{@story._id}/question/#{question._id}"
+                    action: "/story/#{@story._id}/questions/#{question._id}"
                     method: "post"
                     =>
                       @helper "csrf"

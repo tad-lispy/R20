@@ -21,23 +21,18 @@ module.exports = (options) ->
 
   return (req, res, next) ->
     $ = $.root.narrow "profile"
-    $ "Going"
     if req.session?.email?
-      $ "Loading profile"
-
       { email } = req.session
-      
+      $ "Loading profile of %s", email
+
       async.waterfall [
         (done)              ->
           # Find profile
-          $ "Looking"
           Participant.findOne { email }, done
         
         (participant, done) ->
           # Create new if necessary
-          $ "Are we there?"
           if participant 
-            $ "Found %j", participant
             done null, participant
           
           else
@@ -64,17 +59,13 @@ module.exports = (options) ->
           for role in participant.roles
             for name, value of roles[role]
               capabilities[name] = capabilities[name] or value
-
-          $ "Role capabilities are %j", capabilities
           
           _(participant.can).defaults capabilities
 
           done null, participant
           
         (participant, done) ->
-          $ "Profile is %j", participant
           res.locals.participant = do participant.toObject
-          $ "Done."
           do done
       ], next
     else

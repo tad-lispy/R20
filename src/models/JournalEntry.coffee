@@ -20,11 +20,11 @@ Entry = new mongoose.Schema
     type      : String
     required  : yes
     validate  : (value) -> value in [
-      "draft"     # New draft
-      "apply"     # Draft applied
-      "remove"    # Document removed
-      "reference" # Reference to subdocument proposed
-      "drop"      # Drop applied change (only reference ATM)
+      "draft"       # New draft
+      "apply"       # Draft applied
+      "remove"      # Document removed
+      "reference"   # Reference to subdocument proposed
+      "unreference" # Drop applied change (only reference ATM)
     ]
 
   model     : # Where?
@@ -90,4 +90,4 @@ Entry.method "apply", (meta, callback) ->
 
     else return callback Error "Journal entry not applicable"
 
-module.exports = mongoose.model "journal.entry", Entry
+module.exports = mongoose.model "Journal.Entry", Entry

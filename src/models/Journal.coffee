@@ -50,15 +50,17 @@ plugin = (schema, options) ->
     # $ "It has a type: %s (%s)", type, typeof type
     if util.isArray type
       relation = "has many"
-      type     = type[0]
+      options  = type[0]
     else 
       relation = "has one"
+      options  = description.options
+
       # TODO: never discovers singular references
       # They doesn't expose ref - type is a function!
       # Maybe discover by inspecting schema.tree?
-    # $ "Relation is %s", relation
-    if type.ref?
-      model = type.ref
+    $ "Relation is %s: %j", relation, options
+    if options.ref?
+      model = options.ref
       reference = { path, relation, model }
       $ "Found %j", reference
       schema.statics.references.push reference
