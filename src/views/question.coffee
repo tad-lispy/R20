@@ -132,29 +132,32 @@ module.exports = renderable (data) ->
         i class: "icon-frown icon-4x"
         text " Not implemented yet"
 
-    h4 class: "text-muted", "Stories"
-    div 
-      id    : "stories-carousel"
-      class : "carousel slide"
-      data  :
-        ride  : "carousel"
-      =>
-        div class: "carousel-inner well", =>
-          n = 0
-          for story in @stories
-            div 
-              class: "item #{'active' if n is 0}"
-              => 
-                a href: "/story/#{story._id}", =>
-                  div
-                    style: """
-                      height: 200px;
-                      overflow: hidden;
-                      padding: 30px 100px;
-                    """
-                    => markdown story.text
-                
-            n++
+    if @stories?.length
+
+      h4 class: "text-muted", "Stories"
+      
+      div 
+        id    : "stories-carousel"
+        class : "carousel slide"
+        data  :
+          ride  : "carousel"
+        =>
+          div class: "carousel-inner well", =>
+            n = 0
+            for story in @stories
+              div 
+                class: "item #{'active' if n is 0}"
+                => 
+                  a href: "/story/#{story._id}", =>
+                    div
+                      style: """
+                        height: 200px;
+                        overflow: hidden;
+                        padding: 30px 100px;
+                      """
+                      => markdown story.text
+                  
+              n++
 
         # ol class: "carousel-indicators", =>
         #   n = 0
@@ -166,16 +169,16 @@ module.exports = renderable (data) ->
         #         "slide-to": n++
         #     text " "
 
-        a 
-          class: "left carousel-control"
-          href: "#stories-carousel"
-          data: slide: "prev"
-          => span class: "glyphicon glyphicon-chevron-left"
-        a 
-          class: "right carousel-control"
-          href: "#stories-carousel"
-          data: slide: "next"
-          => span class: "glyphicon glyphicon-chevron-right"
+          a 
+            class: "left carousel-control"
+            href: "#stories-carousel"
+            data: slide: "prev"
+            => span class: "glyphicon glyphicon-chevron-left"
+          a 
+            class: "right carousel-control"
+            href: "#stories-carousel"
+            data: slide: "next"
+            => span class: "glyphicon glyphicon-chevron-right"
 
     # if @question.stories.length
     #   h4 class: "text-muted", "Sample stories"
