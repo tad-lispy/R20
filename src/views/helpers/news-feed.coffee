@@ -92,7 +92,6 @@ module.exports = renderable ->
             class   : "danger"
 
           when "reference" 
-            console.dir entry
             item
               icons   : [ "comment-alt", "question-sign" ]
               url     : "/story/#{entry.data.main_doc._id}/"

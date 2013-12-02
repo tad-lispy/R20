@@ -77,14 +77,30 @@ app.use '/css', express.static 'assets/styles/vendor'
 # Most basic: make sure that only authenticated participants can post, put and delete:
 app.use (req, res, next) ->
   $ = $.root.narrow "security:basic"
-  if req.method in [
-    "post"
-    "put"
-    "delete"
-  ] and not req.session?.email
-    return next Error: "Not authenticated" unless req.url is "/auth/login" and req.method is "post"
+  $ "Check!"
+  unless req.method.toLowerCase() in [
+    "get"
+    "head"
+  ] or req.session?.email
+    unless req.url is "/auth/login" and req.method.toLowerCase() is "post"
+      $ "HALT!"  
+      return next Error "Not authenticated"
 
+  $ "It's OK for %s to %s.", req.session?.email, req.method
   do next
+
+# Handle basic security errors
+app.use (error, req, res, next) ->
+  $ = $.root.narrow "middleware:error:security:basic"
+  # See: http://stackoverflow.com/questions/7151487/error-handling-principles-for-nodejs-express-apps
+  # TODO: implement this kind of error handling in other middlewares to
+  if error.message is "Not authenticated"
+    $ "Anonymous agent is trying to %s %s", req.method, req.url
+    res.send 403, "Not authenticated"
+  else 
+    $ error.message
+    next error
+
 
 # Cross-site resource forgery prevention token:
 app.use do express.csrf
@@ -134,9 +150,9 @@ app.use (req, res, next) ->
 $ = $.root.narrow "auth"
 
 # Fake login while development
-app.use (require "./middleware/fake-login")
-  role: "Administrator"
-  whitelist: (app.get "participants").whitelist
+# app.use (require "./middleware/fake-login")
+#   role: "Administrator"
+#   whitelist: (app.get "participants").whitelist
 
 # Load participant profile
 profile = require "./middleware/profile"
