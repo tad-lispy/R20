@@ -73,11 +73,10 @@ module.exports = renderable ->
               icons   : [ "comment-alt", "ok-circle" ]
               url     : "/story/#{draft.data._id}/"
               body    : ->
-                whose = if draft.meta.author._id is entry.meta.author._id
+                whose = if draft.meta.author._id.equals entry.meta.author._id
                   "his own draft"
                 else
                   " a draft by #{draft.meta.author.name}"
-                  
                 p "#{entry.meta.author.name} applied #{whose} to a story"
               excerpt : draft.data.text
               time    : do entry._id.getTimestamp
@@ -172,7 +171,7 @@ module.exports = renderable ->
               icons   : [ "question-sign" ]
               url     : "/question/#{draft.data._id}/"
               body    : ->
-                whose = if draft.meta.author._id is entry.meta.author._id
+                whose = if draft.meta.author._id.equals entry.meta.author._id
                   "his own draft"
                 else
                   " a draft by #{draft.meta.author.name}"

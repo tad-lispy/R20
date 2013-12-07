@@ -2,7 +2,7 @@
 
 Story       = require "../models/Story"
 Entry       = require "../models/JournalEntry"
-# Participant = require "../models/Participant"
+Participant = require "../models/Participant"
 
 debug = require "debug"
 $     = debug "R20:controllers:home"
@@ -32,8 +32,12 @@ module.exports =
       .exec (error, entries) ->
         $ = $.narrow "find_entries"
         if error then throw error
-        
-        res.locals { entries }
-        
-        template = require "../views/home"
-        res.send template.call res.locals
+
+        Participant.populate entries,
+          path  : "data._draft.meta.author"
+          model : "Participant"
+          (error, entries) ->
+            res.locals { entries }
+            
+            template = require "../views/home"
+            res.send template.call res.locals
