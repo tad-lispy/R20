@@ -1,9 +1,90 @@
-# # Controller class
-#
-# Constructor takes a model and options
-# constructs ab object with actual controller logic in paths
-# 
-# TODO: Too long! Modularize.
+###
+  ```
+# Controller class
+
+Constructor takes a model and options
+constructs an object with actual controller logic in paths
+
+TODO: Too long! Modularize.
+
+TODO: Abstract it a bit more and modularize
+
+Controller has following actions
+
+* list: 
+    list documents
+
+* journal:
+    list journal entries for documents in a given model
+    (all, drafts, refererences, pending (newer then applied one), hanging (for new documents), etc.)
+
+* new:
+    create new document or * store a draft for it
+
+* single:
+    get single document
+
+* update:
+    update a single document or * store new draft
+
+* remove:
+    remove a document
+
+* document_journal:
+    get entries for single document
+
+* single_entry:
+    get a single draft for a single document
+    Obsolete since you can get /draft/:draft_id?
+
+* list_references:
+    lists all references of a given type
+
+* single_reference:
+    seldom used - mainly for singular reference
+
+* make_reference:
+    add a reference to other document
+
+* remove_reference:
+    remove a reference to other document
+
+When creating new controller you pass it a model and options, eg:
+
+new Controller Question,
+  path: /question/
+  list:
+    pre : (req, res, options, done)            -> done error, options
+    post: (req, res, options, documents, done) -> done error, documents
+```
+
+Options are passed to appropriate actions. Usualy options are functions to be called at a given stages of async.waterfall.
+
+If options[action] is a function, then it overrides entire action method. `this` is a controller.
+
+Controller maps url paths to actions. This path can also be overriden by options. Default mapping is:
+
+  Action            | Method | URL path
+  ---------------------------------------------------------------------------------------
+  list              | GET    | /
+  new               | POST   | /
+  journal           | GET    | /journal
+  single            | GET    | /:document_id
+  update            | PUT    | /:document_id
+  remove            | DELETE | /:document_id
+  single_journal    | GET    | /:document_id/journal/
+  single_entry      | GET    | /:document_id/journal/:entry_id
+  list_references   | GET    | /:document_id/:reference_path/ *if reference is plural*
+  single_reference  | GET    | /:document_id/:reference_path/ *if reference is singular*
+  single_reference  | GET    | /:document_id/:reference_path/:reference_id
+  make_reference    | PUT    | /:document_id/:reference_path/:reference_id
+  remove_reference  | DELETe | /:document_id/:reference_path/:reference_id
+
+###
+
+
+
+
 
 async     = require "async"
 _         = require "underscore"
@@ -25,6 +106,7 @@ module.exports = class Controller
       plural    : model.collection.name
       references: []  # TODO: build default references by inspecting model
                       # be smart :)
+
 
     @paths =
       # General
@@ -99,7 +181,7 @@ module.exports = class Controller
 
               model.findByIdOrCreate req.params.document_id,
                 text: """
-                  **VIRTUAL**
+                  VIRTUAL
                   This #{options.singular} is not saved.
                   Some drafts for it exists though.
                 """
@@ -212,7 +294,7 @@ module.exports = class Controller
                   (done) ->
                     model.findByIdOrCreate req.params.document_id,
                       text: """
-                        **VIRTUAL**
+                        VIRTUAL
                         This #{options.singular} is not saved.
                         Some drafts for it exists though.
                       """
@@ -320,7 +402,7 @@ module.exports = class Controller
                   $ = $.narrow "find_or_create_document"
                   model.findByIdOrCreate draft.data._id,
                     text: """
-                      **VIRTUAL**
+                      VIRTUAL
                       This #{options.singular} is not saved.
                       Some drafts for it exists though.
                     """
