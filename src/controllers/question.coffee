@@ -5,6 +5,7 @@ $           = debug "R20:controllers:question"
 
 Question    = require "../models/Question"
 Story       = require "../models/Question"
+Participant = require "../models/Participant"
 
 Controller  = require "./Controller"
 
@@ -27,6 +28,10 @@ module.exports = new Controller Question,
     other_documents: (question, done) ->
       $ "Looking for story with question %s", question._id
       question.findStories (error, stories) -> done error, { stories }
+    journal_transformation: (entries, done) ->
+      Participant.populate entries,
+        path: "meta.author"
+        done
 
 
   single_draft:

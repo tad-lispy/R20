@@ -171,8 +171,9 @@ module.exports = class Controller
           
           options[action] ?= {}
           _(options[action]).defaults
-            transformation  : (document, done) -> process.nextTick -> done null, document
-            other_documents : (document, done) -> process.nextTick -> done null, {}
+            transformation        : (document, done) -> process.nextTick -> done null, document
+            other_documents       : (document, done) -> process.nextTick -> done null, {}
+            journal_transformation: (entries, done) -> process.nextTick -> done null, entries
 
           async.waterfall [
             (done) ->
@@ -196,7 +197,17 @@ module.exports = class Controller
                   options[action].transformation  document, done
 
                 journal       : (done) ->
-                  document.findEntries done
+                  async.waterfall [
+                    (done) -> document.findEntries done
+                    (entries, done) -> options[action].journal_transformation entries, done
+                  ], (error, entries) ->
+                    $ "Entries are %j", entries
+                    done error, entries
+                  # 
+                  #   document.findEntries
+                  #   # 
+                  # ], done
+                  
 
                 (error, data) ->
                   if error then return done error
@@ -381,6 +392,7 @@ module.exports = class Controller
               options[action] ?= {}
               _(options[action]).defaults
                 transformation: (draft, done) -> process.nextTick -> done null, draft
+                journal_transformation: options.single.journal_transformation
 
               async.waterfall [
                 (done) ->
@@ -414,7 +426,8 @@ module.exports = class Controller
                   $ = $.narrow "find_other_drafts"
                   document.findEntries action: "draft", (error, journal) ->
                     if error then return done error
-                    done error, draft, document, journal
+                    options[action].journal_transformation journal, (error, journal) ->
+                      done error, draft, document, journal
 
               ], (error, draft, document, journal) ->
                 $ = $.narrow "send"

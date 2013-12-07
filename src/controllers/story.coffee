@@ -2,6 +2,7 @@
 
 Story       = require "../models/Story"
 Question    = require "../models/Question"
+Participant = require "../models/Participant"
 Controller  = require "./Controller"
 
 debug       = require "debug"
@@ -28,6 +29,11 @@ module.exports = new Controller Story,
         if error then return done error
         $ "After population the story is: %j", story
         done null, story
+
+    journal_transformation: (entries, done) ->
+      Participant.populate entries,
+        path: "meta.author"
+        done
 
   single_draft:
     transformation: (draft, done) ->
