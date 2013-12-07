@@ -51,11 +51,11 @@ module.exports = renderable (data) ->
             input type: "hidden", name: "_draft",    value: @draft._id
             
             div class: "btn-group pull-right", =>
-              $ "Applied? %j", applied
               button
                 class   : "btn btn-success"
                 type    : "submit"
                 disabled: applied
+                data    : shortcut: "a a enter"
                 =>
                   i class: "icon-check-sign"
                   text " apply this draft"
