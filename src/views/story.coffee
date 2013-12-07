@@ -59,6 +59,7 @@ module.exports = renderable (data) ->
                 class   : "btn btn-success"
                 type    : "submit"
                 disabled: applied
+                data    : shortcut: "a a enter"
                 =>
                   i class: "icon-check-sign"
                   text " apply this draft"
@@ -68,15 +69,17 @@ module.exports = renderable (data) ->
                 href  : "#edit-story"
                 icon  : "edit"
                 data  :
-                  toggle: "modal"
-                  target: "#story-edit-dialog"
+                  toggle  : "modal"
+                  target  : "#story-edit-dialog"
+                  shortcut: "e"
               ,
                 title : "show drafts"
                 href  : "#show-drafts"
                 icon  : "folder-close"
                 data  :
-                  toggle: "modal"
-                  target: "#drafts-dialog"
+                  toggle  : "modal"
+                  target  : "#drafts-dialog"
+                  shortcut: "d"
               ]
 
         @helper "story-edit-dialog",
@@ -93,8 +96,9 @@ module.exports = renderable (data) ->
           button
             class: "btn btn-primary"
             data:
-              toggle: "modal"
-              target: "#drafts-dialog"
+              toggle  : "modal"
+              target  : "#drafts-dialog"
+              shortcut: "d"
             =>
               i class: "icon-folder-close"
               text " see drafts "
@@ -107,8 +111,9 @@ module.exports = renderable (data) ->
           button
             class: "btn btn-default"
             data:
-              toggle: "modal"
-              target: "#story-edit-dialog"
+              toggle  : "modal"
+              target  : "#story-edit-dialog"
+              shortcut: "e"
             =>
               i class: "icon-edit"
               text " make changes"
@@ -118,15 +123,17 @@ module.exports = renderable (data) ->
             href  : "#show-drafts"
             icon  : "folder-close"
             data  :
-              toggle: "modal"
-              target: "#drafts-dialog"
+              toggle  : "modal"
+              target  : "#drafts-dialog"
+              shortcut: "d"
           ,
             title : "drop story"
             href  : "#drop-story"
             icon  : "remove-sign"
             data  :
-              toggle: "modal"
-              target: "#story-drop-dialog"
+              toggle  : "modal"
+              target  : "#story-drop-dialog"
+              shortcut: "del enter"
           ]
 
           @helper "story-edit-dialog",
@@ -150,8 +157,9 @@ module.exports = renderable (data) ->
               type  : "button"
               class : "btn btn-default btn-xs"
               data  :
-                toggle: "collapse"
-                target: "#assignment-list"
+                toggle  : "collapse"
+                target  : "#assignment-list"
+                shortcut: "a q"
               =>
                 i class: "icon-plus-sign"
                 text " assign"
@@ -209,6 +217,7 @@ module.exports = renderable (data) ->
                   data    :
                     toggle  : "modal"
                     target  : "#question-edit-dialog"
+                    shortcut: "n q"
                   =>
                     i class: "icon-star"
                     text " Add a brand new question"

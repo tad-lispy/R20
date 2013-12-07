@@ -33,6 +33,7 @@ module.exports = renderable (content) ->
         a 
           class: "btn btn-default btn-lg pull-right"
           style: "background: none"
+          data: shortcut: "g h"
           href: "/"
           ->
             i class: "icon-remove icon-3x"
@@ -51,4 +52,6 @@ module.exports = renderable (content) ->
       script type: "text/javascript", src: url for url in [
         "//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"
         "//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"
+        "//cdnjs.cloudflare.com/ajax/libs/mousetrap/1.4.5/mousetrap.min.js"
+        "/js/keyboard-shortcuts.js"
       ]

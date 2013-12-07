@@ -6,21 +6,25 @@
 
 module.exports = renderable ->
   items = [
-    title : "Start"
-    url   : "/"
-    icon  : "home"
+    title   : "Start"
+    url     : "/"
+    icon    : "home"
+    shortcut: "g h"
   ,
-    title : "Stories"
-    url   : "/story"
-    icon  : "comment"
+    title   : "Stories"
+    url     : "/story"
+    icon    : "comment"
+    shortcut: "g s"
   ,
-    title : "Questions"
-    url   : "/question"
-    icon  : "puzzle-piece"
+    title   : "Questions"
+    url     : "/question"
+    icon    : "puzzle-piece"
+    shortcut: "g q"
   ,
-    title : "About"
-    url   : "/about"
-    icon  : "group"
+    title   : "About"
+    url     : "/about"
+    icon    : "group"
+    shortcut: "g a"
 
   ]
 
@@ -28,6 +32,10 @@ module.exports = renderable ->
     nav class: "panel-body", =>
       ul class: "nav nav-pills nav-stacked", =>
         for item in items
-          li class: ("active" if item.url is @url), => a href: "#{item.url}", =>
-            i class: "icon-fixed-width icon-#{item.icon}"
-            text " " + item.title
+          li class: ("active" if item.url is @url), => 
+            a 
+              href: "#{item.url}"
+              data: shortcut: item.shortcut
+              =>
+                i class: "icon-fixed-width icon-#{item.icon}"
+                text " " + item.title

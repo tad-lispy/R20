@@ -39,8 +39,9 @@ module.exports = renderable (data) ->
               title : "new question"
               icon  : "plus-sign"
               data  :
-                toggle: "modal"
-                target: "#question-edit-dialog"
+                toggle  : "modal"
+                target  : "#question-edit-dialog"
+                shortcut: "n"
               herf  : "#new-question"
             ]
 

@@ -67,6 +67,7 @@ app.use do express.methodOverride
 $ = $.root.narrow "static"
 app.use do express.favicon
 app.use '/js', express.static 'assets/scripts/app'
+app.use '/scripts', express.static 'scripts' # Coffeescript sources for debug
 app.use '/js', express.static 'assets/scripts/vendor'
 
 app.use '/css', express.static 'assets/styles/app'

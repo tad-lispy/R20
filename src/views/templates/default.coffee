@@ -89,9 +89,12 @@ module.exports = renderable (content) ->
         "//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"
         "//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"
         "//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.9.3/typeahead.min.js"
+        "//cdnjs.cloudflare.com/ajax/libs/mousetrap/1.4.5/mousetrap.min.js"
+        "/js/keyboard-shortcuts.js"
         "//cdn.jsdelivr.net/jquery.cookie/1.4.0/jquery.cookie.min.js"
         "https://login.persona.org/include.js"
         "/js/authenticate.js"
+        "/js/modals.js"
       ].concat @scripts or []
 
       if @styles? then link rel: "stylesheet", href: url for url in @styles

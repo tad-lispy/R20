@@ -65,15 +65,17 @@ module.exports = renderable (data) ->
                 href  : "#edit-question"
                 icon  : "edit"
                 data  :
-                  toggle: "modal"
-                  target: "#question-edit-dialog"
+                  toggle  : "modal"
+                  target  : "#question-edit-dialog"
+                  shortcut: "e"
               ,
                 title : "show drafts"
                 href  : "#show-drafts"
                 icon  : "folder-close"
                 data  :
-                  toggle: "modal"
-                  target: "#drafts-dialog"
+                  toggle  : "modal"
+                  target  : "#drafts-dialog"
+                  shortcut: "d"
               ]
 
       else if @question.isNew 
@@ -85,8 +87,9 @@ module.exports = renderable (data) ->
           button
             class: "btn btn-primary"
             data:
-              toggle: "modal"
-              target: "#drafts-dialog"
+              toggle:   "modal"
+              target:   "#drafts-dialog"
+              shortcut: "d"
             =>
               i class: "icon-folder-close"
               text " see drafts "
@@ -100,8 +103,9 @@ module.exports = renderable (data) ->
             class: "btn btn-default"
             disabled: not Boolean @stories?.length
             data:
-              toggle: "modal"
-              target: "#stories-dialog"
+              toggle:   "modal"
+              target:   "#stories-dialog"
+              shortcut: "s"
             =>
               i class: "icon-comment"
               text " sample stories (#{@stories?.length or 0})"
@@ -111,22 +115,25 @@ module.exports = renderable (data) ->
             href  : "#edit-question"
             icon  : "edit"
             data  :
-              toggle: "modal"
-              target: "#question-edit-dialog"
+              toggle  : "modal"
+              target  : "#question-edit-dialog"
+              shortcut: "e"
           ,
             title : "show drafts"
             href  : "#show-drafts"
             icon  : "folder-close"
             data  :
-              toggle: "modal"
-              target: "#drafts-dialog"
+              toggle  : "modal"
+              target  : "#drafts-dialog"
+              shortcut: "d"
           ,
             title : "remove question"
             href  : "#remove-question"
             icon  : "remove-sign"
             data  :
-              toggle: "modal"
-              target: "#remove-dialog"
+              toggle  : "modal"
+              target  : "#remove-dialog"
+              shortcut: "del enter"
           ]
         @helper "remove-dialog", type: "question"
 

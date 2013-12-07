@@ -47,8 +47,9 @@ module.exports = renderable (data) ->
               title : "new story"
               icon  : "plus-sign"
               data  :
-                toggle: "modal"
-                target: "#story-edit-dialog"
+                toggle  : "modal"
+                target  : "#story-edit-dialog"
+                shortcut: "n"
               herf  : "#new-story"
             ]
 

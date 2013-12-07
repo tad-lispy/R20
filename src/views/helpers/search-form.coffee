@@ -16,6 +16,8 @@ module.exports = renderable ->
           placeholder : "What seems to be the problem?"
           name        : "query"
           value       : @query
+          data        :
+            shortcut    : "/"
         span class: "input-group-btn", =>
           button
             class     : "btn btn-primary"
