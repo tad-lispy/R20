@@ -9,7 +9,6 @@ Question  = new mongoose.Schema
     type      : String
     required  : yes
     unique    : yes
-  # answers   : [ Answer ]
 
 # # TODO: answers has to be in their own collection and to point to a question.
 # Answer    = new mongoose.Schema

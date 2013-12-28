@@ -6,3 +6,4 @@ config.json
 npm-debug.log
 .watch_*
 assets/scripts/app/
+assets/styles/app/

@@ -1,21 +1,16 @@
-{
-  renderable, tag, text
-  div, main, aside, nav
-  ul, li
-  h3, h4, p
-  i, span
-  a
-  form, button, input
-  hr
-} = require "teacup"
-template  = require "./templates/default"
+View = require "teacup-view"
 
-module.exports = renderable (data) ->
+layout  = require "./layouts/default"
 
-  template.call @, =>
-    @helper "search-form"
-    do hr
-    @helper "news-feed"
+module.exports = new View
+  components: __dirname + "/components"
+  (data) ->
+    {
+      query
+      entries
+    } = data
 
-
-
+    layout data, =>
+      @searchForm { query }
+      do @hr
+      @newsFeed { entries }

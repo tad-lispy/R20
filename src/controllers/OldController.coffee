@@ -1,6 +1,8 @@
 ###
-  ```
-# Controller class
+  
+# ModelController class
+# TODO: class ModelController extends Controller
+
 
 Constructor takes a model and options
 constructs an object with actual controller logic in paths
@@ -78,7 +80,7 @@ Controller maps url paths to actions. This path can also be overriden by options
   single_reference  | GET    | /:document_id/:reference_path/ *if reference is singular*
   single_reference  | GET    | /:document_id/:reference_path/:reference_id
   make_reference    | PUT    | /:document_id/:reference_path/:reference_id
-  remove_reference  | DELETe | /:document_id/:reference_path/:reference_id
+  remove_reference  | DELETE | /:document_id/:reference_path/:reference_id
 
 ###
 
@@ -86,15 +88,16 @@ Controller maps url paths to actions. This path can also be overriden by options
 
 
 
-async     = require "async"
-_         = require "underscore"
-Entry     = require "../models/JournalEntry"
+async       = require "async"
+_           = require "underscore"
+Controller  = require "./Controller"
+Entry       = require "../models/JournalEntry"
 
-debug     = require "debug"
-$         = debug "R20:Controllers:factory"
+debug       = require "debug"
+$           = debug "R20:Controllers:factory"
 
 
-module.exports = class Controller
+module.exports = class ModelController extends Controller
   constructor: (@model, @options = {}) ->    
     $.scope = "R20:controller:" + @model.modelName
     {
@@ -119,7 +122,7 @@ module.exports = class Controller
         
         options[action] ?= {}
         _(options[action]).defaults
-          prepareConditions: (req, res, done) -> TODO: done null, {}
+          prepareConditions: (req, res, done) -> done null, {}
 
         async.waterfall [
           (done)              -> options[action].prepareConditions req, res, done
@@ -399,11 +402,6 @@ module.exports = class Controller
                   $ = $.narrow "find_draft"
                   Entry.findById req.params.draft_id, (error, entry) ->
                     if error then return done error
-                    if (not entry) or
-                       (entry.action  isnt "draft") or
-                       (entry.model   isnt model.modelName) or
-                        not (entry.data?._id?.equals req.params.document_id)
-                          return done Error "Not found"
                     
                     return done null, entry
 

@@ -1,5 +1,7 @@
 do (require "source-map-support").install
 
+console.log "Charging R20..."
+
 express   = require "express"
 path      = require "path"
 _         = require "underscore"
@@ -10,7 +12,7 @@ request   = require "request"
 debug     = require "debug"
 $         = debug "R20"
 
-app = do express
+app       = do express
 
 configure = require "./configure"
 configure app
@@ -24,10 +26,10 @@ app.use (req, res, next) ->
   $ "\n\t%s\t%s", req.method, req.url
   do next
 
-app.use (req, res, next) ->
-  $ = $.narrow "home-redirect"
-  if req.url is "/" then res.redirect "/home"
-  else do next
+# app.use (req, res, next) ->
+#   $ = $.narrow "home-redirect"
+#   if req.url is "/" then res.redirect "/home"
+#   else do next
 
 
 # Make sure configuration is visible to middlewares and views
@@ -52,8 +54,9 @@ app.use (req, res, next) ->
   res.locals.url = req.url
 
   res.locals.helper = (name) =>
-    fn = require "./views/helpers/" + name
-    fn.apply res.locals, (Array.prototype.slice.call arguments, 1)
+    return "No helping hand here"
+    # fn = require "./views/helpers/" + name
+    # fn.apply res.locals, (Array.prototype.slice.call arguments, 1)
 
   do next
 
@@ -107,8 +110,7 @@ app.use (error, req, res, next) ->
 app.use do express.csrf
 # Expose it
 app.use (req, res, next) ->
-  csrf = req.csrfToken()
-  res.locals._csrf = csrf
+  res.locals.csrf = req.csrfToken()
   do next
 
 # Handle csrf errors
@@ -129,8 +131,8 @@ app.use (req, res, next) ->
     default-src 'self' netdna.bootstrapcdn.com;
     frame-src 'self' https://login.persona.org;
     script-src 'self' 'unsafe-inline' https://login.persona.org ajax.googleapis.com cdnjs.cloudflare.com netdna.bootstrapcdn.com cdn.jsdelivr.net;
-    style-src 'self' 'unsafe-inline' netdna.bootstrapcdn.com
-    font-src  'self' 'unsafe-inline' netdna.bootstrapcdn.com
+    style-src 'self' 'unsafe-inline' netdna.bootstrapcdn.com bootswatch.com
+    font-src  'self' 'unsafe-inline' netdna.bootstrapcdn.com bootswatch.com
   """
 
   res.header "Content-Security-Policy",   policy
@@ -151,9 +153,9 @@ app.use (req, res, next) ->
 $ = $.root.narrow "auth"
 
 # Fake login while development
-# app.use (require "./middleware/fake-login")
-#   role: "Administrator"
-#   whitelist: (app.get "participants").whitelist
+app.use (require "./middleware/fake-login")
+  role: "Administrator"
+  whitelist: (app.get "participants").whitelist
 
 # Load participant profile
 profile = require "./middleware/profile"
@@ -218,48 +220,17 @@ app.post "/auth/logout", (req, res) ->
     if error then throw error
 
     res.json status: "okay"
-    
+  
 # Load controllers
 $ = $.root.narrow "setup:controllers"
-controllers = {}
+
 for name in [
   "home"
-  "search"
-  "about"
-  "story"
-  "question"
+  "questions"
 ]
+  $ "Loading %s controller", name
   controller = require "./controllers/#{name}"
-  controllers[name] = controller
-
-  terms = [
-    "get"
-    "post"
-    "put"
-    "delete"
-  ]
-
-  # For each path defined in a controler set app[term] path = function
-  # eg. app.get / (req, res) ->
-  setup = (fragment, value, path = "") ->
-    $ = $.root.narrow "setup:controllers" + path.replace /\//g, ":"
-
-    if (fragment in terms) and (typeof value is "function")
-      path ?= "/"
-      $ fragment
-      app[fragment] path, value
-      
-    else 
-      if typeof value isnt "object" then throw Error  =  """
-        Error loading #{name} controller for path #{path}.
-        Only object or function with name indicating valid http method can be used in controllers.
-      """
-
-      path += "/" + fragment
-      for fragment, subvalue of value
-        setup fragment, subvalue, path
-
-  setup name, controller.paths or controller
+  controller.plugInto app
 
 app.use (error, req, res, next) ->
   $ = $.root.narrow "ultimate_error"
@@ -274,4 +245,5 @@ mongo =
 $ = $.root.narrow "start"
 mongoose.connect "mongodb://#{mongo.host}/#{mongo.db}"
 app.listen port
-$ "R20 is ready!"
+
+console.log "R20 is ready at :%s!", port

@@ -7,7 +7,7 @@
   "scripts": {
     "test": "mocha"
   },
-  "author": "Tadeusz Łazurski <tadeusz@lazurski.pl> (http://lazurski.pl/)",
+  "author": "Tadeusz Łazurski (http://lazurski.pl/)",
   "license": "GPL 3",
   "dependencies": {
     "express": "~3.4.1",
@@ -21,7 +21,8 @@
     "async": "~0.2.9",
     "request": "~2.27.0",
     "debug": "git://github.com/lzrski/debug.git#master",
-    "moment": "~2.4.0"
+    "moment": "~2.4.0",
+    "lodash": "~2.3.0"
   },
   "devDependencies": {
     "coffee-script": "~1.6.3"
