@@ -34,7 +34,7 @@ module.exports = new Controller Question,
       ], done
         
 
-    single_draft    : options: post: (req, res, done) ->
+    draft           : options: post: (req, res, done) ->
       async.parallel [
         (done) ->
           $ "Populating journal with meta.author"
@@ -51,7 +51,7 @@ module.exports = new Controller Question,
 
     apply           : options: pre: prepareMeta
     save            : options: pre: prepareMeta
-    # remove          : options: pre: prepareMeta
+    remove          : options: pre: prepareMeta
     # reference       : options: pre: prepareMeta
     # remove_reference: options: pre: prepareMeta
 

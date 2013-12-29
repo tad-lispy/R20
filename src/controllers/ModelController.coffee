@@ -64,22 +64,23 @@ If options[action] is a function, then it overrides entire action method. `this`
 
 Controller maps url paths to actions. This path can also be overriden by options. Default mapping is:
 
-  Action            | Method | URL path
+  Action            | Method  | URL path
   ---------------------------------------------------------------------------------------
-  list              | GET    | /
-  new               | POST   | /
-  journal           | GET    | /journal
-  single            | GET    | /:document_id
-  update            | PUT    | /:document_id
-  remove            | DELETE | /:document_id
-  single_journal    | GET    | /:document_id/journal/
-  single_entry      | GET    | /:document_id/journal/:entry_id
-  list_references   | GET    | /:document_id/:reference_path/ *if reference is plural*
-  single_reference  | GET    | /:document_id/:reference_path/ *if reference is singular*
-  single_reference  | GET    | /:document_id/:reference_path/:reference_id
-  make_reference    | PUT    | /:document_id/:reference_path/:reference_id
-  remove_reference  | DELETe | /:document_id/:reference_path/:reference_id
-
+  list              | GET     | /
+  new               | POST    | /
+  journal           | GET     | /journal
+  single            | GET     | /:document_id
+  apply             | PUT     | /:document_id
+  save              | POST    | /:document_id/drafts
+  remove            | DELETE  | /:document_id
+  single_journal    | GET     | /:document_id/journal/
+  draft             | GET     | /:document_id/journal/:entry_id
+  list_references   | GET     | /:document_id/:reference_path/ *if reference is plural*
+  single_reference  | GET     | /:document_id/:reference_path/ *if reference is singular*
+  single_reference  | GET     | /:document_id/:reference_path/:reference_id
+  make_reference    | PUT     | /:document_id/:reference_path/:reference_id
+  remove_reference  | DELETe  | /:document_id/:reference_path/:reference_id
+  
 ###
 
 async       = require "async"
@@ -128,7 +129,6 @@ module.exports = class ModelController extends Controller
         url               : root
         action            : (options, req, res) =>
           route = @routes.list
-          $ "%s %s", route.method, route.url
           $ "Getting list of %s", plural
           async.series [
             (done) => options.pre req, res, done
@@ -152,7 +152,6 @@ module.exports = class ModelController extends Controller
         url               : root
         action            : (options, req, res) =>
           route = @routes.new
-          $ "%s %s", route.method, route.url
           $ "Making new %s", singular
           
           _.defaults options,
@@ -183,7 +182,6 @@ module.exports = class ModelController extends Controller
       #   path              : "#{@options.root}/journal"
       #   method            : "GET"
       #   action            : (req, res) =>
-      #     $ "%s %s", @actions.journal.method, @actions.journal.path
       #     $ "Getting list of journal entries about %s", @options.plural
 
       single            : 
@@ -191,7 +189,6 @@ module.exports = class ModelController extends Controller
         url               : "#{root}/:document_id"
         action            : (options, req, res) =>
           route = @routes.single
-          $ "%s %s", route.method, route.url
           $ "Getting a single %s", singular
           async.series [
             (done) => options.pre req, res, done
@@ -240,7 +237,6 @@ module.exports = class ModelController extends Controller
         url               : "#{root}/:document_id"
         action            : (options, req, res) =>
           route = @routes.apply
-          $ "%s %s", route.method, route.url
           $ "Applying draft of %s", singular
           
           async.series [
@@ -307,7 +303,6 @@ module.exports = class ModelController extends Controller
         url               : "#{root}/:document_id/drafts"
         action            : (options, req, res) =>
           route = @routes.save
-          $ "%s %s", route.method, route.url
           $ "Saving new draft of %s", singular
 
           _.defaults options,
@@ -353,26 +348,69 @@ module.exports = class ModelController extends Controller
             else res.redirect root + "/" + document._id + "/drafts/" + draft._id
 
 
-      # remove            : 
-      #   path              : "#{@options.root}/:document_id"
-      #   method            : "DELETE"
-      #   action            : (req, res) =>
-      #     $ "%s %s", @actions.remove.method, @actions.remove.path
-      #     $ "Removing %s", @options.singular
+      remove            : 
+        method            : "DELETE"
+        url               : "#{root}/:document_id"
+        action            : (options, req, res) =>
+          route = @routes.remove
+          $ "Removing %s", singular
+
+          async.series [
+            (done) => 
+              console.dir options
+
+              options.pre req, res, done
+
+            # Find a document
+            (done) =>
+              @model
+                .findById req.params.document_id, (error, document) =>
+                  if error then return done error
+                  if not document then return done HTTPError 404, "Not found"
+
+                  res.locals[singular] = document
+                  done null
+
+            # Delete document
+            (done) =>
+              document = res.locals[singular]
+              document.removeDocument res.locals.meta, (error, entry) ->
+                if error then return done error
+                res.locals { entry }
+                done null
+
+          ], (error) =>
+            # Send results
+            $ = $.narrow "send"
+
+            if error
+              if error.message is "Not found"
+                $ "Document not found."
+                if (req.accepts ["json", "html"]) is "json"
+                  return res.json 404, error: "#{singular} not found, Can't remove if it's not there."
+                else
+                  return res.send 404, "#{singular} not found, Can't remove if it's not there."
+
+              else # different error
+                throw error 
+            
+            if (req.accepts ["json", "html"]) is "json"
+              res.json entry
+            else 
+              res.redirect root
+
 
       # single_journal    : 
       #   path              : "#{@options.root}/:document_id/journal"
       #   method            : "GET"
       #   action            : (req, res) =>
-      #     $ "%s %s", @actions.single_journal.method, @actions.single_journal.path
       #     $ "Getting journal entries about single %s", @options.singular
 
-      single_draft      :
+      draft             :
         method            : "GET"
         url               : root + "/:document_id/drafts/:draft_id"
         action            : (options, req, res) ->
           route = @routes.single_draft
-          $ "%s %s", route.method, route.url
           $ "Getting %s draft %s", req.params.draft_id, singular
           async.series [
             (done) => options.pre req, res, done
@@ -436,44 +474,38 @@ module.exports = class ModelController extends Controller
       #   path              : "#{@options.root}/:document_id/journal/:entry_id"
       #   method            : "GET"
       #   action            : (req, res) =>
-      #     $ "%s %s", @actions.single_entry.method, @actions.single_entry.path
       #     $ "Getting single journal entry about %s", @options.singular
 
       # list_references   : 
       #   path              : "#{@options.root}/:document_id/:reference_path/"
       #   method            : "GET"
       #   action            : (req, res) =>
-      #     $ "%s %s", @actions.list_references.method, @actions.list_references.path
       #     $ "Getting list of %s referencing single %s", req.params.reference_path, @options.singular
 
       # single_reference  : 
       #   path              : "#{@options.root}/:document_id/:reference_path/:reference_id/"
       #   method            : "GET"
       #   action            : (req, res) =>
-      #     $ "%s %s", @actions.single_reference.method, @actions.single_reference.path
       #     $ "Getting a single %s referencing single %s", req.params.reference_path, @options.singular
 
       # add_reference     : 
       #   path              : "#{@options.root}/:document_id/:reference_path/"
       #   method            : "POST"
       #   action            : (req, res) =>
-      #     $ "%s %s", @actions.add_reference.method, @actions.add_reference.path
       #     $ "Adding new %s reference of single %s", req.params.reference_path, @options.singular
 
       # remove_reference  : 
       #   path              : "#{@options.root}/:document_id/:reference_path/"
       #   method            : "POST"
       #   action            : (req, res) =>
-      #     $ "%s %s", @actions.remove_reference.method, @actions.remove_reference.path
       #     $ "Removing a single %s reference of single %s", req.params.reference_path, @options.singular
     
     # Default options are the same for all routes
-    for name, route of routes
-      route.options = 
+    for name of routes
+      routes[name].options = 
         pre               : (req, res, done) -> process.nextTick -> done null
         post              : (req, res, done) -> process.nextTick -> done null
 
-    console.dir options
     options.routes = _(routes).merge(options.routes).value()
     $ "Calling super with options: %j", options
     super options
