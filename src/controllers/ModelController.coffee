@@ -85,6 +85,7 @@ Controller maps url paths to actions. This path can also be overriden by options
 async       = require "async"
 _           = require "lodash"
 path        = require "path"
+HTTPError   = require "../HTTPError"
 
 Controller  = require "express-controller"
 
@@ -157,8 +158,6 @@ module.exports = class ModelController extends Controller
           _.defaults options,
             fields: _.keys(@model.schema.paths).filter (field) ->
               not field.match /^_/ # All fields except for prefixed with _
-
-          console.dir options
 
           async.waterfall [
             # Use pre to prepare meta for journal entry
@@ -236,12 +235,123 @@ module.exports = class ModelController extends Controller
               res.send templates.single res.locals
 
 
-      # update            : 
-      #   path              : "#{@options.root}/:document_id"
-      #   method            : "PUT"
-      #   action            : (req, res) =>
-      #     $ "%s %s", @actions.update.method, @actions.update.path
-      #     $ "Updating %s", @options.singular
+      apply             :
+        method            : "PUT"
+        url               : "#{root}/:document_id"
+        action            : (options, req, res) =>
+          route = @routes.apply
+          $ "%s %s", route.method, route.url
+          $ "Applying draft of %s", singular
+          
+          async.series [
+            (done) ->
+              if not req.body._draft then done HTTPError 409, "Malformed request body"
+              done null
+
+            (done) -> options.pre req, res, done
+            
+            # Find draft mentioned in the request body
+            (done) ->
+              Entry.findById req.body._draft, (error, draft) ->
+                if error then return done error
+                if not draft then return done Error "Draft not found"
+                if not draft.data._id.equals req.params.document_id 
+                  $ "Draft %j doesn't match %s %s", draft, singular, req.params.id
+                  return done HTTPError 409, "Draft doesn't match document"
+                res.locals { draft }
+                done null
+
+            (done) -> res.locals.draft.apply res.locals.meta, (error, document) ->
+              if error then return done error
+              res.locals[singular] = document
+              done null
+
+            (done) -> options.post req, res, done
+
+          ], (error) =>
+            if error
+              $ "There was en error: %j", error
+              switch error.message
+                when "Draft not found"
+                  if (req.accepts ["json", "html"]) is "json"
+                    return req.json 409, error: "Draft #{req.body.draft} not found."
+                  else
+                    return res.send 409, "Draft #{req.body.draft} not found."
+                
+                when "Draft doesn't match document"
+                  if (req.accepts ["json", "html"]) is "json"
+                    return req.json 409, error: "Draft #{req.body._draft} doesn't match #{singular} #{req.params.id}."
+                  else
+                    return res.send 409, "Draft #{req.body._draft} doesn't match #{singular} #{req.params.id}."
+
+                when "Malformed request body"
+                  if (req.accepts ["json", "html"]) is "json"
+                    return req.json 409, error: "Maleformed request body. It should contain _draft property with id of draft to apply."
+                  else
+                    save = @routes.save
+                    return res.send 409, """
+                      Malformed request body.<br/>
+                      It should contain _draft property with id of draft to apply.<br/>
+                      If you want to save a new draft, then make a #{save.method} request to #{save.url}.
+                    """
+                
+                else throw error # different error
+
+            $ "Draft applied"
+            document = res.locals[singular]
+            if (req.accepts ["json", "html"]) is "json" then req.json document.toJSON()
+            else res.redirect root + "/" + document._id
+
+      save              :
+        method            : "POST"
+        url               : "#{root}/:document_id/drafts"
+        action            : (options, req, res) =>
+          route = @routes.save
+          $ "%s %s", route.method, route.url
+          $ "Saving new draft of %s", singular
+
+          _.defaults options,
+            fields: _.keys(@model.schema.paths).filter (field) ->
+              not field.match /^_/ # All fields except for prefixed with _
+
+          
+          async.series [
+            (done) => options.pre req, res, done
+            
+            # Find or create a document
+            (done) => 
+              @model.findByIdOrCreate req.params.document_id,
+                text: """
+                  VIRTUAL
+                  This #{singular} is not saved.
+                  Some drafts for it exists though.
+                """
+                (error, document) ->
+                  if error then return done error
+                  data      = _.pick req.body, options.fields
+                  document  = _.extend document, data
+                  
+                  res.locals[singular] = document
+                  done null
+
+            # Save draft
+            (done) =>
+              document = res.locals[singular]
+              { meta } = res.locals
+
+              document.saveDraft meta, (error, draft) ->
+                if error then return done error
+                res.locals { draft }
+                done null
+
+          ], (error) ->
+            if error then throw error
+            { draft } = res.locals
+            document  = res.locals[singular]
+
+            if (req.accepts ["json", "html"]) is "json" then req.json draft.toJSON()
+            else res.redirect root + "/" + document._id + "/drafts/" + draft._id
+
 
       # remove            : 
       #   path              : "#{@options.root}/:document_id"

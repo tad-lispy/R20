@@ -49,7 +49,8 @@ module.exports = new Controller Question,
       ], done
 
 
-    # update          : options: pre: prepareMeta
+    apply           : options: pre: prepareMeta
+    save            : options: pre: prepareMeta
     # remove          : options: pre: prepareMeta
     # reference       : options: pre: prepareMeta
     # remove_reference: options: pre: prepareMeta

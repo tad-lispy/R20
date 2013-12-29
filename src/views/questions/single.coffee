@@ -27,7 +27,7 @@ module.exports = new View (data) ->
         if applied then @text "It is currently applied."
 
         @a
-          href  : "/question/#{question._id}/"
+          href  : "/questions/#{question._id}/"
           class : "btn btn-default btn-xs pull-right"
           =>
             @i class: "icon-arrow-left"
@@ -39,7 +39,7 @@ module.exports = new View (data) ->
         @markdown draft.data.text
 
         @form
-          action: "/question/#{question._id}/"
+          action: "/questions/#{question._id}/"
           method: "POST"
           class : "clearfix"
           =>
@@ -170,8 +170,8 @@ module.exports = new View (data) ->
       title : "Edit this question"
       id    : "question-edit-dialog"
       => @questionForm
-        method  : "PUT"
-        action  : "/questions/#{question._id}"
+        method  : "POST"
+        action  : "/questions/#{question._id}/drafts"
         csrf    : csrf
         question: question
 
