@@ -1,0 +1,12 @@
+{
+	"folders":
+	[
+		{
+			"follow_symlinks": true,
+			"path": "/home/tadeusz/Projects/www/R20",
+      "folder_exclude_patterns": ["lib", "node_modules"]
+		}
+	],
+
+
+}
