@@ -64,19 +64,19 @@ If options[action] is a function, then it overrides entire action method. `this`
 
 Controller maps url paths to actions. This path can also be overriden by options. Default mapping is:
 
-  Action            | Method  | URL path
-  ---------------------------------------------------------------------------------------
-  list              | GET     | /
-  new               | POST    | /
+Action              | Method  | URL path
+---------------------------------------------------------------------------------------
+✓ list              | GET     | /
+✓ new               | POST    | /
   journal           | GET     | /journal
-  single            | GET     | /:document_id
-  apply             | PUT     | /:document_id
-  save              | POST    | /:document_id/drafts
-  remove            | DELETE  | /:document_id
+✓ single            | GET     | /:document_id
+✓ apply             | PUT     | /:document_id
+✓ save              | POST    | /:document_id/drafts
+✓ remove            | DELETE  | /:document_id
   single_journal    | GET     | /:document_id/journal/
-  draft             | GET     | /:document_id/journal/:entry_id
+✓ draft             | GET     | /:document_id/journal/:entry_id
   list_references   | GET     | /:document_id/:reference_path/ *if reference is plural*
-  single_reference  | GET     | /:document_id/:reference_path/ *if reference is singular*
+  single_reference  | GET     | /:document_id/:reference_path/ *if reference isingular*
   single_reference  | GET     | /:document_id/:reference_path/:reference_id
   make_reference    | PUT     | /:document_id/:reference_path/:reference_id
   remove_reference  | DELETe  | /:document_id/:reference_path/:reference_id
@@ -198,7 +198,7 @@ module.exports = class ModelController extends Controller
               model.findByIdOrCreate req.params.document_id,
                 text: """
                   VIRTUAL
-                  This #{options.singular} is not saved or was removed.
+                  This #{singular} is not saved or was removed.
                   Some drafts for it exists though.
                 """
                 (error, document) ->

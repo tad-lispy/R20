@@ -97,6 +97,6 @@ module.exports = new View
           "https://login.persona.org/include.js"
           "/js/authenticate.js"
           "/js/modals.js"
-        ].concat @scripts or []
+        ].concat scripts or []
 
         if @styles? then @link rel: "stylesheet", href: url for url in @styles

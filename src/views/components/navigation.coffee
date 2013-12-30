@@ -16,13 +16,18 @@ module.exports = new View (options = {}) ->
   ,
     title   : "Questions"
     url     : "/questions"
-    icon    : "puzzle-piece"
+    icon    : "question-sign"
     shortcut: "g q"
+  ,
+    title   : "Answers"
+    url     : "/answers"
+    icon    : "puzzle-piece"
+    shortcut: "g a"
   ,
     title   : "About"
     url     : "/about"
     icon    : "group"
-    shortcut: "g a"
+    shortcut: "g i"
 
   ]
 

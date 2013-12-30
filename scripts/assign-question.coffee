@@ -1,4 +1,5 @@
 $ ->
+  console.log "Hello!"
   $('[data-search]').each ->
     element     = $ @
     collection  = element.data "search"

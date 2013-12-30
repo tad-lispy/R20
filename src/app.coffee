@@ -227,6 +227,7 @@ $ = $.root.narrow "setup:controllers"
 for name in [
   "home"
   "questions"
+  "stories"
 ]
   $ "Loading %s controller", name
   controller = require "./controllers/#{name}"
