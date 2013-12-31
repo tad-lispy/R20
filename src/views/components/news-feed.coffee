@@ -69,19 +69,43 @@ module.exports = new View
               class   : "info"
         
             when "apply" 
-              draft = entry.data._draft
-              item 
-                icons   : [ "comment-alt", "ok-circle" ]
-                url     : "/stories/#{draft.data._id}/"
-                body    : =>
-                  whose = if draft.meta.author._id.equals entry.meta.author._id
-                    "his own draft"
-                  else
-                    " a draft by #{draft.meta.author.name}"
-                  @p "#{entry.meta?.author?.name} applied #{whose} to a story"
-                excerpt : draft.data.text
-                time    : do entry._id.getTimestamp
-                class   : "success"
+              applied = entry.data._entry
+              switch applied.action
+                when "draft"
+                  console.dir { entry, applied }
+                  item 
+                    icons   : [ "comment-alt", "ok-circle" ]
+                    url     : "/stories/#{applied.data._id}/"
+                    body    : =>
+                      whose = if applied.meta.author._id.equals entry.meta.author._id
+                        "his own draft"
+                      else
+                        " a draft by #{applied.meta.author.name}"
+                      @p "#{entry.meta?.author?.name} applied #{whose} to a story"
+                    excerpt : applied.data.text
+                    time    : do entry._id.getTimestamp
+                    class   : "success"
+                when "reference"
+                  item
+                    icons   : [ "comment-alt", "question-sign" ]
+                    url     : "/stories/#{applied.data.main._id}/"
+                    body    : "#{entry.meta?.author?.name} applied a question reference to a story."
+                    excerpt : =>
+                      @div class: "excerpt", =>
+                        @strong "S: " 
+                        @em _.string.stripTags @render =>
+                          @markdown applied.data.main.text
+                      @div
+                        style: """          
+                          text-overflow: ellipsis;
+                          white-space: nowrap;
+                          overflow: hidden;
+                        """
+                        =>
+                          @strong "Q: " + _.string.stripTags @render =>
+                            @markdown applied.data.referenced.text
+                    time    : do entry._id.getTimestamp
+                    class   : "success"
                     
             when "remove" then item
               icons   : [ "comment-alt", "remove" ]
@@ -91,27 +115,28 @@ module.exports = new View
               time    : do entry._id.getTimestamp
               class   : "danger"
 
-            when "reference" 
-              item
-                icons   : [ "comment-alt", "question-sign" ]
-                url     : "/stories/#{entry.data.main_doc._id}/"
-                body    : "#{entry.meta?.author?.name} referenced a question to a story."
-                excerpt : =>
-                  @div class: "excerpt", =>
-                    @strong "S: " 
-                    @em _.string.stripTags @render =>
-                      @markdown entry.data.main_doc.text
-                  @div
-                    style: """          
-                      text-overflow: ellipsis;
-                      white-space: nowrap;
-                      overflow: hidden;
-                    """
-                    =>
-                      @strong "Q: " + _.string.stripTags @render =>
-                        @markdown entry.data.referenced_doc.text
-                time    : do entry._id.getTimestamp
-                class   : "success"
+            # Don't show that ATM - references are auto - applied. Info about applience is sufficient.
+            when "reference" then @text ""
+              # item
+              #   icons   : [ "comment-alt", "question-sign" ]
+              #   url     : "/stories/#{entry.data.main._id}/"
+              #   body    : "#{entry.meta?.author?.name} suggested to reference a question to a story."
+              #   excerpt : =>
+              #     @div class: "excerpt", =>
+              #       @strong "S: " 
+              #       @em _.string.stripTags @render =>
+              #         @markdown entry.data.main.text
+              #     @div
+              #       style: """          
+              #         text-overflow: ellipsis;
+              #         white-space: nowrap;
+              #         overflow: hidden;
+              #       """
+              #       =>
+              #         @strong "Q: " + _.string.stripTags @render =>
+              #           @markdown entry.data.referenced.text
+              #   time    : do entry._id.getTimestamp
+              #   class   : "info"
             
             when "unreference" then item
               icons   : [ "comment-alt", "question-sign" ]
@@ -161,18 +186,18 @@ module.exports = new View
               class   : "info"
             
             when "apply" 
-              draft = entry.data._draft
+              applied = entry.data._entry
               item 
                 icons   : [ "question-sign" ]
-                url     : "/questions/#{draft.data._id}/"
+                url     : "/questions/#{applied.data._id}/"
                 body    : =>
-                  whose = if draft.meta.author._id.equals entry.meta.author._id
+                  whose = if applied.meta.author._id.equals entry.meta.author._id
                     "his own draft"
                   else
                     " a draft by #{draft.meta.author.name}"
                     
                   @p "#{entry.meta?.author?.name} applied #{whose} to a question"
-                excerpt : draft.data.text
+                excerpt : applied.data.text
                 time    : do entry._id.getTimestamp
                 class   : "success"
                     

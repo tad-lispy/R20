@@ -465,22 +465,147 @@ module.exports = class ModelController extends Controller
             else
               res.send templates.single res.locals
 
-
-
-
-
-
       # single_entry      : # Do we need it?
       #   path              : "#{@options.root}/:document_id/journal/:entry_id"
       #   method            : "GET"
       #   action            : (req, res) =>
       #     $ "Getting single journal entry about %s", @options.singular
 
+    # Discover and setup references routes
+    references        = _.omit model.references, (reference, path) -> path.match /^_/
+    _.merge references, options.references
+    $ "References are: %j", references
+    for path, reference of references
+      reference_model = @model.model reference.model
+
+      if reference.relation is "has many" 
+        # List, Add and Single are only availabel for has many type references
+        routes[reference.path + "_list"] = 
+          method            : "GET"
+          url               : root + "/:document_id/" + reference.path
+          action            : (options, req, res) =>
+            route = @routes[reference.path + "_list"]
+            $ "Geting list of %s references for %s", reference.path, singular
+            async.series [
+              (done) => options.pre req, res, done
+
+              # Find document
+              (done) =>
+                @model.findById req.params.document_id, (error, document) ->
+                  if error then return done error
+                  if not document then return done new HTTPError 404, "Not found"
+                  res.locals[singular] = document
+                  done null
+
+              
+              (done) =>
+                document = res.locals[singular]
+                ids = document.get reference.path
+                $ "Ids are (%s) %j ", typeof ids, ids
+                reference_model.find _id: $in: ids, (error, documents) =>
+                  if error then return done error
+                  res.locals[reference.path] = documents
+                  done null
+
+              (done) => options.post req, res, done
+
+            ], (error) =>
+              if error
+                if error.code is 404 then res.send "#{singular} not found. Thus no #{reference.path}."
+                else throw error
+
+              res.json res.locals[reference.path]
+
+        routes[reference.path + "_add"] =
+          method  : "POST"
+          url     : root + "/:document_id/" + reference.path
+          action            : (options, req, res) =>
+            route = @routes[reference.path + "_add"]
+            $ "Adding a reference to %s into %s", reference.path, singular
+            async.series [
+              (done) => options.pre req, res, done
+
+              # Find document
+              (done) =>
+                @model.findById req.params.document_id, (error, document) ->
+                  if error then return done error
+                  if not document then return done HTTPError 404, """
+                    Main document not found.
+                    Can't add a anything to #{reference.path} of a #{singular} that doesn't exist.
+                  """
+                  res.locals[singular] = document
+                  done null
+
+              # Find referenced document
+              (done) => 
+                { meta }    = res.locals
+                document    = res.locals[singular]
+                if not req.body._id then return done HTTPError 409, """
+                  Malformed request body.
+                  It should containd _id attribute pointing to document of type #{reference.model}. It does not.
+                """
+                reference_model.findById req.body._id, (error, referenced) ->
+                  if error then return done error
+                  if not referenced then return done HTTPError 409, """
+                    Referenced document not found.
+                    #{reference.model} #{req.body._id} not found.
+                  """
+                  res.locals[reference.path] = referenced
+                  done null
+
+              # Save reference
+              (done) =>
+                document    = res.locals[singular]
+                referenced  = res.locals[path]
+                { meta }    = res.locals
+
+                document.saveReference path, referenced, meta, (error, entry) =>
+                  if error then return done error
+                  res.locals { entry }
+                  done null
+
+              (done) => 
+                document    = res.locals[singular]
+                referenced  = res.locals[path]
+                { meta
+                  entry
+                }    = res.locals
+
+                entry.apply meta, done
+
+              (done) => options.post req, res, done
+            ], (error) =>
+              if error
+                if error instanceof HTTPError then return res.json error
+                else throw error
+
+              document    = res.locals[singular]
+
+              res.redirect root + "/" + document._id
+
+
+
+
+
+
+
+    # Default options are the same for all routes
+    for name of routes
+      routes[name].options = 
+        pre               : (req, res, done) -> process.nextTick -> done null
+        post              : (req, res, done) -> process.nextTick -> done null
+
+
+
+
+
+
       # list_references   : 
-      #   path              : "#{@options.root}/:document_id/:reference_path/"
       #   method            : "GET"
-      #   action            : (req, res) =>
-      #     $ "Getting list of %s referencing single %s", req.params.reference_path, @options.singular
+      #   url               : root + "/:document_id/:reference_path"
+      #   action            : (options, req, res) ->
+      #     route = @routes.list_references
+      #     $ "Geting %s reference of %s", req.params.reference_path, singular
 
       # single_reference  : 
       #   path              : "#{@options.root}/:document_id/:reference_path/:reference_id/"
@@ -489,10 +614,15 @@ module.exports = class ModelController extends Controller
       #     $ "Getting a single %s referencing single %s", req.params.reference_path, @options.singular
 
       # add_reference     : 
-      #   path              : "#{@options.root}/:document_id/:reference_path/"
       #   method            : "POST"
-      #   action            : (req, res) =>
-      #     $ "Adding new %s reference of single %s", req.params.reference_path, @options.singular
+      #   url               : root + "/:document_id/:reference_path"
+      #   action            : (options, req, res) ->
+      #     route = @routes.add_reference
+      #     $ "Adding a reference to %s into %s", req.params.reference_path, singular
+      #     # async.series [
+      #     #   (done) => options.pre req, res, done
+
+
 
       # remove_reference  : 
       #   path              : "#{@options.root}/:document_id/:reference_path/"
@@ -500,11 +630,6 @@ module.exports = class ModelController extends Controller
       #   action            : (req, res) =>
       #     $ "Removing a single %s reference of single %s", req.params.reference_path, @options.singular
     
-    # Default options are the same for all routes
-    for name of routes
-      routes[name].options = 
-        pre               : (req, res, done) -> process.nextTick -> done null
-        post              : (req, res, done) -> process.nextTick -> done null
 
     options.routes = _(routes).merge(options.routes).value()
     $ "Calling super with options: %j", options

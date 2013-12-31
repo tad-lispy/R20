@@ -41,13 +41,11 @@ plugin = (schema, options) ->
 
   # Discover paths with references
   $ = $.root.narrow "discover_references"
-  schema.statics.references = []
+  schema.statics.references = {}
 
   schema.eachPath (path, description) ->
-    # $ "Looking at %s", path
     { type } = description.options 
     if not type then return
-    # $ "It has a type: %s (%s)", type, typeof type
     if util.isArray type
       relation = "has many"
       options  = type[0]
@@ -55,15 +53,11 @@ plugin = (schema, options) ->
       relation = "has one"
       options  = description.options
 
-      # TODO: never discovers singular references
-      # They doesn't expose ref - type is a function!
-      # Maybe discover by inspecting schema.tree?
-    $ "Relation is %s: %j", relation, options
     if options.ref?
       model = options.ref
       reference = { path, relation, model }
       $ "Found %j", reference
-      schema.statics.references.push reference
+      schema.statics.references[path] = reference
 
 
   schema.statics.findByIdOrCreate = (id, data, callback) ->
@@ -109,13 +103,16 @@ plugin = (schema, options) ->
         callback  = meta
         meta      = {}
       
-      if document.constructor.modelName isnt 
-
+      reference = @constructor.references[path]
+      ref_model = document.constructor
+      if ref_model.modelName isnt reference.model
+        return callback Error "Reference model doesn't match document"
+      
       entry = new Entry
         action: "reference"
         model : @constructor.modelName
         data  :
-          path      : path
+          reference : reference
           main      : @_id
           referenced: document._id 
         meta  : meta

@@ -76,17 +76,52 @@ Entry.method "apply", (meta, callback) ->
         document.save (error) =>
           $ = $.narrow "save_document"
           if error then return callback error
-          entry = new @.constructor
+          entry = new @constructor
             action: "apply"
             model : model.modelName
             data  :
               _id   : document._id
-              _draft: @_id
+              _entry: @_id
             meta  : meta
           entry.save (error) ->
             $ = $.narrow "new_entry"
             if error then callback error
             callback null, document
+
+    when "reference"
+      $ = $.narrow "reference"
+      {
+        reference
+        main
+        referenced
+      }           = @data
+      ref_model   = mongoose.model reference.model
+
+      async.waterfall [
+        (done) =>
+          ref_model.findById referenced, done
+
+        (referenced, done) =>
+          if not referenced then return done Error "Referenced document not found."
+          
+          if reference.relation is "has many"
+            operation = $addToSet: {}
+            operation.$addToSet[reference.path] = referenced._id
+            model.findByIdAndUpdate main, operation, done
+      ], (error, document) =>
+        if error then return callback error
+        if not document then return callback Error "Main document not found."
+        
+        entry = new @constructor
+          action: "apply"
+          model : model.modelName
+          data  :
+            _entry: @_id
+          meta  : meta
+        entry.save (error) ->
+          $ = $.narrow "new_entry"
+          if error then callback error
+          callback null, document
 
     else return callback Error "Journal entry not applicable"
 

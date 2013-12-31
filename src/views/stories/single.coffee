@@ -280,7 +280,7 @@ module.exports = new View (data) ->
         @div class: "list-group", =>
           if story.questions.length
             for question in story.questions
-              @a href: "/question/#{question._id}", class: "list-group-item", =>
+              @a href: "/questions/#{question._id}", class: "list-group-item", =>
                 @span class: "badge", question.answers?.length or 0
                 @h4
                   class: "list-group-item-heading"
