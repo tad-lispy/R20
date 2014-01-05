@@ -72,7 +72,6 @@ module.exports = new View
               applied = entry.data._entry
               switch applied.action
                 when "draft"
-                  console.dir { entry, applied }
                   item 
                     icons   : [ "comment-alt", "ok-circle" ]
                     url     : "/stories/#{applied.data._id}/"
@@ -86,15 +85,16 @@ module.exports = new View
                     time    : do entry._id.getTimestamp
                     class   : "success"
                 when "reference"
+                  console.dir { entry, applied }
                   item
                     icons   : [ "comment-alt", "question-sign" ]
-                    url     : "/stories/#{applied.data.main._id}/"
+                    url     : "/stories/#{applied.data.main?._id or applied.populated "data.main"}/"
                     body    : "#{entry.meta?.author?.name} applied a question reference to a story."
                     excerpt : =>
                       @div class: "excerpt", =>
                         @strong "S: " 
                         @em _.string.stripTags @render =>
-                          @markdown applied.data.main.text
+                          @markdown applied.data.main?.text or "UNPUBLISHED"
                       @div
                         style: """          
                           text-overflow: ellipsis;
@@ -103,7 +103,7 @@ module.exports = new View
                         """
                         =>
                           @strong "Q: " + _.string.stripTags @render =>
-                            @markdown applied.data.referenced.text
+                            @markdown applied.data.referenced?.text or "UNPUBLISHED"
                     time    : do entry._id.getTimestamp
                     class   : "success"
                     
