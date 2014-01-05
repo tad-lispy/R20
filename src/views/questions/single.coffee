@@ -182,65 +182,55 @@ module.exports = new View (data) ->
         @i class: "icon-frown icon-4x"
         @text " Not implemented yet"
 
-    if @stories?.length then @div
-      class   : "modal fade"
-      id      : "stories-dialog"
-      tabindex: -1
-      role    : "dialog"
+    if stories?.length then @modal
+      title : "Sample stories"
+      id    : "stories-dialog"
       =>
-        @div class: "modal-dialog", =>
-          @div class: "modal-content", =>
-            
-            @div class: "modal-header", =>
-              @button
-                type  : "button"
-                class : "close"
-                data:
-                  dismiss: "modal"
-                aria:
-                  hidden: true
-                => @i class: "icon-remove"
-              @h4 =>
-                @text "Sample stories"
-                @a 
-                  class: "btn btn-link btn-sm"
-                  href: "#stories-carousel"
-                  data: slide: "prev"
-                  => @i class: "icon icon-chevron-left"
+        @div class: "modal-body", =>
+          @div 
+            id      : "stories-carousel"
+            class   : "carousel slide"
+            data    :
+              ride    : "carousel"
+              interval: "false"
+            =>
+              @div class: "carousel-inner", => 
+                for story, n in stories
+                  @div class: "item #{if n is 0 then 'active' else ''}", =>
+                    @div
+                      style: """
+                        height  : 200px;
+                        overflow: hidden;
+                        overflow-y: auto;
+                        margin-bottom: 10px;
+                      """
+                      =>
+                        @markdown story.text
+                    @a
+                      class: "btn btn-info"
+                      href: "/stories/#{story.id}/"
+                      =>
+                        @i class: "icon-eye-open"
+                        @text " got to story"
+                        if story.questions.length - 1
+                          @text " (#{story.questions.length - 1} other questions)"
 
-                @a 
-                  class: "btn btn-link btn-sm"
-                  href: "#stories-carousel"
-                  data: slide: "next"
-                  => @i class: "icon icon-chevron-right"
+                    if stories.length > 1 then @div class: "btn-group pull-right", ->
+                      @a 
+                        class: "btn btn-default"
+                        href: "#stories-dialog"
+                        data: slide: "prev"
+                        => @i class: "icon icon-chevron-left"
 
-            
-            @div class: "modal-body", =>
-              @div 
-                id    : "stories-carousel"
-                class : "carousel slide"
-                data  :
-                  ride  : "carousel"
-                =>
-                  @div class: "carousel-inner", => 
-                    n = 0
-                    for story in @stories
-                      @div class: "item #{if n is 0 then 'active' else ''}", =>
-                        @div
-                          style: """
-                            height  : 200px;
-                            overflow: hidden;
-                            overflow-y: auto;
-                            margin-bottom: 10px;
-                          """
-                          =>
-                            @markdown story.text
-                        @a
-                          class: "btn btn-info"
-                          href: "/story/#{story.id}/"
-                          =>
-                            @i class: "icon-eye-open"
-                            @text " got to story"
-                            if story.questions.length - 1
-                              @text " (#{story.questions.length - 1} other questions)"
-                      n++
+                      @span
+                        disabled: true
+                        class   : "btn"
+                        "#{n+1} / #{stories.length}"
+
+                      @a 
+                        class: "btn btn-default"
+                        href: "#stories-carousel"
+                        data: slide: "next"
+                        => @i class: "icon icon-chevron-right"
+
+
