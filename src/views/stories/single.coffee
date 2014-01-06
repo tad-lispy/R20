@@ -264,7 +264,7 @@ module.exports = new View (data) ->
                   class   : "btn btn-block btn-primary"
                   data    :
                     toggle  : "modal"
-                    target  : "#question-edit-dialog"
+                    target  : "#new-question-dialog"
                     shortcut: "n q"
                   =>
                     @i class: "icon-star"
@@ -322,25 +322,11 @@ module.exports = new View (data) ->
                 @i class: "icon-plus-sign"
                 @text " Do it now!"
 
-      @div
-        class   : "modal fade"
+      @modal
         id      : "new-question-dialog"
-        tabindex: -1
-        role    : "dialog"
+        title   : "Add new question"
         =>
-          @div class: "modal-dialog", =>
-            @div class: "modal-content", =>
-              
-              @div class: "modal-header", =>
-                @button
-                  type  : "button"
-                  class :"close"
-                  data:
-                    dismiss: "modal"
-                  aria:
-                    hidden: true
-                  -> @i class: "icon-remove"
-                @h4 "A brand new question?"
-              
-              @div class: "modal-body", =>
-                @p "Add a new question"
+          @questionForm
+            action  : "/questions/"
+            method  : "POST"
+            csrf    : csrf
