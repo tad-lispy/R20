@@ -1,20 +1,12 @@
-{
-  renderable, tag, text, raw
-  div, main, aside, nav
-  ul, li
-  h3, h4, p
-  i, span
-  a
-  form, button, input
-  hr
-}         = require "teacup"
-template  = require "./templates/aside"
-marked    = require "marked"
+layout    = require "./layouts/aside"
+View      = require "teacup-view"
 
-
-module.exports = renderable (data) ->
-  template.call @, =>   
-    raw marked @about.text
+module.exports = new View
+  components: __dirname + "/components"
+  (data) ->
+    # TODO: fix layout (use teacup view)
+    # layout data, =>   
+    @markdown data.text
 
 
 
