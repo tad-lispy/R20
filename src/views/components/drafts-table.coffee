@@ -12,7 +12,6 @@ module.exports = new View (options) ->
     applied
     root
   } = options
-  console.dir drafts
 
   @table class: "table table-hover table-condensed table-striped", =>
     @tr =>
@@ -21,7 +20,6 @@ module.exports = new View (options) ->
       @th "time"
 
     for draft in drafts
-      console.log "Draft"
       isChosen  = chosen?   and draft._id.equals chosen   
       isApplied = applied?  and draft._id.equals applied  
       if      isChosen  then  icon = "circle"
@@ -31,15 +29,6 @@ module.exports = new View (options) ->
       url     = root + draft.data._id + "/drafts/" + draft._id
       time    = moment(draft._id.getTimestamp()).fromNow()
       author  = draft.meta.author
-
-      console.dir {
-        draft: draft._id
-        url
-        time
-        author
-        chosen
-        applied
-      }
 
       @tr class: (if isChosen then "active" else if isApplied then "success"), =>
 

@@ -42,7 +42,7 @@ ModelController has following actions
 * make_reference:
     add a reference to other document
 
-* remove_reference:
+* unreference:
     remove a reference to other document
 
 When creating new controller you pass it a model and options, eg:
@@ -79,7 +79,7 @@ Action              | Method  | URL path
   single_reference  | GET     | /:document_id/:reference_path/ *if reference isingular*
   single_reference  | GET     | /:document_id/:reference_path/:reference_id
   make_reference    | PUT     | /:document_id/:reference_path/:reference_id
-  remove_reference  | DELETe  | /:document_id/:reference_path/:reference_id
+  unreference       | DELETE  | /:document_id/:reference_path/:reference_id
   
 ###
 
@@ -357,8 +357,6 @@ module.exports = class ModelController extends Controller
 
           async.series [
             (done) => 
-              console.dir options
-
               options.pre req, res, done
 
             # Find a document
@@ -443,7 +441,6 @@ module.exports = class ModelController extends Controller
               document.findEntries (error, journal) ->
                 if error then return done error
                 # $ "Here", {document, journal}, 
-                console.dir res.locals
                 # if (not journal.lenght) and # Can't happen :P
                 #         document.isNew  then return done Error "Not found"
                 res.locals { journal }
@@ -584,9 +581,52 @@ module.exports = class ModelController extends Controller
               res.redirect root + "/" + document._id
 
 
+        routes[reference.path + "_delete"] =
+          method  : "DELETE"
+          url     : root + "/:document_id/" + reference.path + "/:reference_id"
+          action  : (options, req, res) =>
+            route = @routes[reference.path + "_delete"]
+            $ "Removing a reference to %s from %s", reference.path, singular
+            {
+              document_id
+              reference_id
+            } = req.params
 
+            async.series [
+              (done) => options.pre req, res, done
+              (done) =>
+                {
+                  document_id
+                  reference_id
+                } = req.params
+                model.findById document_id, (error, document) =>
+                  if error then return done error
+                  if not document then return done HTTPError 404, "Not found"
+                  res.locals[singular] = document 
+                  done null
 
+              (done) =>
+                document = res.locals[singular]
+                { meta } = res.locals      
 
+                document.removeReference reference.path,
+                  reference_id
+                  meta
+                  (error, entry) =>
+                    console.dir { entry }
+                    if error then return done error
+                    entry.apply meta, done
+
+              (done) => options.post req, res, done
+
+            ], (error) =>
+              if error
+                if error instanceof HTTPError then return res.json error
+                else throw error
+
+              document = res.locals[singular]
+
+              res.redirect root + "/" + document._id
 
 
     # Default options are the same for all routes

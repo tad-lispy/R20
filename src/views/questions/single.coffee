@@ -173,7 +173,7 @@ module.exports = new View (data) ->
         method  : "POST"
         action  : "/questions/#{question._id}/drafts"
         csrf    : csrf
-        question: question
+        question: draft?.data or question
 
 
     @h4 class: "text-muted", "Answers"

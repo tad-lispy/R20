@@ -118,10 +118,29 @@ plugin = (schema, options) ->
         meta  : meta
 
       entry.save (error) ->
-        if error then callback error
+        if error then return callback error
         callback null, entry
 
-    removeReference: (path, document, callback) -> callback null
+    removeReference: (path, document, meta, callback) ->
+      if not callback and typeof meta is "function" 
+        callback  = meta
+        meta      = {}
+
+      reference = @constructor.references[path]
+
+      entry = new Entry
+        action: "unreference"
+        model : @constructor.modelName
+        data  : 
+          reference : reference
+          main      : @_id
+          referenced: document
+        meta  : meta
+
+      entry.save (error) ->
+        if error then return callback error
+        callback null, entry
+        
 
     removeDocument: (meta, callback) ->
       # Remove document from collection while preserving all drafts.

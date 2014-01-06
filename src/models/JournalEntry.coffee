@@ -123,6 +123,33 @@ Entry.method "apply", (meta, callback) ->
           if error then callback error
           callback null, document
 
+    when "unreference"
+      {
+        reference
+        main
+        referenced
+      }           = @data
+
+      if reference.relation is "has many" then async.waterfall [
+        (done) =>
+          operation = $pull: {}
+          operation.$pull[reference.path] = referenced
+          model.findByIdAndUpdate main, operation, (error, document) ->
+            if error then return done error
+            if not document then return done Error "Main document not found"
+            done null, document
+      ], (error, document) =>
+          entry = new @constructor
+            action: "apply"
+            model : model.modelName
+            data  :
+              _entry: @_id
+            meta  : meta
+          entry.save (error) ->
+            $ = $.narrow "new_entry"
+            if error then callback error
+            callback null, document
+
     else return callback Error "Journal entry not applicable"
 
 module.exports = mongoose.model "Journal.Entry", Entry

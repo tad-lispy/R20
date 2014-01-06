@@ -44,6 +44,7 @@ module.exports = new Controller Story,
     save            : options: pre: pre.meta
     remove          : options: pre: pre.meta
     questions_add   : options: pre: pre.meta
+    questions_delete: options: pre: pre.meta
 
 
 

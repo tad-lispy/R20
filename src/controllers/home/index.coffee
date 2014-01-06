@@ -16,7 +16,7 @@ views =
 # Different population logic for different actions
 # TODO: this should go to Entry model
 populate = 
-  reference : (entry, done) ->
+  reference   : (entry, done) ->
     $ "Populating reference", entry
     main_model  = Entry.model entry.model
     ref_model   = Entry.model entry.data.reference.model
@@ -24,11 +24,13 @@ populate =
       (done) => main_model.populate entry, path: "data.main"      , done
       (done) => ref_model.populate  entry, path: "data.referenced", done
     ], done
-  apply     : (entry, done) ->
+  unreference : (entry, done) -> @reference entry, done
+  apply       : (entry, done) ->
     $ "Populating apply", entry
     switch entry.data._entry.action
-      when "reference"  then @reference entry.data._entry, done
-      when "draft"      then Participant.populate entry,
+      when "reference"    then @reference   entry.data._entry, done
+      when "unreference"  then @unreference entry.data._entry, done
+      when "draft"        then Participant.populate entry,
         path: "data._entry.meta.author"
         done
       else done null

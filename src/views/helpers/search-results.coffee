@@ -8,7 +8,6 @@
 module.exports = renderable ->
   h3 class: "text-muted", "That may be of interest to you:"
   div class: "list-group", =>
-    console.dir @search
     for result in @search.results
       a href: result.url, class: "list-group-item", =>
         h4 class: "list-group-item-heading", result.title

@@ -85,9 +85,8 @@ module.exports = new View
                     time    : do entry._id.getTimestamp
                     class   : "success"
                 when "reference"
-                  console.dir { entry, applied }
                   item
-                    icons   : [ "comment-alt", "question-sign" ]
+                    icons   : [ "link" ]
                     url     : "/stories/#{applied.data.main?._id or applied.populated "data.main"}/"
                     body    : "#{entry.meta?.author?.name} applied a question reference to a story."
                     excerpt : =>
@@ -106,6 +105,42 @@ module.exports = new View
                             @markdown applied.data.referenced?.text or "UNPUBLISHED"
                     time    : do entry._id.getTimestamp
                     class   : "success"
+
+                when "unreference" 
+                  console.dir {
+                    entry
+                    applied
+                  }
+                  
+                  item
+                    icons   : [ "unlink" ]
+                    url     : "/stories/#{applied.data.main?._id or applied.populated "data.main"}/"
+                    body    : "#{applied.meta?.author?.name} removed a question from a story."
+                    excerpt : =>
+                      @div
+                        style: """          
+                          text-overflow: ellipsis;
+                          white-space: nowrap;
+                          overflow: hidden;
+                        """
+                        =>
+                          @strong "S: " 
+                          @em _.string.stripTags @render =>
+                            @markdown applied.data.main?.text or "UNPUBLISHED"
+                      @div
+                        style: """          
+                          text-overflow: ellipsis;
+                          white-space: nowrap;
+                          overflow: hidden;
+                        """
+                        =>
+                          @strong "Q: "
+                          @strong style: "text-decoration: line-through",
+                            _.string.stripTags @render =>
+                              @markdown applied.data.referenced?.text or "UNPUBLISHED"
+                    time    : do entry._id.getTimestamp
+                    class   : "danger"
+
                     
             when "remove" then item
               icons   : [ "comment-alt", "remove" ]
@@ -116,61 +151,8 @@ module.exports = new View
               class   : "danger"
 
             # Don't show that ATM - references are auto - applied. Info about applience is sufficient.
-            when "reference" then @text ""
-              # item
-              #   icons   : [ "comment-alt", "question-sign" ]
-              #   url     : "/stories/#{entry.data.main._id}/"
-              #   body    : "#{entry.meta?.author?.name} suggested to reference a question to a story."
-              #   excerpt : =>
-              #     @div class: "excerpt", =>
-              #       @strong "S: " 
-              #       @em _.string.stripTags @render =>
-              #         @markdown entry.data.main.text
-              #     @div
-              #       style: """          
-              #         text-overflow: ellipsis;
-              #         white-space: nowrap;
-              #         overflow: hidden;
-              #       """
-              #       =>
-              #         @strong "Q: " + _.string.stripTags @render =>
-              #           @markdown entry.data.referenced.text
-              #   time    : do entry._id.getTimestamp
-              #   class   : "info"
-            
-            when "unreference" then item
-              icons   : [ "comment-alt", "question-sign" ]
-              url     : "/stories/#{entry.data.main_doc._id}/"
-              body    : "#{entry.meta?.author?.name} removed a question from a story."
-              excerpt : =>
-                @div
-                  style: """          
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                    overflow: hidden;
-                  """
-                  =>
-                    @strong "S: " 
-                    @em _.string.stripTags @render =>
-                      @markdown entry.data.main_doc.text
-                @div
-                  style: """          
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                    overflow: hidden;
-                  """
-                  =>
-                    @strong "Q: "
-                    @strong style: "text-decoration: line-through", _.string.stripTags @render =>
-                      @markdown entry.data.referenced_doc.text
-              time    : do entry._id.getTimestamp
-              class   : "danger"
-
-            else item
-              body    : "Something (#{entry.action}) happened to a story"
-              url     : "/stories/#{entry.data._id}"
-              time    : do entry._id.getTimestamp
-
+            when "reference"    then @text ""
+            when "unreference"  then @text "" 
 
           # Questions related entries
           # -------------------------
