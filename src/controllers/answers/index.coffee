@@ -2,6 +2,7 @@
 
 # Models
 Question    = require "../../models/Question"
+Story       = require "../../models/Question"
 Participant = require "../../models/Participant"
 
 # Controller

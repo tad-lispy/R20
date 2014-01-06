@@ -11,6 +11,7 @@ module.exports = new View (data) ->
     draft
     question
     stories
+    answers
     csrf
     journal
   } = data
@@ -177,10 +178,34 @@ module.exports = new View (data) ->
 
 
     @h4 class: "text-muted", "Answers"
-    @div class: "well", =>
-      @p =>
-        @i class: "icon-frown icon-4x"
-        @text " Not implemented yet"
+    if answers.length then for answer in answers
+      @div class: "well", =>
+        @p =>
+          @i class: "icon-frown icon-4x"
+          @text " Not implemented yet, pal"
+    
+    else @div class: "well", =>
+        @p =>
+          @i class: "icon-frown icon-4x"
+          @text " No answers to this question yet."
+
+    unless draft?
+      @form
+        id    : "new-answer"
+        method: "POST"
+        action: "/questions/#{question._id}/answers"
+        =>
+          @div class: "form-group", =>
+            @label for: "text", "Have an answer? Please share it!"
+            @textarea class: "form-control", name: "text", placeholder: "Your answer..."
+          @div class: "form-group", =>
+            @button
+              type  : "submit"
+              class : "btn btn-primary"
+              =>
+                @i class: "icon-check-sign"
+                @text " " + "send"
+          @input type: "hidden", name: "_csrf", value: csrf
 
     if stories?.length then @modal
       title : "Sample stories"

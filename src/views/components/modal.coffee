@@ -27,7 +27,7 @@ module.exports = new View (options = {}, content) ->
                 dismiss: "modal"
               aria:
                 hidden: true
-              => @i class: "icon-remove"
+              => @i class: "icon-remove icon-2x"
             @h4 title
           
           @div class: "modal-body", =>

@@ -7,6 +7,8 @@ Controller object can be plugged into app.
 
 ModelController has following actions
 
+TODO: This section is outdated. The table is up to date though.
+
 * list: 
     list documents
 
@@ -76,10 +78,10 @@ Action              | Method  | URL path
   single_journal    | GET     | /:document_id/journal/
 ✓ draft             | GET     | /:document_id/journal/:entry_id
   list_references   | GET     | /:document_id/:reference_path/ *if reference is plural*
-  single_reference  | GET     | /:document_id/:reference_path/ *if reference isingular*
+  single_reference  | GET     | /:document_id/:reference_path/ *if reference is ingular*
   single_reference  | GET     | /:document_id/:reference_path/:reference_id
-  make_reference    | PUT     | /:document_id/:reference_path/:reference_id
-  unreference       | DELETE  | /:document_id/:reference_path/:reference_id
+✓ reference         | PUT     | /:document_id/:reference_path/:reference_id
+✓ unreference       | DELETE  | /:document_id/:reference_path/:reference_id
   
 ###
 
