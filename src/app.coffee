@@ -228,6 +228,7 @@ for name in [
   "home"
   "questions"
   "stories"
+  "answers"
 ]
   $ "Loading %s controller", name
   controller = require "./controllers/#{name}"

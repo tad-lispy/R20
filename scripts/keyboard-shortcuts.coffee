@@ -3,7 +3,7 @@ jQuery ($) ->
     shortcut  = ($ element).data "shortcut"
     Mousetrap.bind shortcut, (event) ->
       switch element.tagName
-        when "INPUT"
+        when "INPUT", "TEXTAREA"
           do element.focus
           do event.preventDefault
         when "A"      then do element.click # TODO: supposedly not working in safari. Check!

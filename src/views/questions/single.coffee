@@ -197,7 +197,13 @@ module.exports = new View (data) ->
         =>
           @div class: "form-group", =>
             @label for: "text", "Have an answer? Please share it!"
-            @textarea class: "form-control", name: "text", placeholder: "Your answer..."
+            @textarea 
+              class       : "form-control"
+              name        : "text"
+              placeholder : "Your answer..."
+              data        :
+                shortcut    : "a"
+                
           @div class: "form-group", =>
             @button
               type  : "submit"

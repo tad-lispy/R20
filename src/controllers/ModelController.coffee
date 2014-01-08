@@ -474,7 +474,7 @@ module.exports = class ModelController extends Controller
     references        = _.omit model.references, (reference, path) -> path.match /^_/
     _.merge references, options.references
     $ "References are: %j", references
-    for path, reference of references
+    for name, reference of references
       reference_model = @model.model reference.model
 
       if reference.relation is "has many" 
@@ -555,17 +555,17 @@ module.exports = class ModelController extends Controller
               # Save reference
               (done) =>
                 document    = res.locals[singular]
-                referenced  = res.locals[path]
+                referenced  = res.locals[reference.path]
                 { meta }    = res.locals
 
-                document.saveReference path, referenced, meta, (error, entry) =>
+                document.saveReference reference.path, referenced, meta, (error, entry) =>
                   if error then return done error
                   res.locals { entry }
                   done null
 
               (done) => 
                 document    = res.locals[singular]
-                referenced  = res.locals[path]
+                referenced  = res.locals[reference.path]
                 { meta
                   entry
                 }    = res.locals
