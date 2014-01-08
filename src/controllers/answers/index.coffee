@@ -23,7 +23,7 @@ $           = debug "R20:controllers:answers"
 
 module.exports = new Controller Answer,
   routes:
-    list    : options: pre  : pre.conditions
+    # list    : options: pre  : pre.conditions
 
     new     :
       url     : "/questions/:question_id/answers"
@@ -33,7 +33,10 @@ module.exports = new Controller Answer,
           # Setup metadata
           (done) -> pre.meta req, res, done
           
+
           # Find question document
+          # We don't really need it, do we? We only need to check if it exists.
+          # Is there a more robust name?
           (done) ->
             Question.findById req.params.question_id, (error, question) ->
               if error        then return done error
@@ -45,14 +48,17 @@ module.exports = new Controller Answer,
           (done) ->
             { question } = res.locals
             $ "Question: ", question
-            Answer.find
-              _id     : $in: question.answers
-              author  : res.locals.participant
+            Answer.findOne
+              question: question._id
+              author  : res.locals.participant._id
               (error, answer) ->
                 if error  then return done error
                 # Expect to fail :)
-                if answer then return done Error2 "AlreadyAnsweredError",
-                 "There is already an answer by this author (#{res.locals.participant.name}) to this question."
+                if answer then return done Error2 "Already Answered",
+                  message: "This author (#{res.locals.participant.name}) already answered this question (#{res.locals.question.text}). Single author can give only one answer for each question."
+                  question: res.locals.question
+                  author  : res.locals.participant
+                  answer  : answer
 
                 done null
               
@@ -61,14 +67,18 @@ module.exports = new Controller Answer,
             answer = new Answer
               text    : req.body.text
               author  : res.locals.participant
-              question: res.params.question_id
+              question: req.params.question_id
 
             answer.save (error) ->
               if error then return done error
-              res.locals { ansewer }
+              res.locals { answer }
               done null
         ], (error) ->
-          if error then throw error
+          if error 
+            if error.name is "Already Answered"
+              return res.send 409, error.message
+            else
+              throw error
 
           {
             question
@@ -77,29 +87,29 @@ module.exports = new Controller Answer,
 
           res.redirect "/questions/#{question._id}##{answer._id}"
     
-    single          : options: post : (req, res, done) ->
-      async.parallel [
-        (done) -> res.locals.question.findStories (error, stories) ->
-          $ "Looking for stories with question %s", res.locals.question._id
-          if error then return done error
-          res.locals { stories }
-          done null
-        (done) -> 
-          res.locals answers: []
-          done null
-        (done) ->
-          $ "Populating journal with meta.author"
-          Participant.populate res.locals.journal,
-            path: "meta.author"
-            done
-      ], done
+    # single          : options: post : (req, res, done) ->
+    #   async.parallel [
+    #     (done) -> res.locals.question.findStories (error, stories) ->
+    #       $ "Looking for stories with question %s", res.locals.question._id
+    #       if error then return done error
+    #       res.locals { stories }
+    #       done null
+    #     (done) -> 
+    #       res.locals answers: []
+    #       done null
+    #     (done) ->
+    #       $ "Populating journal with meta.author"
+    #       Participant.populate res.locals.journal,
+    #         path: "meta.author"
+    #         done
+    #   ], done
         
 
-    draft           : options: post: post.draft
+    # draft           : options: post: post.draft
 
-    apply           : options: pre: pre.meta
-    save            : options: pre: pre.meta
-    remove          : options: pre: pre.meta
+    # apply           : options: pre: pre.meta
+    # save            : options: pre: pre.meta
+    # remove          : options: pre: pre.meta
 
     # TODO:
     # reference       : options: pre: pre.meta

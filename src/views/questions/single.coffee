@@ -14,6 +14,7 @@ module.exports = new View (data) ->
     answers
     csrf
     journal
+    participant
   } = data
   # @page = title: if @draft? then @draft.text else if not @question.isNew then @question.text
 
@@ -177,12 +178,15 @@ module.exports = new View (data) ->
         question: draft?.data or question
 
 
-    @h4 class: "text-muted", "Answers"
+    @h4 class: "text-muted", =>
+      @i class: "icon-puzzle-piece icon-fixed-width"
+      @text "Answers"
     if answers.length then for answer in answers
       @div class: "well", =>
-        @p =>
-          @i class: "icon-frown icon-4x"
-          @text " Not implemented yet, pal"
+        @h6
+          class: "text-muted"
+          "by #{answer.author.name} (#{moment(answer._id.getTimestamp()).fromNow()}):"
+        @markdown answer.text
     
     else @div class: "well", =>
         @p =>

@@ -3,22 +3,13 @@
 mongoose  = require "mongoose"
 
 Story     = require "./Story"
+Answer    = require "./Answer"
 
 Question  = new mongoose.Schema
   text      : 
     type      : String
     required  : yes
     unique    : yes
-
-# # TODO: answers has to be in their own collection and to point to a question.
-# Answer    = new mongoose.Schema
-#   text      :
-#     type      : String
-#     required  : yes
-#   author    :
-#     type      : mongoose.Schema.ObjectId
-#     ref       : 'Participant'
-#     required  : yes
 
 Question.methods.findStories = (conditions, callback) ->
   if (not callback) and typeof conditions is "function"
@@ -30,8 +21,6 @@ Question.methods.findStories = (conditions, callback) ->
   Story.find conditions, callback
 
 Question.methods.findAnswers = (conditions, callback) ->
-  return callback null, []
-  
   if (not callback) and typeof conditions is "function"
     callback = conditions
     conditions = {}

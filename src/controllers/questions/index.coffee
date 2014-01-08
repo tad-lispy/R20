@@ -24,15 +24,25 @@ module.exports = new Controller Question,
     new             : options: pre  : pre.meta
     
     single          : options: post : (req, res, done) ->
-      async.parallel [
+      async.series [
         (done) -> res.locals.question.findStories (error, stories) ->
-          $ "Looking for stories with question %s", res.locals.question._id
           if error then return done error
           res.locals { stories }
           done null
-        (done) -> 
-          res.locals answers: []
+        
+        (done) -> res.locals.question.findAnswers (error, answers) ->
+          if error then return done error
+          res.locals { answers }
+
           done null
+        
+        (done) ->
+          { answers } = res.locals
+          Participant.populate answers,
+            path: "author"
+            (error, answers) ->
+              done null
+
         (done) ->
           $ "Populating journal with meta.author"
           Participant.populate res.locals.journal,

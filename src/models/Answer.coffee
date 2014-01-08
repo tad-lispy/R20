@@ -3,7 +3,7 @@ mongoose    = require "mongoose"
 Question    = require "./Question"
 Participant = require "./Participant"
 
-Answer      = new mongoose.Schema
+answer      = new mongoose.Schema
   text        :
     type        : String
     required    : yes
@@ -16,4 +16,4 @@ Answer      = new mongoose.Schema
     ref         : 'Question'
     required    : yes
 
-module.exports = mongoose.model "Question", Question
+module.exports = mongoose.model "Answer", answer
