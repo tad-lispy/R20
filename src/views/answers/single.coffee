@@ -8,75 +8,64 @@ $         = debug "R20:views:question"
 
 module.exports = new View (data) ->
   @text "Answers list view not implemented yet"
+  {
+    draft
+    answer
+    csrf
+    journal
+  } = data
   
-  # {
-  #   draft
-  #   question
-  #   stories
-  #   answers
-  #   csrf
-  #   journal
-  # } = data
-  # # @page = title: if @draft? then @draft.text else if not @question.isNew then @question.text
+  layout data, =>
 
-  # layout data, =>
-  #   if draft?
-  #     applied  = question._draft?.equals draft._id
-  #     applied ?= no
-
-  #     @div class: "alert alert-#{if applied then 'success' else 'info'} clearfix", =>
+    if draft?
+      applied = answer._draft?.equals draft._id
       
-  #       @text "This is a draft proposed #{moment(draft._id.getTimestamp()).fromNow()} by #{draft.meta.author.name}. "
-  #       if applied then @text "It is currently applied."
+      @draftAlert
+        applied   : applied
+        draft     : draft
+        actualurl : "/questions/#{draft.data.question}/#answer-#{draft.data._id}"
 
-  #       @a
-  #         href  : "/questions/#{question._id}/"
-  #         class : "btn btn-default btn-xs pull-right"
-  #         =>
-  #           @i class: "icon-arrow-left"
-  #           @text " See actual question"
+    # The question
+    @div class: "jumbotron", =>
+      if draft?
+        @markdown draft.data.text
 
-  #   # The question
-  #   @div class: "jumbotron", =>
-  #     if draft?
-  #       @markdown draft.data.text
-
-  #       @form
-  #         action: "/questions/#{question._id}/"
-  #         method: "POST"
-  #         class : "clearfix"
-  #         =>
-  #           @input type: "hidden", name: "_method", value: "PUT"
-  #           @input type: "hidden", name: "_csrf"  , value: data.csrf
-  #           @input type: "hidden", name: "_draft" , value: draft._id
+        @form
+          action: "/questions/#{draft.data.question}/answers/#{draft.data._id}"
+          method: "POST"
+          class : "clearfix"
+          =>
+            @input type: "hidden", name: "_method", value: "PUT"
+            @input type: "hidden", name: "_csrf"  , value: data.csrf
+            @input type: "hidden", name: "_draft" , value: draft._id
             
-  #           @div class: "btn-group pull-right", =>
-  #             @button
-  #               class   : "btn btn-success"
-  #               type    : "submit"
-  #               disabled: applied
-  #               data    : shortcut: "a a enter"
-  #               =>
-  #                 @i class: "icon-check-sign"
-  #                 @text " " + "apply this draft"
+            @div class: "btn-group pull-right", =>
+              @button
+                class   : "btn btn-success"
+                type    : "submit"
+                disabled: applied
+                data    : shortcut: "a a enter"
+                =>
+                  @i class: "icon-check-sign"
+                  @text " " + "apply this draft"
 
-  #             @dropdown items: [
-  #               title : "make changes"
-  #               href  : "#edit-question"
-  #               icon  : "edit"
-  #               data  :
-  #                 toggle  : "modal"
-  #                 target  : "#question-edit-dialog"
-  #                 shortcut: "e"
-  #             ,
-  #               title : "show drafts"
-  #               href  : "#show-drafts"
-  #               icon  : "folder-close"
-  #               data  :
-  #                 toggle  : "modal"
-  #                 target  : "#drafts-dialog"
-  #                 shortcut: "d"
-  #             ]
+              @dropdown items: [
+                title : "make changes"
+                href  : "#edit-answer"
+                icon  : "edit"
+                data  :
+                  toggle  : "modal"
+                  target  : "#answer-edit-dialog"
+                  shortcut: "e"
+              ,
+                title : "show drafts"
+                href  : "#show-drafts"
+                icon  : "folder-close"
+                data  :
+                  toggle  : "modal"
+                  target  : "#drafts-dialog"
+                  shortcut: "d"
+              ]
 
   #     else if question.isNew 
   #       @p class: "text-muted", =>

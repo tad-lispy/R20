@@ -4,6 +4,7 @@
 Answer      = require "../../models/Answer"
 Question    = require "../../models/Question"
 Participant = require "../../models/Participant"
+Entry       = require "../../models/JournalEntry"
 
 # Controller
 Controller  = require "../ModelController"
@@ -22,11 +23,11 @@ debug       = require "debug"
 $           = debug "R20:controllers:answers"
 
 module.exports = new Controller Answer,
+  root  : "/questions/:question_id/answers"
   routes:
     # list    : options: pre  : pre.conditions
 
     new     :
-      url     : "/questions/:question_id/answers"
       method  : "POST"
       action  : (options, req, res) ->
         async.series [
@@ -47,7 +48,7 @@ module.exports = new Controller Answer,
           # Check wether there already is an answer by this author
           (done) ->
             { question } = res.locals
-            $ "Question: ", question
+
             Answer.findOne
               question: question._id
               author  : res.locals.participant._id
@@ -61,7 +62,28 @@ module.exports = new Controller Answer,
                   answer  : answer
 
                 done null
-              
+          
+          # Check wether there are drafts by this author
+          (done) ->
+            { question } = res.locals
+            Entry.findOne
+              model           : "Answer"
+              action          : "draft"
+              "data.question" : question._id
+              "data.author"   : res.locals.participant._id
+              (error, draft) ->
+                console.dir {error, draft}
+                if error  then return done error
+                # Expect to fail :)
+                if draft then return done Error2 "Answer Already Drafted",
+                  message: "This author (#{res.locals.participant.name}) already drafted an answer for this question (#{res.locals.question.text}). Single author can give only one answer for each question. If you want to submit new text, then go to answer, and save new draft."
+                  question: question
+                  author  : res.locals.participant
+                  answer  : draft.data
+
+                done null
+
+
           # Create new answer document
           (done) ->
             answer = new Answer
@@ -69,23 +91,23 @@ module.exports = new Controller Answer,
               author  : res.locals.participant
               question: req.params.question_id
 
-            answer.save (error) ->
+            answer.saveDraft author: res.locals.participant._id, (error, draft) ->
               if error then return done error
-              res.locals { answer }
+              res.locals { draft }
               done null
         ], (error) ->
           if error 
-            if error.name is "Already Answered"
+            if error.name in ["Already Answered", "Answer Already Drafted"]
               return res.send 409, error.message
             else
               throw error
 
           {
             question
-            answer
+            draft
           } = res.locals
 
-          res.redirect "/questions/#{question._id}##{answer._id}"
+          res.redirect "/questions/#{question._id}/answers/#{draft.data._id}/drafts/#{draft._id}"
     
     # single          : options: post : (req, res, done) ->
     #   async.parallel [
@@ -105,7 +127,7 @@ module.exports = new Controller Answer,
     #   ], done
         
 
-    # draft           : options: post: post.draft
+    draft           : options: post: post.draft
 
     # apply           : options: pre: pre.meta
     # save            : options: pre: pre.meta

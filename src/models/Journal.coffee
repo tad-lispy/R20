@@ -28,7 +28,7 @@ deepOmit = (object, omit) ->
   return object
 
 
-plugin = (schema, options) ->
+plugin = (schema, options = {}) ->
 
   options = _.defaults options,
     omit  : {}
@@ -164,6 +164,8 @@ plugin = (schema, options) ->
 
           callback null, entry
 
+    # TODO: Is it used anywhere in the project?
+    # Or is it some forgotten idea?
     findEntries: (conditions, callback) ->
       if not callback and typeof conditions is "function" 
         callback    = conditions
