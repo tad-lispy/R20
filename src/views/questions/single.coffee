@@ -23,6 +23,7 @@ module.exports = new View (data) ->
       applied  = question._draft?.equals draft._id
       applied ?= no
 
+      # TODO: use draft alert component
       @div class: "alert alert-#{if applied then 'success' else 'info'} clearfix", =>
       
         @text "This is a draft proposed #{moment(draft._id.getTimestamp()).fromNow()} by #{draft.meta.author.name}. "
@@ -178,22 +179,22 @@ module.exports = new View (data) ->
         question: draft?.data or question
 
 
-    @h4 class: "text-muted", =>
-      @i class: "icon-puzzle-piece icon-fixed-width"
-      @text "Answers"
-    if answers.length then for answer in answers
-      @div class: "well", =>
-        @h6
-          class: "text-muted"
-          "by #{answer.author.name} (#{moment(answer._id.getTimestamp()).fromNow()}):"
-        @markdown answer.text
-    
-    else @div class: "well", =>
-        @p =>
-          @i class: "icon-frown icon-4x"
-          @text " No answers to this question yet."
-
     unless draft?
+      @h4 class: "text-muted", =>
+        @i class: "icon-puzzle-piece icon-fixed-width"
+        @text "Answers"
+      if answers.length then for answer in answers
+        @div class: "well", =>
+          @h6
+            class: "text-muted"
+            "by #{answer.author.name} (#{moment(answer._id.getTimestamp()).fromNow()}):"
+          @markdown answer.text
+      
+      else @div class: "well", =>
+          @p =>
+            @i class: "icon-frown icon-4x"
+            @text " No answers to this question yet."
+
       @form
         id    : "new-answer"
         method: "POST"
