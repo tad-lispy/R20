@@ -173,11 +173,15 @@ module.exports = class ModelController extends Controller
             (done) => options.post req, res, done
           ], (error) =>
             if error then throw error
-            { draft } = res.locals
-            if (req.accepts ["json", "html"]) is "json"
-              res.json res.locals.draft
-            else
-              res.redirect root + "/" + draft.data._id + "/drafts/" + draft._id
+            { 
+              draft 
+              redirect
+            } = res.locals
+            
+            redirect ?= root + "/" + draft.data._id + "/drafts/" + draft._id
+
+            if (req.accepts ["json", "html"]) is "json" then req.json draft.toJSON()
+            else res.redirect redirect
 
 
       # journal           : 
@@ -297,8 +301,10 @@ module.exports = class ModelController extends Controller
 
             $ "Draft applied"
             document = res.locals[singular]
+            redirect = res.locals.redirect or root + "/" + document._id
+
             if (req.accepts ["json", "html"]) is "json" then req.json document.toJSON()
-            else res.redirect root + "/" + document._id
+            else res.redirect redirect
 
       save              :
         method            : "POST"
@@ -343,11 +349,15 @@ module.exports = class ModelController extends Controller
 
           ], (error) ->
             if error then throw error
-            { draft } = res.locals
+            { 
+              draft
+              redirect
+            } = res.locals
             document  = res.locals[singular]
+            redirect ?= root + "/" + document._id + "/drafts/" + draft._id
 
             if (req.accepts ["json", "html"]) is "json" then req.json draft.toJSON()
-            else res.redirect root + "/" + document._id + "/drafts/" + draft._id
+            else res.redirect redirect
 
 
       remove            : 
@@ -358,8 +368,7 @@ module.exports = class ModelController extends Controller
           $ "Removing %s", singular
 
           async.series [
-            (done) => 
-              options.pre req, res, done
+            (done) => options.pre req, res, done
 
             # Find a document
             (done) =>
@@ -379,6 +388,8 @@ module.exports = class ModelController extends Controller
                 res.locals { entry }
                 done null
 
+            (done) => options.post req, res, done
+
           ], (error) =>
             # Send results
             $ = $.narrow "send"
@@ -393,11 +404,13 @@ module.exports = class ModelController extends Controller
 
               else # different error
                 throw error 
+
+            redirect = res.locals.redirect or root
             
             if (req.accepts ["json", "html"]) is "json"
               res.json entry
             else 
-              res.redirect root
+              res.redirect redirect
 
 
       # single_journal    : 
@@ -578,9 +591,9 @@ module.exports = class ModelController extends Controller
                 if error instanceof HTTPError then return res.json error
                 else throw error
 
-              document    = res.locals[singular]
-
-              res.redirect root + "/" + document._id
+              document = res.locals[singular]
+              redirect = res.locals.redirect or root + "/" + document._id
+              res.redirect redirect
 
 
         routes[reference.path + "_delete"] =
@@ -627,8 +640,8 @@ module.exports = class ModelController extends Controller
                 else throw error
 
               document = res.locals[singular]
-
-              res.redirect root + "/" + document._id
+              redirect = res.locals.redirect or root + "/" + document._id
+              res.redirect redirect
 
 
     # Default options are the same for all routes
