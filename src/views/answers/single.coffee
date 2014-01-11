@@ -7,18 +7,21 @@ debug     = require "debug"
 $         = debug "R20:views:question"
 
 module.exports = new View (data) ->
-  @text "Answers list view not implemented yet"
   {
     draft
     answer
     csrf
     journal
   } = data
-  
+
+  if draft then question = draft.data.question
+  else          question = answer.question
+
   layout data, =>
+  
 
     if draft?
-      applied = answer._draft?.equals draft._id
+      applied = Boolean answer._draft?.equals draft._id
       
       @draftAlert
         applied   : applied
@@ -26,12 +29,18 @@ module.exports = new View (data) ->
         actualurl : "/questions/#{draft.data.question}/#answer-#{draft.data._id}"
 
     # The question
+    @p class: "lead", =>
+      @i  class: "icon-question-sign icon-2x pull-left icon-muted"
+      @em question.text
+    
+
+    # The answer
     @div class: "jumbotron", =>
       if draft?
         @markdown draft.data.text
 
         @form
-          action: "/questions/#{draft.data.question}/answers/#{draft.data._id}"
+          action: "/questions/#{question._id}/answers/#{draft.data._id}"
           method: "POST"
           class : "clearfix"
           =>
@@ -67,22 +76,22 @@ module.exports = new View (data) ->
                   shortcut: "d"
               ]
 
-  #     else if question.isNew 
-  #       @p class: "text-muted", =>
-  #         @i class: "icon-info-sign"
-  #         @text " Not published yet "
+      else if answer.isNew 
+        @p class: "text-muted", =>
+          @i class: "icon-info-sign"
+          @text " Not published yet "
 
-  #       @div class: "clearfix", => @div class: "btn-group pull-right", =>
-  #         @button
-  #           class: "btn btn-primary"
-  #           data:
-  #             toggle:   "modal"
-  #             target:   "#drafts-dialog"
-  #             shortcut: "d"
-  #           =>
-  #             @i class: "icon-folder-close"
-  #             @text " see drafts "
-  #             # @span class: "badge badge-info", @drafts.length
+        @div class: "clearfix", => @div class: "btn-group pull-right", =>
+          @button
+            class: "btn btn-primary"
+            data:
+              toggle:   "modal"
+              target:   "#drafts-dialog"
+              shortcut: "d"
+            =>
+              @i class: "icon-folder-close"
+              @text " see drafts "
+              # @span class: "badge badge-info", @drafts.length
 
   #     else 
   #       @strong question.text

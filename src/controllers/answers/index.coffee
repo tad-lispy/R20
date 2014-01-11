@@ -127,9 +127,19 @@ module.exports = new Controller Answer,
     #   ], done
         
 
-    draft           : options: post: post.draft
+    draft           : options: post: (req, res, done) ->
+      async.parallel [
+        (done) -> post.draft req, res, done
+        (done) -> Question.populate res.locals.draft, path: "data.question", done
+      ], done
 
-    # apply           : options: pre: pre.meta
+    apply           : options:
+      pre   : pre.meta
+      post  : (req, res, done) ->
+        { draft } = res.locals
+        res.locals.redirect = "/questions/#{draft.data.question}##{draft.data._id}"
+        done null
+
     # save            : options: pre: pre.meta
     # remove          : options: pre: pre.meta
 
