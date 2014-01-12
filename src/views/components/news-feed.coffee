@@ -106,12 +106,7 @@ module.exports = new View
                     time    : do entry._id.getTimestamp
                     class   : "success"
 
-                when "unreference" 
-                  console.dir {
-                    entry
-                    applied
-                  }
-                  
+                when "unreference"                   
                   item
                     icons   : [ "unlink" ]
                     url     : "/stories/#{applied.data.main?._id or applied.populated "data.main"}/"
@@ -196,5 +191,52 @@ module.exports = new View
               url     : "/questions/#{entry.data._id}"
               time    : do entry._id.getTimestamp
 
+          
+          # Answers related entries
+          # -------------------------
+
+          when "Answer" 
+            switch entry.action
+
+              when "draft" then item
+                icons   : [ "puzzle-piece" ]
+                url     : "/questions/#{entry.data.question._id}/" +
+                  "answers/#{entry.data._id}/" +
+                  "drafts/#{entry._id}"
+                body    : "#{entry.meta?.author?.name} wrote a new draft for an answer."
+                excerpt : entry.data.question.text
+                time    : do entry._id.getTimestamp
+                class   : "info"
+              
+              when "apply" 
+                applied = entry.data._entry
+                item 
+                  icons   : [ "puzzle-piece" ]
+                  url     : "/questions/#{applied.data.question._id}##{applied.data._id}/"
+                  body    : =>
+                    whose = if applied.meta.author._id.equals entry.meta.author._id
+                      "his own draft"
+                    else
+                      " a draft by #{draft.meta.author.name}"
+                      
+                    @p "#{entry.meta?.author?.name} applied #{whose} to an answer"
+                  excerpt : applied.data.question.text
+                  time    : do entry._id.getTimestamp
+                  class   : "success"
+                      
+              when "remove" then item
+                icons   : [ "question-sign" ]
+                url     : "/questions/#{entry.data._id}/"
+                body    : "#{entry.meta?.author?.name} removed a question."
+                excerpt : entry.data.text
+                time    : do entry._id.getTimestamp
+                class   : "danger"
+              
+              else item
+                body    : "Something (#{entry.action}) happened to an answer"
+                url     : "/questions/#{entry.data.question?._id}##{entry.data._id}"
+                time    : do entry._id.getTimestamp
+
           else item
             time    : do entry._id.getTimestamp
+

@@ -19,15 +19,39 @@ populate =
       (done) => main_model.populate entry, path: "data.main"      , done
       (done) => ref_model.populate  entry, path: "data.referenced", done
     ], done
+  
   unreference : (entry, done) -> @reference entry, done
-  apply       : (entry, done) ->
-    switch entry.data._entry.action
-      when "reference"    then @reference   entry.data._entry, done
-      when "unreference"  then @unreference entry.data._entry, done
-      when "draft"        then Participant.populate entry,
-        path: "data._entry.meta.author"
+  
+  draft       : (entry, done) ->
+    if entry.model is "Answer"
+      async.parallel [
+        (done) => Participant.populate  entry, path: "data.author"  , done
+        (done) => Question.populate     entry, path: "data.question", done
+      ], done
+    else process.nextTick -> done null
+
+  apply       : (entry, done) -> 
+    applied = entry.data._entry
+
+    async.parallel [
+      (done) => applied.populate 
+        path  : "meta.author"
+        model : "Participant"
         done
-      else done null
+      (done) =>
+        switch applied.action
+          when "reference"    then @reference   applied, done
+          when "unreference"  then @unreference applied, done
+          when "draft"        
+            if applied.model is "Answer" 
+                entry.data._entry.action
+                entry.model
+                entry.data._entry._id
+              @draft applied, done
+
+          else process.nextTick -> done null
+    ], (error) =>
+      done error
 
 module.exports =  (options, req, res) ->
   $ = $.narrow "get"
@@ -52,7 +76,7 @@ module.exports =  (options, req, res) ->
       async.each entries,
         (entry, done) =>
           { action } = entry
-          if populate[action]? then populate[action] entry, done 
+          if populate[action]? then populate[action] entry, done
           else process.nextTick -> done null
         (error) =>
           if error then throw error
