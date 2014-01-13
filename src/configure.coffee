@@ -8,9 +8,53 @@ module.exports = (app, options) ->
     $ "loading configuration file"
     config  = require "../config.json"
   catch e
-    $ "Error: no configuration file in /config.json"
-    $ e
-    process.exit 1
+    console.log """
+      It seems there is no configuration file in /config.json yet.
+      I'll create one for you now.
+    """
+
+    crypto  = require "crypto" 
+    path    = require "path"
+    fs      = require "fs"
+
+    config =
+      auth        :
+        verifier    : "https://verifier.login.persona.org/verify",
+        audience    : "http://r20.example.com/"
+      participants:
+        roles       :
+          Reader        :
+            "create a story"  : yes
+            "edit own profile": yes
+          Editor        :
+            "as"              : "reader"
+            "draft a story"   : yes
+          Administrator :
+            "everything"      : yes
+
+        anonymous   :
+          name        : "Anonymous"
+          roles       : [ "reader" ]
+
+        whitelist   :
+          "user@example.com":
+            name              : "Example User"
+            roles             : [ "Administrator" ]
+
+      site        :
+        name        : "New R20 Website"
+        motto       : "where config.json wasn't edited yet",
+
+    buffer  = crypto.randomBytes 256
+    hex     = buffer.toString 'hex'
+    config.site.secret = hex
+
+    json  = JSON.stringify config, null, 2
+    file  = path.resolve __dirname, "../config.json"
+    console.log json
+    console.log "Saving to #{file}"
+
+    fs.writeFileSync file, json
 
 
   app.set key,        value for key, value of config
