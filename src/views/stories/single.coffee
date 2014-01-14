@@ -1,5 +1,4 @@
 View      = require "teacup-view"
-
 layout    = require "../layouts/default"
 
 moment    = require "moment"
@@ -23,20 +22,12 @@ module.exports = new View (data) ->
 
 
     if draft?
-      applied  = story._draft?.equals draft._id
-      applied ?= no
+      applied  = Boolean story._draft?.equals draft._id
       
-      @div class: "alert alert-#{if applied then 'success' else 'info'} clearfix", =>
-      
-        @text "This is a draft proposed #{moment(draft._id.getTimestamp()).fromNow()} by #{draft.meta.author.name}. "
-        if applied then @text "It is currently applied."
-
-        @a
-          href  : "/stories/#{story._id}/"
-          class : "btn btn-default btn-xs pull-right"
-          =>
-            @i class: "icon-arrow-left"
-            @text " See actual story"
+      @draftAlert
+        applied   : applied
+        draft     : draft
+        actualurl : "/stories/#{story._id}"
 
     # The story
     @div class: "jumbotron", =>
@@ -70,43 +61,12 @@ module.exports = new View (data) ->
                   toggle  : "modal"
                   target  : "#story-edit-dialog"
                   shortcut: "e"
-              ,
-                title : "show drafts"
-                href  : "#show-drafts"
-                icon  : "folder-close"
-                data  :
-                  toggle  : "modal"
-                  target  : "#drafts-dialog"
-                  shortcut: "d"
               ]
-
-        @modal 
-          title : "Edit story"
-          id    : "story-edit-dialog"
-          =>
-            @p "Could it be told beter? Make changes if so."
-            @storyForm
-              method  : "POST"
-              action  : "/stories/#{story._id}/drafts"
-              story   : story
-              csrf    : csrf
 
       else if story.isNew 
         @p class: "text-muted", =>
           @i class: "icon-info-sign"
           @text " Not published yet "
-
-        @div class: "clearfix", => @div class: "btn-group pull-right", =>
-          @button
-            class: "btn btn-primary"
-            data:
-              toggle  : "modal"
-              target  : "#drafts-dialog"
-              shortcut: "d"
-            =>
-              @i class: "icon-folder-close"
-              @text " see drafts "
-              # @span class: "badge badge-info", drafts.length
 
       else 
         @markdown story.text
@@ -119,7 +79,7 @@ module.exports = new View (data) ->
               target  : "#story-edit-dialog"
               shortcut: "e"
             =>
-              @i class: "icon-edit"
+              @i class: "icon-edit icon-fixed-width"
               @text " make changes"
 
           @dropdown items: [
@@ -131,25 +91,14 @@ module.exports = new View (data) ->
               target  : "#drafts-dialog"
               shortcut: "d"
           ,
-            title : "drop story"
-            href  : "#drop-story"
+            title : "remove story"
+            href  : "#remove"
             icon  : "remove-sign"
             data  :
               toggle  : "modal"
               target  : "#remove-dialog"
               shortcut: "del enter"
           ]
-
-          @modal 
-            title : "Edit story"
-            id    : "story-edit-dialog"
-            =>
-              @p "Could it be told beter? Make changes if so."
-              @storyForm
-                method  : "POST"
-                action  : "/stories/#{story._id}/drafts"
-                story   : story
-                csrf    : csrf
 
           @modal 
             title : "Remove this story?"
@@ -172,22 +121,42 @@ module.exports = new View (data) ->
                       type  : "submit"
                       class : "btn btn-danger"
                       =>
-                        @i class: "icon-remove-sign"
-                        @text " " + "Ok, drop it!"
+                        @i class: "icon-remove-sign icon-fixed-width"
+                        @text "Remove!"
 
+          @modal 
+            title : "Drafts of this story"
+            id    : "drafts-dialog"
+            =>
+              @draftsTable
+                drafts  : journal.filter (entry) -> entry.action is "draft" 
+                applied : story?._draft
+                chosen  : draft?._id
+                root    : "/stories/"
 
-    @modal 
-      title : "Drafts of this story"
-      id    : "drafts-dialog"
-      =>
-        @draftsTable
-          drafts  : journal.filter (entry) -> entry.action is "draft" 
-          applied : story?._draft
-          chosen  : draft?._id
-          root    : "/stories/"
+    unless story.isNew
+      @modal 
+        title : "Edit story"
+        id    : "story-edit-dialog"
+        =>
+          @p "Could it be told beter? Make changes if so."
+          @storyForm
+            method  : "POST"
+            action  : "/stories/#{story._id}/drafts"
+            story   : draft?.data or story
+            csrf    : csrf
 
+    if draft? or story.isNew
+      @h4 class: "text-muted", =>
+        @i class: "icon-timev icon-fixed-width"
+        @text "Versions"
+      @draftsTable
+        drafts  : journal.filter (entry) -> entry.action is "draft" 
+        applied : story?._draft
+        chosen  : draft?._id
+        root    : "/stories/"
 
-    if not story.isNew and not draft
+    else
       # The questions
       @div class: "panel panel-primary", =>
         @div class: "panel-heading", =>

@@ -1,40 +1,33 @@
 View      = require "teacup-view"
-
 layout    = require "../layouts/default"
-moment    = require "moment"
 
+moment    = require "moment"
 debug     = require "debug"
 $         = debug "R20:views:question"
 
 module.exports = new View (data) ->
   {
-    draft
     question
+    draft
     stories
     answers
-    csrf
     journal
-    participant
+    csrf
   } = data
-  # @page = title: if @draft? then @draft.text else if not @question.isNew then @question.text
+  
+  # TODO: if used as subtitle it shows twice on the page (as subtitle and in jumbotron)
+  # subtitle =  if draft? then draft.text else
+  #             if not question.isNew then question.text
+  # if subtitle then data.subtitle = subtitle
 
   layout data, =>
     if draft?
-      applied  = question._draft?.equals draft._id
-      applied ?= no
+      applied  = Boolean question._draft?.equals draft._id
 
-      # TODO: use draft alert component
-      @div class: "alert alert-#{if applied then 'success' else 'info'} clearfix", =>
-      
-        @text "This is a draft proposed #{moment(draft._id.getTimestamp()).fromNow()} by #{draft.meta.author.name}. "
-        if applied then @text "It is currently applied."
-
-        @a
-          href  : "/questions/#{question._id}/"
-          class : "btn btn-default btn-xs pull-right"
-          =>
-            @i class: "icon-arrow-left"
-            @text " See actual question"
+      @draftAlert
+        applied   : applied
+        draft     : draft
+        actualurl : "/questions/#{question._id}"
 
     # The question
     @div class: "jumbotron", =>
@@ -57,8 +50,8 @@ module.exports = new View (data) ->
                 disabled: applied
                 data    : shortcut: "a a enter"
                 =>
-                  @i class: "icon-check-sign"
-                  @text " " + "apply this draft"
+                  @i class: "icon-check-sign icon-fixed-width"
+                  @text     "apply this draft"
 
               @dropdown items: [
                 title : "make changes"
@@ -68,32 +61,12 @@ module.exports = new View (data) ->
                   toggle  : "modal"
                   target  : "#question-edit-dialog"
                   shortcut: "e"
-              ,
-                title : "show drafts"
-                href  : "#show-drafts"
-                icon  : "folder-close"
-                data  :
-                  toggle  : "modal"
-                  target  : "#drafts-dialog"
-                  shortcut: "d"
               ]
 
       else if question.isNew 
         @p class: "text-muted", =>
-          @i class: "icon-info-sign"
-          @text " Not published yet "
-
-        @div class: "clearfix", => @div class: "btn-group pull-right", =>
-          @button
-            class: "btn btn-primary"
-            data:
-              toggle:   "modal"
-              target:   "#drafts-dialog"
-              shortcut: "d"
-            =>
-              @i class: "icon-folder-close"
-              @text " see drafts "
-              # @span class: "badge badge-info", @drafts.length
+          @i class: "icon-info-sign icon-fixed-width"
+          @text "Not published yet."
 
       else 
         @strong question.text
@@ -107,7 +80,7 @@ module.exports = new View (data) ->
               target:   "#stories-dialog"
               shortcut: "s"
             =>
-              @i class: "icon-comment"
+              @i class: "icon-comment icon-fixed-width"
               @text " sample stories (#{stories?.length or 0})"
 
           @dropdown items: [
@@ -156,30 +129,42 @@ module.exports = new View (data) ->
                     type  : "submit"
                     class : "btn btn-danger"
                     =>
-                      @i class: "icon-remove-sign"
-                      @text " " + "Ok, drop it!"
+                      @i class: "icon-remove-sign icon-fixed-width"
+                      @text " " + "Remove!"
 
-    @modal 
-      title : "Drafts of this question"
-      id    : "drafts-dialog"
-      =>
-        @draftsTable
-          drafts  : journal.filter (entry) -> entry.action is "draft" 
-          applied : question?._draft
-          chosen  : draft?._id
-          root    : "/questions/"
+        # Drafts modal is used in published question view only.
+        # In other views (drafts or unpublished) drafts table is below text.
+        @modal 
+          title : "Drafts of this question"
+          id    : "drafts-dialog"
+          =>
+            @draftsTable
+              drafts  : journal.filter (entry) -> entry.action is "draft" 
+              applied : question?._draft
+              chosen  : draft?._id
+              root    : "/questions/"
 
-    @modal 
-      title : "Edit this question"
-      id    : "question-edit-dialog"
-      => @questionForm
-        method  : "POST"
-        action  : "/questions/#{question._id}/drafts"
-        csrf    : csrf
-        question: draft?.data or question
+    unless question.isNew 
+      @modal 
+        title : "Edit this question"
+        id    : "question-edit-dialog"
+        => @questionForm
+          method  : "POST"
+          action  : "/questions/#{question._id}/drafts"
+          csrf    : csrf
+          question: draft?.data or question
 
+    if draft? or question.isNew
+      @h4 class: "text-muted", =>
+        @i class: "icon-timev icon-fixed-width"
+        @text "Versions"
+      @draftsTable
+              drafts  : journal.filter (entry) -> entry.action is "draft" 
+              applied : question?._draft
+              chosen  : draft?._id
+              root    : "/questions/"
 
-    unless draft?
+    else
       @h4 class: "text-muted", =>
         @i class: "icon-puzzle-piece icon-fixed-width"
         @text "Answers"

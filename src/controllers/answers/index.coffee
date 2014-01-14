@@ -140,7 +140,7 @@ module.exports = new Controller Answer,
         res.locals.redirect = "/questions/#{draft.data.question}##{draft.data._id}"
         done null
 
-    # save            : options: pre: pre.meta
+    save            : options: pre: pre.meta
     # remove          : options: pre: pre.meta
 
     # TODO:
