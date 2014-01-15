@@ -3,25 +3,38 @@ _         = require "lodash"
 
 module.exports = new View (options = {}) ->
   _.defaults options,
-    items: []
+    icon      : "caret-down"
+    emphasis  : "default"      # info, danger, link, etc.
+    items     : []
+
+    # Each item should be a hash with properties:
+    #   title
+    #   icon
+    #   href
+    #   data
 
   {
+    icon
+    emphasis
     items
   } = options
 
   @button
-    class : "btn btn-default  dropdown-toggle"
+    class : "btn btn-#{emphasis}  dropdown-toggle"
     data  :
       toggle: "dropdown"
     =>
-      @span class: "caret"
+      @i class: "icon icon-#{icon}"
       @span class: "sr-only", "Toggle dropdown"
 
   @ul class: "dropdown-menu", role: "menu", =>
-    @li => for item in items
-      @a 
-        href: item.href
-        data: item.data
-        =>
-          @i class: "icon-" + item.icon or "cog"
-          @text " " + item.title
+    for item in items
+      @li role  : "presentation", => 
+        @a 
+          role    : "menuitem"
+          tabindex: -1
+          href    : item.href
+          data    : item.data
+          =>
+            @i class: "icon-" + item.icon or "cog"
+            @text " " + item.title
