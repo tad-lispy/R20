@@ -3,6 +3,7 @@
 # Models
 Question    = require "../../models/Question"
 Participant = require "../../models/Participant"
+Entry       = require "../../models/JournalEntry"
 
 # Controller
 Controller  = require "../ModelController"
@@ -35,6 +36,25 @@ module.exports = new Controller Question,
           res.locals { answers }
 
           done null
+
+        # Check if there are drafts of answers by this participant
+        (done) ->
+          {
+            participant
+            question
+            answers
+          } = res.locals
+          query = Entry.findOne
+            model : "Answer"
+            action: "draft"
+            "data.author"   : participant._id
+            "data.question" : question._id
+
+          query.sort _id: -1
+          query.exec (error, entry) ->
+            if error then return done error
+            answers.drafted = entry.data
+            done null
         
         (done) ->
           { answers } = res.locals

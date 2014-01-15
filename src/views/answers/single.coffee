@@ -16,6 +16,16 @@ module.exports = new View (data) ->
   if draft then question = draft.data.question
   else          question = answer.question
 
+  unless answer.isNew
+    author = draft?.data.author or answer.author
+    $ "data: ", {
+      draft
+      answer
+      author
+    }
+
+    data.subtitle = "#{author.name} answers: #{question.text}"
+
   layout data, =>
     if draft?
       applied = Boolean answer._draft?.equals draft._id
@@ -23,12 +33,13 @@ module.exports = new View (data) ->
       @draftAlert
         applied   : applied
         draft     : draft
-        actualurl : "/questions/#{question._id}/#answer-#{answer._id}"
+        actualurl : "/questions/#{question._id}/answers/#{answer._id}"
 
-    # The question
-    @h4 class: "text-muted", =>
-      @i  class: "icon-question-sign icon-fixed-width"
-      @text   question.text    
+    # # The question
+    # @h4 class: "text-muted", =>
+    #   @i  class: "icon-question-sign icon-fixed-width"
+    #   @text question.text    
+        
 
     # The answer
     @div class: "jumbotron", =>
@@ -64,27 +75,88 @@ module.exports = new View (data) ->
                   shortcut: "e"
               ]
 
-        @modal 
-          title : "Edit this answer"
-          id    : "answer-edit-dialog"
-          => @answerForm
-            method  : "POST"
-            action  : "/questions/#{question._id}/answers/#{answer._id}/drafts"
-            csrf    : csrf
-            answer  : draft.data
-
       else if answer.isNew 
         @p class: "text-muted", =>
           @i class: "icon-info-sign icon-fixed-width"
           @text "Not published yet."
+        @div class: "clearfix", => @div class: "btn-group pull-right", =>
+          @a
+            class : "btn btn-default"
+            href  : "/questions/#{question._id}"
+            => 
+              @i class: "icon icon-arrow-left icon-fixed-width"
+              @text "Back to question"
+
+      else 
+        @markdown answer.text
+
+        @div class: "clearfix", => @div class: "btn-group pull-right", =>
+          @a
+            class : "btn btn-default"
+            href  : "/questions/#{question._id}"
+            => 
+              @i class: "icon icon-arrow-left icon-fixed-width"
+              @text "Back to question"
+          @dropdown items: [
+            title : "make changes"
+            href  : "#edit"
+            icon  : "edit"
+            data  :
+              toggle  : "modal"
+              target  : "#answer-edit-dialog"
+              shortcut: "e"
+          ,
+            title : "remove answer"
+            href  : "#remove"
+            icon  : "remove-sign"
+            data  :
+              toggle  : "modal"
+              target  : "#remove-dialog"
+              shortcut: "del enter"
+          ]
         
-    if draft? or question.isNew
-      # ATM it's always :)
-      @h4 class: "text-muted", =>
-        @i class: "icon-time icon-fixed-width"
-        @text "Versions"
-      @draftsTable
-              drafts  : journal.filter (entry) -> entry.action is "draft" 
-              applied : answer?._draft
-              chosen  : draft?._id
-              root    : "/questions/#{question._id}/answers/"
+    unless answer.isNew
+      @modal 
+        title : question.text
+        id    : "answer-edit-dialog"
+        =>
+          @answerForm
+            method  : "POST"
+            action  : "/questions/#{question._id}/answers/#{answer._id}/drafts"
+            csrf    : csrf
+            answer  : draft?.data or answer
+            question: question
+        
+    unless answer.isNew or draft?
+      @modal 
+        title : "Remove this answer?"
+        id    : "remove-dialog"
+        class : "modal-danger"
+        =>
+          @form
+            method: "post"
+            =>
+              @input type: "hidden", name: "_csrf"   , value: csrf
+              @input type: "hidden", name: "_method" , value: "DELETE"
+                              
+              @div class: "well", =>
+                @markdown answer.text
+              
+              @p "Removing an answer is roughly equivalent to unpublishing it. It can be undone. All drafts will be preserved."
+
+              @div class: "form-group", =>
+                @button
+                  type  : "submit"
+                  class : "btn btn-danger"
+                  =>
+                    @i class: "icon-remove-sign icon-fixed-width"
+                    @text "Remove!"
+    
+    @h4 class: "text-muted", =>
+      @i class: "icon-time icon-fixed-width"
+      @text "Versions"
+    @draftsTable
+            drafts  : journal.filter (entry) -> entry.action is "draft" 
+            applied : answer?._draft
+            chosen  : draft?._id
+            root    : "/questions/#{question._id}/answers/"

@@ -9,16 +9,9 @@ module.exports = new View
       method
       csrf
       answer
+      question
     } = options
     
-    # TODO: This became redundant - method is always POST
-    # The difference is in action: */answers or */answers/:single/drafts
-    if method is "PUT"
-      @p "Something better on your mind? Don't hesitate to share!"
-    else
-      @p "What's the correct answer?"
-
-
     @form
       method: "post"
       action: action

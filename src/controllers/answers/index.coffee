@@ -109,28 +109,26 @@ module.exports = new Controller Answer,
 
           res.redirect "/questions/#{question._id}/answers/#{draft.data._id}/drafts/#{draft._id}"
     
-    # single          : options: post : (req, res, done) ->
-    #   async.parallel [
-    #     (done) -> res.locals.question.findStories (error, stories) ->
-    #       $ "Looking for stories with question %s", res.locals.question._id
-    #       if error then return done error
-    #       res.locals { stories }
-    #       done null
-    #     (done) -> 
-    #       res.locals answers: []
-    #       done null
-    #     (done) ->
-    #       $ "Populating journal with meta.author"
-    #       Participant.populate res.locals.journal,
-    #         path: "meta.author"
-    #         done
-    #   ], done
+    single          : options: post : (req, res, done) ->
+      { answer } = res.locals
+      async.series [
+        (done) ->
+          if answer.isNew then answer.question = req.params.question_id
+          done null
+        (done) -> answer.populate "question author", done
+        (done) ->
+          Participant.populate res.locals.journal,
+            path: "meta.author"
+            done
+      ], done
         
 
     draft           : options: post: (req, res, done) ->
+      { draft } = res.locals
       async.parallel [
         (done) -> post.draft req, res, done
-        (done) -> Question.populate res.locals.draft, path: "data.question", done
+        (done) -> Question.populate     draft, path: "data.question" , done
+        (done) -> Participant.populate  draft, path: "data.author"   , done
       ], done
 
     apply           : options:
@@ -141,8 +139,8 @@ module.exports = new Controller Answer,
         done null
 
     save            : options: pre: pre.meta
-    # remove          : options: pre: pre.meta
-
-    # TODO:
-    # reference       : options: pre: pre.meta
-    # remove_reference: options: pre: pre.meta
+    remove          : options:
+      pre   : pre.meta
+      post  : (req, res, done) ->
+        { question } = res.locals
+        res.locals.redirect = "/questions/#{question._id}"

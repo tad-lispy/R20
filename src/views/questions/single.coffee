@@ -2,6 +2,7 @@ View      = require "teacup-view"
 layout    = require "../layouts/default"
 
 moment    = require "moment"
+_         = require "lodash"
 debug     = require "debug"
 $         = debug "R20:views:question"
 
@@ -12,6 +13,7 @@ module.exports = new View (data) ->
     stories
     answers
     journal
+    participant
     csrf
   } = data
   
@@ -85,7 +87,7 @@ module.exports = new View (data) ->
 
           @dropdown items: [
             title : "make changes"
-            href  : "#edit-question"
+            href  : "#edit"
             icon  : "edit"
             data  :
               toggle  : "modal"
@@ -93,7 +95,7 @@ module.exports = new View (data) ->
               shortcut: "e"
           ,
             title : "show drafts"
-            href  : "#show-drafts"
+            href  : "#drafts"
             icon  : "folder-close"
             data  :
               toggle  : "modal"
@@ -101,49 +103,14 @@ module.exports = new View (data) ->
               shortcut: "d"
           ,
             title : "remove question"
-            href  : "#remove-question"
+            href  : "#remove"
             icon  : "remove-sign"
             data  :
               toggle  : "modal"
               target  : "#remove-dialog"
               shortcut: "del enter"
           ]
-        @modal 
-          title : "Remove this question?"
-          id    : "remove-dialog"
-          class : "modal-danger"
-          =>
-            @form
-              method: "post"
-              =>
-                @input type: "hidden", name: "_csrf"   , value: csrf
-                @input type: "hidden", name: "_method" , value: "DELETE"
-                                
-                @div class: "well", =>
-                  @markdown question.text
-                
-                @p "Removing a question is roughly equivalent to unpublishing it. It can be undone. All drafts will be preserved."
-
-                @div class: "form-group", =>
-                  @button
-                    type  : "submit"
-                    class : "btn btn-danger"
-                    =>
-                      @i class: "icon-remove-sign icon-fixed-width"
-                      @text " " + "Remove!"
-
-        # Drafts modal is used in published question view only.
-        # In other views (drafts or unpublished) drafts table is below text.
-        @modal 
-          title : "Drafts of this question"
-          id    : "drafts-dialog"
-          =>
-            @draftsTable
-              drafts  : journal.filter (entry) -> entry.action is "draft" 
-              applied : question?._draft
-              chosen  : draft?._id
-              root    : "/questions/"
-
+        
     unless question.isNew 
       @modal 
         title : "Edit this question"
@@ -165,43 +132,108 @@ module.exports = new View (data) ->
               root    : "/questions/"
 
     else
+      @modal 
+        title : "Remove this question?"
+        id    : "remove-dialog"
+        class : "modal-danger"
+        =>
+          @form
+            method: "post"
+            =>
+              @input type: "hidden", name: "_csrf"   , value: csrf
+              @input type: "hidden", name: "_method" , value: "DELETE"
+                              
+              @div class: "well", =>
+                @markdown question.text
+              
+              @p "Removing a question is roughly equivalent to unpublishing it. It can be undone. All drafts will be preserved."
+
+              @div class: "form-group", =>
+                @button
+                  type  : "submit"
+                  class : "btn btn-danger"
+                  =>
+                    @i class: "icon-remove-sign icon-fixed-width"
+                    @text " " + "Remove!"
+
+      # Drafts modal is used in published question view only.
+      # In other views (drafts or unpublished) drafts table is below text.
+      @modal 
+        title : "Drafts of this question"
+        id    : "drafts-dialog"
+        =>
+          @draftsTable
+            drafts  : journal.filter (entry) -> entry.action is "draft" 
+            applied : question?._draft
+            chosen  : draft?._id
+            root    : "/questions/"
+
       @h4 class: "text-muted", =>
         @i class: "icon-puzzle-piece icon-fixed-width"
         @text "Answers"
       if answers.length then for answer in answers
-        @div class: "well", =>
-          @h6
-            class: "text-muted"
-            "by #{answer.author.name} (#{moment(answer._id.getTimestamp()).fromNow()}):"
-          @markdown answer.text
+        @div class: "panel panel-default", id: "answer-#{answer._id}", =>
+          @div class: "panel-heading clearfix", =>
+            @strong class: "text-muted", =>
+              @text "by #{answer.author.name} (#{moment(answer._id.getTimestamp()).fromNow()}):"
+            @a
+              href  : "/questions/#{question._id}/answers/#{answer._id}"
+              class: "btn btn-xs pull-right"
+              => @i class: "icon icon-fullscreen"
+              
+          @div class: "panel-body clearfix", =>
+            
+            @markdown answer.text
+            
+          # TODO: use client side js to deal with modals and forms
+          @modal 
+            title : "Edit answer by #{answer.author.name}"
+            id    : "answer-#{answer._id}-edit-dialog"
+            => @answerForm
+              method  : "POST"
+              action  : "/questions/#{question._id}/answers/#{answer._id}/drafts"
+              csrf    : csrf
+              answer  : answer
+
       
       else @div class: "well", =>
           @p =>
             @i class: "icon-frown icon-4x"
             @text " No answers to this question yet."
 
-      @form
-        id    : "new-answer"
-        method: "POST"
-        action: "/questions/#{question._id}/answers"
-        =>
-          @div class: "form-group", =>
-            @label for: "text", "Have an answer? Please share it!"
-            @textarea 
-              class       : "form-control"
-              name        : "text"
-              placeholder : "Your answer..."
-              data        :
-                shortcut    : "a"
-                
-          @div class: "form-group", =>
-            @button
-              type  : "submit"
-              class : "btn btn-primary"
-              =>
-                @i class: "icon-check-sign"
-                @text " " + "send"
-          @input type: "hidden", name: "_csrf", value: csrf
+      # Display new answer form unless this participant already answered this question
+      unless  (_.any answers, (answer) -> answer.author._id.equals participant._id)
+        if answers.drafted? then @div class: "alert alert-info", =>
+          @text "There is at least one draft of your answer to this question"
+          @a
+            href  : "/questions/#{question._id}/answers/#{answers.drafted._id}"
+            class: "btn btn-default btn-xs pull-right"
+            =>
+              @i class: "icon icon-eye-open icon-fixed-width"
+              @text "see drafts"
+
+        else @form
+          id    : "new-answer"
+          method: "POST"
+          action: "/questions/#{question._id}/answers"
+          =>
+            @div class: "form-group", =>
+              @label for: "text", "Have an answer? Please share it!"
+              @textarea 
+                class       : "form-control"
+                name        : "text"
+                placeholder : "Your answer..."
+                data        :
+                  shortcut    : "a"
+                  
+            @div class: "form-group", =>
+              @button
+                type  : "submit"
+                class : "btn btn-primary"
+                =>
+                  @i class: "icon-check-sign"
+                  @text " " + "send"
+            @input type: "hidden", name: "_csrf", value: csrf
 
     if stories?.length then @modal
       title : "Sample stories"
