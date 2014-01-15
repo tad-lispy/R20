@@ -100,40 +100,6 @@ module.exports = new View (data) ->
               shortcut: "del enter"
           ]
 
-          @modal 
-            title : "Remove this story?"
-            id    : "remove-dialog"
-            class : "modal-danger"
-            =>
-              @form
-                method: "post"
-                =>
-                  @input type: "hidden", name: "_csrf"   , value: csrf
-                  @input type: "hidden", name: "_method" , value: "DELETE"
-                                  
-                  @div class: "well", =>
-                    @markdown story.text
-                  
-                  @p "Removing a story is roughly equivalent to unpublishing it. It can be undone. All drafts will be preserved."
-
-                  @div class: "form-group", =>
-                    @button
-                      type  : "submit"
-                      class : "btn btn-danger"
-                      =>
-                        @i class: "icon-remove-sign icon-fixed-width"
-                        @text "Remove!"
-
-          @modal 
-            title : "Drafts of this story"
-            id    : "drafts-dialog"
-            =>
-              @draftsTable
-                drafts  : journal.filter (entry) -> entry.action is "draft" 
-                applied : story?._draft
-                chosen  : draft?._id
-                root    : "/stories/"
-
     unless story.isNew
       @modal 
         title : "Edit story"
@@ -155,8 +121,42 @@ module.exports = new View (data) ->
         applied : story?._draft
         chosen  : draft?._id
         root    : "/stories/"
-
+    
     else
+      @modal 
+        title : "Drafts of this story"
+        id    : "drafts-dialog"
+        =>
+          @draftsTable
+            drafts  : journal.filter (entry) -> entry.action is "draft" 
+            applied : story?._draft
+            chosen  : draft?._id
+            root    : "/stories/"
+
+      @modal 
+        title : "Remove this story?"
+        id    : "remove-dialog"
+        class : "modal-danger"
+        =>
+          @form
+            method: "post"
+            =>
+              @input type: "hidden", name: "_csrf"   , value: csrf
+              @input type: "hidden", name: "_method" , value: "DELETE"
+                              
+              @div class: "well", =>
+                @markdown story.text
+              
+              @p "Removing a story is roughly equivalent to unpublishing it. It can be undone. All drafts will be preserved."
+
+              @div class: "form-group", =>
+                @button
+                  type  : "submit"
+                  class : "btn btn-danger"
+                  =>
+                    @i class: "icon-remove-sign icon-fixed-width"
+                    @text "Remove!"
+
       # The questions
       @div class: "panel panel-primary", =>
         @div class: "panel-heading", =>
