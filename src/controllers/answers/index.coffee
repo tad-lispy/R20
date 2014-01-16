@@ -117,10 +117,18 @@ module.exports = new Controller Answer,
           done null
         (done) -> answer.populate "question author", done
         (done) ->
+          if answer.question is null then return done HTTPError 404, "Question not found"
+        (done) ->
           Participant.populate res.locals.journal,
             path: "meta.author"
             done
-      ], done
+      ], (error) ->
+        if error
+          if error.name is "HTTPError" 
+            return res.json error.code, error
+            done null
+          else done error
+        done null
         
 
     draft           : options: post: (req, res, done) ->
