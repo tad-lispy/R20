@@ -143,4 +143,5 @@ module.exports = new Controller Answer,
       pre   : pre.meta
       post  : (req, res, done) ->
         { question } = res.locals
-        res.locals.redirect = "/questions/#{question._id}"
+        res.locals.redirect = "/questions/#{req.params.question_id}"
+        done null
