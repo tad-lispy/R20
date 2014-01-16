@@ -198,21 +198,30 @@ module.exports = new View
           when "Answer" 
             switch entry.action
 
-              when "draft" then item
-                icons   : [ "puzzle-piece" ]
-                url     : "/questions/#{entry.data.question._id}/" +
-                  "answers/#{entry.data._id}/" +
-                  "drafts/#{entry._id}"
-                body    : "#{entry.meta?.author?.name} wrote a new draft for an answer."
-                excerpt : entry.data.question.text
-                time    : do entry._id.getTimestamp
-                class   : "info"
-              
+              when "draft"
+                if not entry.data.question
+                  $ "Question (#{entry.populated "data.question"}) was apparently removed"
+                  continue
+
+                item
+                  icons   : [ "puzzle-piece" ]
+                  url     : "/questions/#{entry.data.question._id}/" +
+                    "answers/#{entry.data._id}/" +
+                    "drafts/#{entry._id}"
+                  body    : "#{entry.meta?.author?.name} wrote a new draft for an answer."
+                  excerpt : entry.data.question.text
+                  time    : do entry._id.getTimestamp
+                  class   : "info"
+                
               when "apply" 
-                applied = entry.data._entry
+                applied   = entry.data._entry
+                if not applied.data.question
+                  $ "Question (#{applied.populated "data.question"}) was apparently removed"
+                  continue
+
                 item 
                   icons   : [ "puzzle-piece" ]
-                  url     : "/questions/#{applied.data.question._id}##{applied.data._id}/"
+                  url     : "/questions/#{applied.data.question?._id}##{applied.data._id}/"
                   body    : =>
                     whose = if applied.meta.author._id.equals entry.meta.author._id
                       "his own draft"
@@ -223,6 +232,7 @@ module.exports = new View
                   excerpt : applied.data.question.text
                   time    : do entry._id.getTimestamp
                   class   : "success"
+
                       
               when "remove" then item
                 icons   : [ "question-sign" ]
