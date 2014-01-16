@@ -234,13 +234,22 @@ module.exports = new View
                   class   : "success"
 
                       
-              when "remove" then item
-                icons   : [ "question-sign" ]
-                url     : "/questions/#{entry.data._id}/"
-                body    : "#{entry.meta?.author?.name} removed a question."
-                excerpt : entry.data.text
-                time    : do entry._id.getTimestamp
-                class   : "danger"
+              when "remove"
+                if not entry.data.question
+                  $ "Question (#{entry.populated "data.question"}) was apparently removed"
+                  continue
+
+                if not entry.data.author
+                  $ "Author (participant #{entry.populated "data.author"}) was apparently removed"
+                  continue
+
+                item
+                  icons   : [ "puzzle-piece" ]
+                  url     : "/questions/#{entry.data.question}/answers/#{entry.data._id}"
+                  body    : "#{entry.meta?.author?.name} removed an answer" # TODO: by #{entry.data.author}
+                  excerpt : entry.data.text
+                  time    : do entry._id.getTimestamp
+                  class   : "danger"
               
               else item
                 body    : "Something (#{entry.action}) happened to an answer"
