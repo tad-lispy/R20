@@ -53,7 +53,7 @@ module.exports = new Controller Question,
           query.sort _id: -1
           query.exec (error, entry) ->
             if error then return done error
-            answers.drafted = entry.data
+            if entry then answers.drafted = entry.data
             done null
         
         (done) ->
