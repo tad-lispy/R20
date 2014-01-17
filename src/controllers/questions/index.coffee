@@ -44,6 +44,7 @@ module.exports = new Controller Question,
             question
             answers
           } = res.locals
+          if not participant? then return done null
           query = Entry.findOne
             model : "Answer"
             action: "draft"
