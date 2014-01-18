@@ -3,7 +3,7 @@ $ ->
   navigator.id.watch {
     loggedInUser: ($.cookie "email") or null
     onlogin     : (assertion) ->
-      $.post "/auth/login",
+      xhr = $.post "/auth/login",
         assertion : assertion
         _csrf: csrf
         (data) ->
@@ -11,6 +11,15 @@ $ ->
           if data.status is "okay"
             do window.location.reload
           else console.log "Not okay?"
+
+      xhr.fail (data) ->
+        if data.status is 403 
+          alert """
+            Sorry, but we are still in closed beta.
+
+            Only invited people can log in. Feel free to browse 'though.
+          """
+          do navigator.id.logout
 
     onlogout    : ->
       $.post "/auth/logout",
