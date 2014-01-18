@@ -22,7 +22,7 @@ build: clean init # browserify
 	./node_modules/.bin/stylus -o 		assets/styles/app 	styles
 
 dev: watch
-	NODE_ENV=development DEBUG=R20,R20:* nodemon
+	NODE_ENV=development DEBUG=R20,R20:* nodemon --debug
 
 watch: end-watch
 	./node_modules/.bin/coffee -cmw -o 	lib 								src 			& echo $$! > .watch_pid
