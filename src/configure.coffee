@@ -21,6 +21,9 @@ module.exports = (app, options) ->
       auth        :
         verifier    : "https://verifier.login.persona.org/verify",
         audience    : "http://r20.example.com/"
+        fake        :
+          enabled     : no
+          rele        : "Administrator"
       participants:
         roles       :
           Reader        :

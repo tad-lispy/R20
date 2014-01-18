@@ -69,12 +69,12 @@ app.use do express.methodOverride
 # Statics
 $ = $.root.narrow "static"
 app.use do express.favicon
-app.use '/js', express.static 'assets/scripts/app'
+app.use '/js'     , express.static 'assets/scripts/app'
 app.use '/scripts', express.static 'scripts' # Coffeescript sources for debug
-app.use '/js', express.static 'assets/scripts/vendor'
+app.use '/js'     , express.static 'assets/scripts/vendor'
 
-app.use '/css', express.static 'assets/styles/app'
-app.use '/css', express.static 'assets/styles/vendor'
+app.use '/css'    , express.static 'assets/styles/app'
+app.use '/css'    , express.static 'assets/styles/vendor'
 
 # Content Security Policy and other security related logic
 
@@ -153,9 +153,11 @@ app.use (req, res, next) ->
 $ = $.root.narrow "auth"
 
 # Fake login while development
-app.use (require "./middleware/fake-login")
-  role: "Administrator"
-  whitelist: (app.get "participants").whitelist
+auth = app.get "auth"
+if process.env.NODE_ENV is "development" and auth.fake.enabled
+  app.use (require "./middleware/fake-login")
+    role      : auth.role
+    whitelist : (app.get "participants").whitelist
 
 # Load participant profile
 profile = require "./middleware/profile"
@@ -164,6 +166,7 @@ app.use profile participants: app.get "participants"
 
 authenticate = (req, res, email, done) ->
   $ = $.narrow "authenticate"
+  $ "Doing authenticate"
   { whitelist } = app.get "participants"
   if whitelist 
     $ "There is a whitelist: %j", whitelist
@@ -185,6 +188,7 @@ authenticate = (req, res, email, done) ->
 
 app.post "/auth/login", (req, res) ->
   $ = $.narrow "login"
+  $ "Doing /auth/login"
   verifier =
       url   : (app.get "auth").verifier
       json  : true
@@ -194,6 +198,7 @@ app.post "/auth/login", (req, res) ->
 
   request.post verifier, (error, response, body) =>
     $ = $.narrow "verification"
+    $ "Request callback:", {error, body}
     if error then throw error
     if body.status is "okay" then authenticate req, res, body.email, (error) ->
       if error 
@@ -204,7 +209,7 @@ app.post "/auth/login", (req, res) ->
       res.json status: "okay"
 
     else # Not okay :(
-      $ "Login attempt failed. %j", { response, body }
+      $ "Login attempt failed"
       res.json 501, status: "failed"
 
 app.post "/auth/logout", (req, res) ->
