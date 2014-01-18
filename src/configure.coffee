@@ -8,6 +8,9 @@ module.exports = (app, options) ->
     $ "loading configuration file"
     config  = require "../config.json"
   catch e
+    # If error is caused by absence of config.json, then create one with sample settings
+    # Otherwise
+    throw e unless e.code is "MODULE_NOT_FOUND"
     console.log """
       It seems there is no configuration file in /config.json yet.
       I'll create one for you now.
