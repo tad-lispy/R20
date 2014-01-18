@@ -3,7 +3,7 @@ layout    = require "../layouts/default"
 
 moment    = require "moment"
 debug     = require "debug"
-$         = debug "R20:views:question"
+$         = debug "R20:views:answer"
 
 module.exports = new View (data) ->
   {
@@ -18,12 +18,6 @@ module.exports = new View (data) ->
 
   unless answer.isNew
     author = draft?.data.author or answer.author
-    $ "data: ", {
-      draft
-      answer
-      author
-    }
-
     data.subtitle = "#{author.name} answers: #{question.text}"
 
   layout data, =>
