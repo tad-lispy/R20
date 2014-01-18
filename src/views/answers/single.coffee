@@ -13,6 +13,10 @@ module.exports = new View (data) ->
     journal
   } = data
 
+  data.classes ?= []
+  data.classes.push "answer"
+  if draft then data.classes.push "draft"
+
   if draft then question = draft.data.question
   else          question = answer.question
 
@@ -28,12 +32,6 @@ module.exports = new View (data) ->
         applied   : applied
         draft     : draft
         actualurl : "/questions/#{question._id}/answers/#{answer._id}"
-
-    # # The question
-    # @h4 class: "text-muted", =>
-    #   @i  class: "icon-question-sign icon-fixed-width"
-    #   @text question.text    
-        
 
     # The answer
     @div class: "jumbotron", =>

@@ -16,6 +16,11 @@ module.exports = new View (data) ->
     participant
     csrf
   } = data
+
+  data.classes ?= []
+  data.classes.push "question"
+  if draft then data.classes.push "draft"
+
   
   # TODO: if used as subtitle it shows twice on the page (as subtitle and in jumbotron)
   # subtitle =  if draft? then draft.text else

@@ -13,6 +13,10 @@ module.exports = new View (data) ->
     query
     journal
   } = data
+  data.classes  ?=                []
+  data.classes.push               "story"
+  if draft then data.classes.push "draft"
+
 
   data.subtitle = "The case of #{ moment(story._id.getTimestamp()).format 'LL' }"
   

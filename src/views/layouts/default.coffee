@@ -14,12 +14,14 @@ module.exports = new View
     _(options).defaults
       scripts : []
       styles  : []
+      classes : []
       title   : "Radzimy.co"
       subtitle: "Prawo po ludzku"
 
     {
       scripts
       styles
+      classes
       title
       subtitle
       settings
@@ -41,7 +43,7 @@ module.exports = new View
           "/css/r20.css"
         ]          
 
-      @body data: { csrf }, =>
+      @body data: { csrf }, class: (classes.join " "), =>
         @div class: "container", id: "content", =>
           @header class : "page-header", =>
             @h1 =>
