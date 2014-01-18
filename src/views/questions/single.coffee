@@ -202,7 +202,7 @@ module.exports = new View (data) ->
             @text " No answers to this question yet."
 
       # Display new answer form unless this participant already answered this question
-      unless  (_.any answers, (answer) -> answer.author._id.equals participant._id)
+      if participant? then unless  (_.any answers, (answer) -> answer.author._id.equals participant?._id)
         if answers.drafted? then @div class: "alert alert-info", =>
           @text "There is at least one draft of your answer to this question"
           @a
