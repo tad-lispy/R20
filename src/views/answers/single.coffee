@@ -31,7 +31,7 @@ module.exports = new View (data) ->
       @draftAlert
         applied   : applied
         draft     : draft
-        actualurl : "/questions/#{question._id}/answers/#{answer._id}"
+        actualurl : "/questions/#{question._id}/answers/#{answer?._id or draft?.data._id}"
 
     # The answer
     @div class: "jumbotron", =>
@@ -107,7 +107,7 @@ module.exports = new View (data) ->
               shortcut: "del enter"
           ]
         
-    unless answer.isNew
+    unless answer.isNew and not draft?
       @modal 
         title : question.text
         id    : "answer-edit-dialog"

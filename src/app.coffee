@@ -16,6 +16,7 @@ app       = do express
 
 configure = require "./configure"
 configure app
+if process.env.NODE_ENV is "development" then mongoose.set "debug", yes
 
 # Middleware setup
 $ = $.root.narrow ""

@@ -104,7 +104,7 @@ module.exports = new View (data) ->
               shortcut: "del enter"
           ]
 
-    unless story.isNew
+    unless story.isNew and not draft?
       @modal 
         title : "Edit story"
         id    : "story-edit-dialog"

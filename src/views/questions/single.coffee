@@ -116,7 +116,7 @@ module.exports = new View (data) ->
               shortcut: "del enter"
           ]
         
-    unless question.isNew 
+    unless question.isNew and not draft?
       @modal 
         title : "Edit this question"
         id    : "question-edit-dialog"
