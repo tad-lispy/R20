@@ -3,6 +3,7 @@
 # Models
 Story       = require "../models/Story"
 Question    = require "../models/Question"
+Answer      = require "../models/Answer"
 Participant = require "../models/Participant"
 
 # Controller
@@ -27,9 +28,22 @@ module.exports = new Controller Story,
     single          : options:
       pre  : pre.conditions
       post : (req, res, done) ->
+        { story } = res.locals
+        $ "Populate questions"
         async.parallel [
-          # Populate questions
-          (done) -> res.locals.story.populate "questions", done
+          (done) -> 
+            async.series [
+              (done) -> story.populate "questions", done
+              (done) -> async.each story.questions,
+                (question, done) ->
+                  question.findAnswers (error, answers) ->
+                    if error then return done error
+                    Participant.populate answers, "author", (error) ->
+                      if error then return done error
+                      question.answers = answers
+                      done null
+                 done
+            ], done
 
           # Populate journal meta
           (done) ->
