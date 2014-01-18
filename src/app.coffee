@@ -203,7 +203,7 @@ app.post "/auth/login", (req, res) ->
     if body.status is "okay" then authenticate req, res, body.email, (error) ->
       if error 
         if error.message is "Not in the whitelist"
-          # res.json 403, status: "forbiden"
+          return res.json 403, status: "forbiden"
         else throw error
 
       res.json status: "okay"
