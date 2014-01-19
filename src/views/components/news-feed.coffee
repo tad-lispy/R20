@@ -171,7 +171,7 @@ module.exports = new View
                   whose = if applied.meta.author._id.equals entry.meta.author._id
                     "his own draft"
                   else
-                    " a draft by #{draft.meta.author.name}"
+                    " a draft by #{applied.meta.author.name}"
                     
                   @p "#{entry.meta?.author?.name} applied #{whose} to a question"
                 excerpt : applied.data.text
@@ -226,7 +226,7 @@ module.exports = new View
                     whose = if applied.meta.author._id.equals entry.meta.author._id
                       "his own draft"
                     else
-                      " a draft by #{draft.meta.author.name}"
+                      " a draft by #{applied.meta.author.name}"
                       
                     @p "#{entry.meta?.author?.name} applied #{whose} to an answer"
                   excerpt : applied.data.question.text
