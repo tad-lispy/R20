@@ -16,7 +16,7 @@ module.exports = new View (options = {}) ->
   ,
     title   : "Questions"
     url     : "/questions"
-    icon    : "question-sign"
+    icon    : "question-circle"
     shortcut: "g q"
   ,
     title   : "Answers"
@@ -40,5 +40,5 @@ module.exports = new View (options = {}) ->
               href: "#{item.url}"
               data: shortcut: item.shortcut
               =>
-                @i class: "icon-fixed-width icon-#{item.icon}"
+                @i class: "fa fa-fixed-width fa-#{item.icon}"
                 @text " " + item.title

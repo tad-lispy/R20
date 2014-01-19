@@ -34,7 +34,7 @@ module.exports = new View (data) ->
               class : "btn btn-primary"
               type  : "submit"
               =>
-                @i class: "icon-search"
+                @i class: "fa fa-search"
                 @text " Search"
             @dropdown items: [
               title : "new story"

@@ -54,7 +54,7 @@ module.exports = new View (data) ->
                 disabled: applied
                 data    : shortcut: "a a enter"
                 =>
-                  @i class: "icon-check-sign icon-fixed-width"
+                  @i class: "fa fa-check-sign fa-fixed-width"
                   @text     "apply this draft"
 
               @dropdown items: [
@@ -69,14 +69,14 @@ module.exports = new View (data) ->
 
       else if answer.isNew 
         @p class: "text-muted", =>
-          @i class: "icon-info-sign icon-fixed-width"
+          @i class: "fa fa-info-sign fa-fixed-width"
           @text "Not published yet."
         @div class: "clearfix", => @div class: "btn-group pull-right", =>
           @a
             class : "btn btn-default"
             href  : "/questions/#{question._id}"
             => 
-              @i class: "icon icon-arrow-left icon-fixed-width"
+              @i class: "fa fa-arrow-left fa-fixed-width"
               @text "Back to question"
 
       else 
@@ -87,7 +87,7 @@ module.exports = new View (data) ->
             class : "btn btn-default"
             href  : "/questions/#{question._id}"
             => 
-              @i class: "icon icon-arrow-left icon-fixed-width"
+              @i class: "fa fa-arrow-left fa-fixed-width"
               @text "Back to question"
           @dropdown items: [
             title : "make changes"
@@ -141,11 +141,11 @@ module.exports = new View (data) ->
                   type  : "submit"
                   class : "btn btn-danger"
                   =>
-                    @i class: "icon-remove-sign icon-fixed-width"
+                    @i class: "fa fa-remove-sign fa-fixed-width"
                     @text "Remove!"
     
     @h4 class: "text-muted", =>
-      @i class: "icon-time icon-fixed-width"
+      @i class: "fa fa-time fa-fixed-width"
       @text "Versions"
     @draftsTable
             drafts  : journal.filter (entry) -> entry.action is "draft" 

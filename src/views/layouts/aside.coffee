@@ -36,7 +36,7 @@ module.exports = renderable (content) ->
           data: shortcut: "g h"
           href: "/"
           ->
-            i class: "icon-remove icon-3x"
+            i class: "fa fa-remove fa-3x"
         
         h1 @settings.name 
         h2 @settings.motto

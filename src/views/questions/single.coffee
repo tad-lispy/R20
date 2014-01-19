@@ -57,7 +57,7 @@ module.exports = new View (data) ->
                 disabled: applied
                 data    : shortcut: "a a enter"
                 =>
-                  @i class: "icon-check-sign icon-fixed-width"
+                  @i class: "fa fa-check-sign fa-fixed-width"
                   @text     "apply this draft"
 
               @dropdown items: [
@@ -72,7 +72,7 @@ module.exports = new View (data) ->
 
       else if question.isNew 
         @p class: "text-muted", =>
-          @i class: "icon-info-sign icon-fixed-width"
+          @i class: "fa fa-info-sign fa-fixed-width"
           @text "Not published yet."
 
       else 
@@ -87,7 +87,7 @@ module.exports = new View (data) ->
               target:   "#stories-dialog"
               shortcut: "s"
             =>
-              @i class: "icon-comment icon-fixed-width"
+              @i class: "fa fa-comment fa-fixed-width"
               @text " sample stories (#{stories?.length or 0})"
 
           @dropdown items: [
@@ -128,7 +128,7 @@ module.exports = new View (data) ->
 
     if draft? or question.isNew
       @h4 class: "text-muted", =>
-        @i class: "icon-timev icon-fixed-width"
+        @i class: "fa fa-timev fa-fixed-width"
         @text "Versions"
       @draftsTable
               drafts  : journal.filter (entry) -> entry.action is "draft" 
@@ -158,7 +158,7 @@ module.exports = new View (data) ->
                   type  : "submit"
                   class : "btn btn-danger"
                   =>
-                    @i class: "icon-remove-sign icon-fixed-width"
+                    @i class: "fa fa-remove-sign fa-fixed-width"
                     @text " " + "Remove!"
 
       # Drafts modal is used in published question view only.
@@ -174,7 +174,7 @@ module.exports = new View (data) ->
             root    : "/questions/"
 
       @h4 class: "text-muted", =>
-        @i class: "icon-puzzle-piece icon-fixed-width"
+        @i class: "fa fa-puzzle-piece fa-fixed-width"
         @text "Answers"
       if answers.length then for answer in answers
         @div class: "panel panel-default", id: "answer-#{answer._id}", =>
@@ -184,7 +184,7 @@ module.exports = new View (data) ->
             @a
               href  : "/questions/#{question._id}/answers/#{answer._id}"
               class: "btn btn-xs pull-right"
-              => @i class: "icon icon-fullscreen"
+              => @i class: "fa fa-fullscreen"
               
           @div class: "panel-body clearfix", =>
             
@@ -203,7 +203,7 @@ module.exports = new View (data) ->
       
       else @div class: "well", =>
           @p =>
-            @i class: "icon-frown icon-4x"
+            @i class: "fa fa-frown fa-4x"
             @text " No answers to this question yet."
 
       # Display new answer form unless this participant already answered this question
@@ -214,7 +214,7 @@ module.exports = new View (data) ->
             href  : "/questions/#{question._id}/answers/#{answers.drafted._id}"
             class: "btn btn-default btn-xs pull-right"
             =>
-              @i class: "icon icon-eye-open icon-fixed-width"
+              @i class: "fa fa-eye-open fa-fixed-width"
               @text "see drafts"
 
         else @form
@@ -236,7 +236,7 @@ module.exports = new View (data) ->
                 type  : "submit"
                 class : "btn btn-primary"
                 =>
-                  @i class: "icon-check-sign"
+                  @i class: "fa fa-check-sign"
                   @text " " + "send"
             @input type: "hidden", name: "_csrf", value: csrf
 
@@ -268,7 +268,7 @@ module.exports = new View (data) ->
                       class: "btn btn-info"
                       href: "/stories/#{story.id}/"
                       =>
-                        @i class: "icon-eye-open"
+                        @i class: "fa fa-eye-open"
                         @text " got to story"
                         if story.questions.length - 1
                           @text " (#{story.questions.length - 1} other questions)"
@@ -278,7 +278,7 @@ module.exports = new View (data) ->
                         class: "btn btn-default"
                         href: "#stories-dialog"
                         data: slide: "prev"
-                        => @i class: "icon icon-chevron-left"
+                        => @i class: "fa fa-chevron-left"
 
                       @span
                         disabled: true
@@ -289,6 +289,6 @@ module.exports = new View (data) ->
                         class: "btn btn-default"
                         href: "#stories-carousel"
                         data: slide: "next"
-                        => @i class: "icon icon-chevron-right"
+                        => @i class: "fa fa-chevron-right"
 
 

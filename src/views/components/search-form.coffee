@@ -21,4 +21,4 @@ module.exports = new View (attributes) ->
           @button
             class     : "btn btn-primary"
             type      : "submit"
-            => @i class: "icon-question-sign"
+            => @i class: "fa fa-question-circle"

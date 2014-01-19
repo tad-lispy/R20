@@ -17,11 +17,11 @@ module.exports = new View (options = {}) ->
         unless _fake_login
           @ul class: "nav nav-pills nav-stacked", =>
             @li => @a href: "#!/logout", title: "Log out", =>
-              @i class: "icon-fixed-width icon-power-off"
+              @i class: "fa fa-fixed-width fa-power-off"
               @text " Log out"        
       else 
         unless _fake_login 
           @ul class: "nav nav-pills nav-stacked", =>
             @li => @a href: "#!/authenticate", title: "Log in", =>
-              @i class: "icon-fixed-width icon-ok-circle"
+              @i class: "fa fa-fixed-width fa-ok-circle"
               @text " Log in"

@@ -54,7 +54,7 @@ module.exports = new View (data) ->
                 disabled: applied
                 data    : shortcut: "a a enter"
                 =>
-                  @i class: "icon-check-sign"
+                  @i class: "fa fa-check-sign"
                   @text " apply this draft"
 
               @dropdown items: [
@@ -69,7 +69,7 @@ module.exports = new View (data) ->
 
       else if story.isNew 
         @p class: "text-muted", =>
-          @i class: "icon-info-sign"
+          @i class: "fa fa-info-sign"
           @text " Not published yet "
 
       else 
@@ -83,7 +83,7 @@ module.exports = new View (data) ->
               target  : "#story-edit-dialog"
               shortcut: "e"
             =>
-              @i class: "icon-edit icon-fixed-width"
+              @i class: "fa fa-edit fa-fixed-width"
               @text " make changes"
 
           @dropdown items: [
@@ -118,7 +118,7 @@ module.exports = new View (data) ->
 
     if draft? or story.isNew
       @h4 class: "text-muted", =>
-        @i class: "icon-timev icon-fixed-width"
+        @i class: "fa fa-timev fa-fixed-width"
         @text "Versions"
       @draftsTable
         drafts  : journal.filter (entry) -> entry.action is "draft" 
@@ -158,7 +158,7 @@ module.exports = new View (data) ->
                   type  : "submit"
                   class : "btn btn-danger"
                   =>
-                    @i class: "icon-remove-sign icon-fixed-width"
+                    @i class: "fa fa-remove-sign fa-fixed-width"
                     @text "Remove!"
 
       # The questions
@@ -177,7 +177,7 @@ module.exports = new View (data) ->
                 target  : "#assignment-list"
                 shortcut: "a q"
               =>
-                @i class: "icon-plus-sign"
+                @i class: "fa fa-plus-sign"
                 @text " assign"
 
         @div 
@@ -206,7 +206,7 @@ module.exports = new View (data) ->
                           type    : "submit"
                           disabled: true
                           =>
-                            @i class: "icon-search"
+                            @i class: "fa fa-search"
                             @text " Search"
 
               @div id: "assign-questions-list", =>
@@ -240,7 +240,7 @@ module.exports = new View (data) ->
                     target  : "#new-question-dialog"
                     shortcut: "n q"
                   =>
-                    @i class: "icon-star"
+                    @i class: "fa fa-star"
                     @text " Add a brand new question"
 
               @modal """
@@ -282,7 +282,7 @@ module.exports = new View (data) ->
                         type  : "submit"
                         class : "btn btn-danger btn-xs"
                         =>
-                          @i class: "icon-remove"
+                          @i class: "fa fa-remove"
                           @text " unasign"
 
           else @a
@@ -295,7 +295,7 @@ module.exports = new View (data) ->
               @h4 class: "text-muted", =>
                 @text " No questions abstracted yet. "
               @p class: "text-muted", =>
-                @i class: "icon-plus-sign"
+                @i class: "fa fa-plus-sign"
                 @text " Do it now!"
 
       @modal

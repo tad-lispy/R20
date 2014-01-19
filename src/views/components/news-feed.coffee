@@ -23,9 +23,9 @@ item      = new View
         @div class: "media", =>
           
           @div class: "pull-left text-" + options.class, =>
-            @span class: "media-object icon-stack icon-2x", =>
-              @i class: "icon-stack-base icon-" + options.icons[0]
-              @i class: "icon-" + options.icons[1] if options.icons[1]?
+            @span class: "media-object fa-stack fa-2x", =>
+              @i class: "fa fa-stack-base fa-" + options.icons[0]
+              @i class: "fa fa-" + options.icons[1] if options.icons[1]?
           
           @div class: "media-body", =>
             if typeof options.body is "function" then do options.body
@@ -155,7 +155,7 @@ module.exports = new View
           when "Question" then switch entry.action
 
             when "draft" then item
-              icons   : [ "question-sign" ]
+              icons   : [ "question-circle" ]
               url     : "/questions/#{entry.data._id}/drafts/#{entry._id}"
               body    : "#{entry.meta?.author?.name} wrote a new draft for a question."
               excerpt : entry.data.text
@@ -165,7 +165,7 @@ module.exports = new View
             when "apply" 
               applied = entry.data._entry
               item 
-                icons   : [ "question-sign" ]
+                icons   : [ "question-circle" ]
                 url     : "/questions/#{applied.data._id}/"
                 body    : =>
                   whose = if applied.meta.author._id.equals entry.meta.author._id
@@ -179,7 +179,7 @@ module.exports = new View
                 class   : "success"
                     
             when "remove" then item
-              icons   : [ "question-sign" ]
+              icons   : [ "question-circle" ]
               url     : "/questions/#{entry.data._id}/"
               body    : "#{entry.meta?.author?.name} removed a question."
               excerpt : entry.data.text

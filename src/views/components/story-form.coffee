@@ -39,5 +39,5 @@ module.exports = new View
             type        : "submit"
             class       : "btn btn-primary"
             =>
-              @i class: "icon-check-sign"
+              @i class: "fa fa-check-sign"
               @text " Ok"

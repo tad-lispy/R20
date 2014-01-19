@@ -24,7 +24,7 @@ module.exports = new View (options = {}) ->
     data  :
       toggle: "dropdown"
     =>
-      @i class: "icon icon-#{icon}"
+      @i class: "fa fa-#{icon}"
       @span class: "sr-only", "Toggle dropdown"
 
   @ul class: "dropdown-menu", role: "menu", =>
@@ -36,5 +36,5 @@ module.exports = new View (options = {}) ->
           href    : item.href
           data    : item.data
           =>
-            @i class: "icon-" + item.icon or "cog"
+            @i class: "fa fa-" + item.icon or "cog"
             @text " " + item.title

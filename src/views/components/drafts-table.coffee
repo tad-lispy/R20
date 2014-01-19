@@ -33,7 +33,7 @@ module.exports = new View (options) ->
       @tr class: (if isChosen then "active" else if isApplied then "success"), =>
 
         @td =>
-          @i class: "icon-li icon-" + icon
+          @i class: "fa fa-li fa-" + icon
           @span class: "sr-only", (
             if isChosen then "chosen"
             else if isApplied then "applied"

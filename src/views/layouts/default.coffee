@@ -39,7 +39,7 @@ module.exports = new View
 
         @link rel: "stylesheet", href: url for url in [
           "//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"
-          "//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css"
+          "//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css"
           "/css/r20.css"
         ]          
 
@@ -57,7 +57,7 @@ module.exports = new View
               #   type  : "button"
               #   class : "btn btn-lg visible-xs pull-right"
               #   dat@a  : toggle: "offcanvas"
-              #   => @i class: "icon-expand-alt"
+              #   => @i class: "fa fa-expand-alt"
 
               do content
 
@@ -70,7 +70,7 @@ module.exports = new View
 
         @footer class: "container", =>
           @small =>
-            @i class: "icon-bolt"
+            @i class: "fa fa-bolt"
             @text " powered by "
             @a
               href  : settings.engine.repo

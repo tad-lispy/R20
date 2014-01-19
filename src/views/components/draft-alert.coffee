@@ -25,5 +25,5 @@ module.exports = new View (options = {}) ->
       href  : actualurl
       class : "btn btn-default btn-xs pull-right"
       =>
-        @i class: "icon-arrow-left"
+        @i class: "fa fa-arrow-left"
         @text " See actual #{type}"
