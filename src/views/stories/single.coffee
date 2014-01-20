@@ -262,7 +262,7 @@ module.exports = new View (data) ->
                 if question.answers.length then @p =>
                   @text "Answers by: "
                   for answer in question.answers
-                    @text answer.author.name
+                    @text answer.author.name + " "
                 else @p class: "text-muted", "No answers yet"
                   
                 @div class: "btn-group", =>
