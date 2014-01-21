@@ -27,7 +27,7 @@ module.exports = new View (options = {}, content) ->
                 dismiss: "modal"
               aria:
                 hidden: true
-              => @i class: "fa fa-remove fa-2x"
+              => @i class: "fa fa-times fa-2x"
             @h4 title
           
           @div class: "modal-body", =>

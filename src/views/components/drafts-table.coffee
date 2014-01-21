@@ -22,7 +22,7 @@ module.exports = new View (options) ->
     for draft in drafts
       isChosen  = chosen?   and draft._id.equals chosen   
       isApplied = applied?  and draft._id.equals applied  
-      if      isChosen  then  icon = "circle"
+      if      isChosen  then  icon = "dot-circle-o"
       else if isApplied then  icon = "check"
       else                    icon = "circle-o"
       
