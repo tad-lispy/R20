@@ -48,13 +48,20 @@ module.exports = new View (data) ->
 
     do @hr
 
-    if stories.length then @div class: "list-group", =>
+    if stories.length # then @div class: "list-group", =>
       for story in stories
-        @a href: "/stories/#{story._id}", class: "list-group-item", =>
-          @span class: "badge", story.questions.length
-          @h4
-            class: "list-group-item-heading"
-            _.string.prune story.text, 256
+        @div class: "panel panel-default", =>
+          @a href: "/stories/#{story._id}", class: "panel-body list-group-item", =>
+            @span class: "badge", story.questions.length
+            @markdown _.string.prune story.text, 256
+          @div class: "panel-footer", =>
+            if story.questions.length 
+              @p => @strong "#{story.questions.length} legal questions:"
+              @ul class: "list-inline", =>
+                for question in story.questions
+                  @li => @a href: "/questions/#{question._id}", question.text
+            else @strong "No questions abstracted yet."
+
             
         
     else @div class: "alert alert-info", "Nothing like that found. Sorry :P"

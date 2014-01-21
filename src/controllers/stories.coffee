@@ -21,7 +21,9 @@ $           = debug   "R20:controllers:story"
 
 module.exports = new Controller Story,
   routes:
-    list            : options: pre  : pre.conditions
+    list            : options:
+      pre  : pre.conditions
+      post : (req, res, done) -> Question.populate res.locals.stories, "questions", done
 
     new             : options: pre  : pre.meta
 
