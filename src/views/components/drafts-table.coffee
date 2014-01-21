@@ -23,8 +23,8 @@ module.exports = new View (options) ->
       isChosen  = chosen?   and draft._id.equals chosen   
       isApplied = applied?  and draft._id.equals applied  
       if      isChosen  then  icon = "circle"
-      else if isApplied then  icon = "ok-circle"
-      else                    icon = "circle-blank"
+      else if isApplied then  icon = "check"
+      else                    icon = "circle-o"
       
       url     = root + draft.data._id + "/drafts/" + draft._id
       time    = moment(draft._id.getTimestamp()).fromNow()
@@ -33,7 +33,7 @@ module.exports = new View (options) ->
       @tr class: (if isChosen then "active" else if isApplied then "success"), =>
 
         @td =>
-          @i class: "fa fa-li fa-" + icon
+          @i class: "fa fa-" + icon
           @span class: "sr-only", (
             if isChosen then "chosen"
             else if isApplied then "applied"
