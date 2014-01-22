@@ -23,9 +23,9 @@ item      = new View
         @div class: "media", =>
           
           @div class: "pull-left text-" + options.class, =>
-            @span class: "media-object fa-stack fa-2x", =>
-              @i class: "fa fa-stack-base fa-" + options.icons[0]
-              @i class: "fa fa-" + options.icons[1] if options.icons[1]?
+            @span class: "media-object fa-stack fa-lg", =>
+              @i class: "fa fa-stack-2x fa-" + options.icons[0]
+              @i class: "fa fa-stack-1x fa-" + options.icons[1] if options.icons[1]?
           
           @div class: "media-body", =>
             if typeof options.body is "function" then do options.body
@@ -61,7 +61,7 @@ module.exports = new View
           when "Story" then switch entry.action
           
             when "draft" then item
-              icons   : [ "comment-alt", "plus-sign" ]
+              icons   : [ "comment-o", "plus" ]
               url     : "/stories/#{entry.data._id}/drafts/#{entry._id}"
               body    : "#{entry.meta?.author?.name} wrote a draft for a story."
               excerpt : entry.data.text
@@ -73,7 +73,7 @@ module.exports = new View
               switch applied.action
                 when "draft"
                   item 
-                    icons   : [ "comment-alt", "ok-circle" ]
+                    icons   : [ "comment-o", "check" ]
                     url     : "/stories/#{applied.data._id}/"
                     body    : =>
                       whose = if applied.meta.author._id.equals entry.meta.author._id
@@ -138,7 +138,7 @@ module.exports = new View
 
                     
             when "remove" then item
-              icons   : [ "comment-alt", "remove" ]
+              icons   : [ "comment-o", "times" ]
               url     : "/stories/#{entry.data._id}/"
               body    : "#{entry.meta?.author?.name} removed a story."
               excerpt : entry.data.text
