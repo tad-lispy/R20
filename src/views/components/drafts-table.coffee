@@ -42,8 +42,8 @@ module.exports = new View (options) ->
         @td =>
           if not isChosen then @a
             href: url
-            author.name
-          else @strong author.name
+            author?.name or "unknown author"
+          else @strong author?.name or "unknown author"
 
         @td =>
           if not isChosen then @a

@@ -20,7 +20,20 @@ $           = debug "R20:controllers:question"
 
 module.exports = new Controller Question,
   routes:
-    list            : options: pre  : pre.conditions
+    list            : options:
+      pre  : pre.conditions
+      post : (req, res, done) ->
+        { questions } = res.locals
+        async.each questions,
+          (question, done) ->
+            async.waterfall [
+              (done) -> question.findAnswers done            
+              (answers, done) -> Participant.populate answers, "author", done
+              (answers, done) ->
+                question.answers = answers
+                done null
+            ], done
+          done
 
     new             : options: pre  : pre.meta
     

@@ -180,7 +180,7 @@ module.exports = new View (data) ->
         @div class: "panel panel-default", id: "answer-#{answer._id}", =>
           @div class: "panel-heading clearfix", =>
             @strong class: "text-muted", =>
-              @text "by #{answer.author.name} (#{moment(answer._id.getTimestamp()).fromNow()}):"
+              @text "by #{answer.author?.name or "unknown author"} (#{moment(answer._id.getTimestamp()).fromNow()}):"
             @a
               href  : "/questions/#{question._id}/answers/#{answer._id}"
               class: "btn btn-xs pull-right"
@@ -192,7 +192,7 @@ module.exports = new View (data) ->
             
           # TODO: use client side js to deal with modals and forms
           @modal 
-            title : "Edit answer by #{answer.author.name}"
+            title : "Edit answer by #{answer.author?.name or "unknown author"}"
             id    : "answer-#{answer._id}-edit-dialog"
             => @answerForm
               method  : "POST"
@@ -207,7 +207,7 @@ module.exports = new View (data) ->
             @text " No answers to this question yet."
 
       # Display new answer form unless this participant already answered this question
-      if participant? then unless  (_.any answers, (answer) -> answer.author._id.equals participant?._id)
+      if participant? then unless  (_.any answers, (answer) -> answer.author?._id?.equals participant?._id)
         if answers.drafted? then @div class: "alert alert-info", =>
           @text "There is at least one draft of your answer to this question"
           @a

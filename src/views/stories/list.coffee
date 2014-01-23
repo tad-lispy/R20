@@ -59,9 +59,7 @@ module.exports = new View (data) ->
                 @strong "#{story.questions.length} legal questions:"
                 for question in story.questions
                   @li => @a href: "/questions/#{question._id}", question.text
-            else @strong "No questions abstracted yet."
-
-            
+            else @strong "No questions abstracted yet."            
         
     else @div class: "alert alert-info", "Nothing like that found. Sorry :P"
     

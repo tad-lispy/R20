@@ -47,18 +47,20 @@ module.exports = new View (data) ->
 
     do @hr
     
-    if questions.length then @div class: "list-group", =>
+    if questions.length
       for question in questions
-        @a href: "/questions/#{question._id}", class: "list-group-item", =>
-          # @span class: "badge", question.answers.length
-          @h4
-            class: "list-group-item-heading"
-            question.text
-          
-          @p "Answers by: Kot Filemon, Katiusza"
-      
-    else @div class: "alert alert-info", "Nothing like that found. Sorry :P"    
+        @div class: "panel panel-default", =>
+          @a href: "/questions/#{question._id}", class: "panel-body list-group-item lead", =>
+            @markdown question.text
+          @div class: "panel-footer", =>
+            if question.answers.length 
+              @ul class: "list-inline", =>
+                @strong "#{question.answers.length} answers by:"
+                for answer in question.answers
+                  @li => @a href: "/questions/#{question._id}/##{answer._id}", answer.author?.name or "unknown author"
     
+            else @strong "No answers yet."
+        
     @modal 
       title : "New question"
       id    : "question-new-dialog"
