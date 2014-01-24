@@ -31,12 +31,12 @@ item      = new View
             if typeof options.body is "function" then do options.body
             else @p options.body
               
-          if options.excerpt? 
-            if typeof options.excerpt is "function" then do options.excerpt
-            else @div class: "excerpt", =>
-              @strong _.string.stripTags @render => @markdown options.excerpt
+            if options.excerpt? 
+              if typeof options.excerpt is "function" then do options.excerpt
+              else @div class: "excerpt", =>
+                @strong _.string.stripTags @render => @markdown options.excerpt
         
-        @p class: "text-right", => @small moment(options.time).fromNow()
+            @p class: "text-right", => @small moment(options.time).fromNow()
 
 module.exports = new View
   components: __dirname
