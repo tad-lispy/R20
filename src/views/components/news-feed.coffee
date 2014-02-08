@@ -14,7 +14,7 @@ item      = new View
       url   : "#"
       icons : [ "cogs" ]
       class : "default"
-      body  : "Something happened."
+      body  : @translate "Something happened."
 
     @a 
       href  : options.url
@@ -63,7 +63,8 @@ module.exports = new View
             when "draft" then item
               icons   : [ "comment-o", "plus" ]
               url     : "/stories/#{entry.data._id}/drafts/#{entry._id}"
-              body    : "#{entry.meta?.author?.name} wrote a draft for a story."
+              body    : @translate "%s wrote a draft for a story.",
+                entry.meta?.author?.name
               excerpt : entry.data.text
               time    : do entry._id.getTimestamp
               class   : "info"

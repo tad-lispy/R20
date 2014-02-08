@@ -25,7 +25,8 @@
     "teacup-view": "git://github.com/Mikrosekcja/teacup-view.git#v0.1.5",
     "error2": "git://github.com/lzrski/Error2.git#v0.1.1",
     "moment": "~2.4.0",
-    "lodash": "~2.3.0"
+    "lodash": "~2.3.0",
+    "i18n-2": "~0.4.6"
   },
   "devDependencies": {
     "coffee-script": "~1.6.3",
