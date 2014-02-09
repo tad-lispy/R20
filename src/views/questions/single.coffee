@@ -57,11 +57,11 @@ module.exports = new View (data) ->
                 disabled: applied
                 data    : shortcut: "a a enter"
                 =>
-                  @i class: "fa fa-check-sign fa-fixed-width"
-                  @text     "apply this draft"
+                  @i class: "fa fa-fw fa-check-square"
+                  @translate "apply this draft"
 
               @dropdown items: [
-                title : "make changes"
+                title : @cede => @translate "make changes"
                 href  : "#edit-question"
                 icon  : "edit"
                 data  :
@@ -72,8 +72,8 @@ module.exports = new View (data) ->
 
       else if question.isNew 
         @p class: "text-muted", =>
-          @i class: "fa fa-info-sign fa-fixed-width"
-          @text "Not published yet."
+          @i class: "fa fa-info-circle fa-fw"
+          @translate "Not published yet."
 
       else 
         @strong question.text
@@ -87,11 +87,12 @@ module.exports = new View (data) ->
               target:   "#stories-dialog"
               shortcut: "s"
             =>
-              @i class: "fa fa-comment fa-fixed-width"
-              @text " sample stories (#{stories?.length or 0})"
+              @i class: "fa fa-comment fa-fw"
+              @text " "
+              @translate "sample stories (%d)", stories?.length or 0
 
           @dropdown items: [
-            title : "make changes"
+            title : @cede => @translate "make changes"
             href  : "#edit"
             icon  : "edit"
             data  :
@@ -99,7 +100,7 @@ module.exports = new View (data) ->
               target  : "#question-edit-dialog"
               shortcut: "e"
           ,
-            title : "show drafts"
+            title : @cede => @translate "show drafts"
             href  : "#drafts"
             icon  : "folder-close"
             data  :
@@ -107,9 +108,9 @@ module.exports = new View (data) ->
               target  : "#drafts-dialog"
               shortcut: "d"
           ,
-            title : "remove question"
+            title : @cede => @translate "remove question"
             href  : "#remove"
-            icon  : "remove-sign"
+            icon  : "times-circle"
             data  :
               toggle  : "modal"
               target  : "#remove-dialog"
@@ -118,7 +119,7 @@ module.exports = new View (data) ->
         
     unless question.isNew and not draft?
       @modal 
-        title : "Edit this question"
+        title : @cede => @translate "Edit this question"
         id    : "question-edit-dialog"
         => @questionForm
           method  : "POST"
@@ -128,17 +129,17 @@ module.exports = new View (data) ->
 
     if draft? or question.isNew
       @h4 class: "text-muted", =>
-        @i class: "fa fa-timev fa-fixed-width"
-        @text "Versions"
+        @i class: "fa  fa-fw fa-time"
+        @translate "Versions"
       @draftsTable
-              drafts  : journal.filter (entry) -> entry.action is "draft" 
-              applied : question?._draft
-              chosen  : draft?._id
-              root    : "/questions/"
+        drafts  : journal.filter (entry) -> entry.action is "draft" 
+        applied : question?._draft
+        chosen  : draft?._id
+        root    : "/questions/"
 
     else
       @modal 
-        title : "Remove this question?"
+        title : @cede => @translate "Remove this question?"
         id    : "remove-dialog"
         class : "modal-danger"
         =>
@@ -151,20 +152,20 @@ module.exports = new View (data) ->
               @div class: "well", =>
                 @markdown question.text
               
-              @p "Removing a question is roughly equivalent to unpublishing it. It can be undone. All drafts will be preserved."
+              @p => @translate "Removing a question is roughly equivalent to unpublishing it. It can be undone. All drafts will be preserved."
 
               @div class: "form-group", =>
                 @button
                   type  : "submit"
                   class : "btn btn-danger"
                   =>
-                    @i class: "fa fa-remove-sign fa-fixed-width"
-                    @text " " + "Remove!"
+                    @i class: "fa fa-fw fa-times-circle "
+                    @translate "Remove!"
 
       # Drafts modal is used in published question view only.
       # In other views (drafts or unpublished) drafts table is below text.
       @modal 
-        title : "Drafts of this question"
+        title : @cede => @translate "Drafts of this question"
         id    : "drafts-dialog"
         =>
           @draftsTable
@@ -174,17 +175,19 @@ module.exports = new View (data) ->
             root    : "/questions/"
 
       @h4 class: "text-muted", =>
-        @i class: "fa fa-puzzle-piece fa-fixed-width"
-        @text "Answers"
+        @i class: "fa fa-puzzle-piece fa-fw"
+        @translate "Answers"
       if answers.length then for answer in answers
         @div class: "panel panel-default", id: "answer-#{answer._id}", =>
           @div class: "panel-heading clearfix", =>
             @strong class: "text-muted", =>
-              @text "by #{answer.author?.name or "unknown author"} (#{moment(answer._id.getTimestamp()).fromNow()}):"
+              @translate "by %s (%s):",
+                answer.author?.name or @cede => @translate "unknown author"
+                @cede => @moment answer
             @a
               href  : "/questions/#{question._id}/answers/#{answer._id}"
               class: "btn btn-xs pull-right"
-              => @i class: "fa fa-fullscreen"
+              => @i class: "fa fa-expand"
               
           @div class: "panel-body clearfix", =>
             
@@ -192,7 +195,8 @@ module.exports = new View (data) ->
             
           # TODO: use client side js to deal with modals and forms
           @modal 
-            title : "Edit answer by #{answer.author?.name or "unknown author"}"
+            title : @cede => @translate "Edit answer by %s",
+              answer.author?.name or @cede => @translate "unknown author"
             id    : "answer-#{answer._id}-edit-dialog"
             => @answerForm
               method  : "POST"
@@ -201,21 +205,21 @@ module.exports = new View (data) ->
               answer  : answer
 
       
-      else @div class: "well", =>
-          @p =>
-            @i class: "fa fa-frown fa-4x"
-            @text " No answers to this question yet."
+      else @div class: "alert alert-info", =>
+        @p =>
+          @i class: "fa fa-fw fa-frown-o"
+          @translate "No answers to this question yet."
 
       # Display new answer form unless this participant already answered this question
       if participant? then unless  (_.any answers, (answer) -> answer.author?._id?.equals participant?._id)
         if answers.drafted? then @div class: "alert alert-info", =>
-          @text "There is at least one draft of your answer to this question"
+          @translate "There is at least one draft of your answer to this question"
           @a
             href  : "/questions/#{question._id}/answers/#{answers.drafted._id}"
             class: "btn btn-default btn-xs pull-right"
             =>
-              @i class: "fa fa-eye-open fa-fixed-width"
-              @text "see drafts"
+              @i class: "fa fa-eye-open fa-fw"
+              @translate "see drafts"
 
         else @form
           id    : "new-answer"
@@ -223,11 +227,11 @@ module.exports = new View (data) ->
           action: "/questions/#{question._id}/answers"
           =>
             @div class: "form-group", =>
-              @label for: "text", "Have an answer? Please share it!"
+              @label for: "text", => @translate "Have an answer? Please share it!"
               @textarea 
                 class       : "form-control"
                 name        : "text"
-                placeholder : "Your answer..."
+                placeholder : @cede => @translate "Your answer..."
                 data        :
                   shortcut    : "a"
                   
@@ -236,12 +240,12 @@ module.exports = new View (data) ->
                 type  : "submit"
                 class : "btn btn-primary"
                 =>
-                  @i class: "fa fa-check-sign"
-                  @text " " + "send"
+                  @i class: "fa fa-fw fa-check-square"
+                  @translate "send"
             @input type: "hidden", name: "_csrf", value: csrf
 
     if stories?.length then @modal
-      title : "Sample stories"
+      title : @cede => @translate "Sample stories"
       id    : "stories-dialog"
       =>
         @div class: "modal-body", =>
@@ -268,10 +272,11 @@ module.exports = new View (data) ->
                       class: "btn btn-info"
                       href: "/stories/#{story.id}/"
                       =>
-                        @i class: "fa fa-eye-open"
-                        @text " got to story"
+                        @i class: "fa fa-fw fa-eye-open"
+                        @translate "got to story"
                         if story.questions.length - 1
-                          @text " (#{story.questions.length - 1} other questions)"
+                          @text " "
+                          @translate "(%d other questions)", story.questions.length - 1
 
                     if stories.length > 1 then @div class: "btn-group pull-right", ->
                       @a 

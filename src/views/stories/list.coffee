@@ -27,18 +27,18 @@ module.exports = new View (data) ->
             type        : "text"
             name        : "query"
             class       : "form-control"
-            placeholder : "Type to search for story..."
+            placeholder : @cede => @translate "Type to search for story..."
             value       : query
           @div class: "input-group-btn", =>
             @button
               class : "btn btn-primary"
               type  : "submit"
               =>
-                @i class: "fa fa-search"
-                @text " Search"
+                @i class: "fa fa-fw fa-search"
+                @text "Search"
             @dropdown items: [
-              title : "new story"
-              icon  : "plus-sign"
+              title : @cede => @translate "new story"
+              icon  : "plus-circle"
               data  :
                 toggle  : "modal"
                 target  : "#story-new-dialog"
@@ -56,18 +56,18 @@ module.exports = new View (data) ->
           @div class: "panel-footer", =>
             if story.questions.length 
               @ul class: "list-inline", =>
-                @strong "#{story.questions.length} legal questions:"
+                @strong "%d legal questions:", story.questions.length
                 for question in story.questions
                   @li => @a href: "/questions/#{question._id}", question.text
-            else @strong "No questions abstracted yet."            
+            else @strong => @translate "No questions abstracted yet."            
         
-    else @div class: "alert alert-info", "Nothing like that found. Sorry :P"
+    else @div class: "alert alert-info", => @translate "Nothing like that found. Sorry :P"
     
     @modal 
-      title : "New story"
+      title : @cede => @translate "New story"
       id    : "story-new-dialog"
       =>
-        @p "Please tell us your story."
+        @p => @translate "Please tell us your story."
         @storyForm
           method  : "POST"
           action  : "/stories/"

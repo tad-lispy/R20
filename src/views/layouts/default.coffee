@@ -47,9 +47,9 @@ module.exports = new View
         @div class: "container", id: "content", =>
           @header class : "page-header", =>
             @h1 =>
-              @text title + " "
+              @raw title + " "
               @br class: "visible-xs visible-sm"
-              @small subtitle
+              @small => @raw subtitle
 
           @div class: "row", =>
             @tag "main", class: "col-xs-12 col-sm-9", =>

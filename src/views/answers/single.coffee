@@ -1,7 +1,6 @@
 View      = require "teacup-view"
 layout    = require "../layouts/default"
 
-moment    = require "moment"
 debug     = require "debug"
 $         = debug "R20:views:answer"
 
@@ -22,7 +21,7 @@ module.exports = new View (data) ->
 
   unless answer.isNew
     author = draft?.data.author or answer.author
-    data.subtitle = "#{author.name} answers: #{question.text}"
+    data.subtitle = @cede => @translate "%s answers: %s", author.name, question.text
 
   layout data, =>
     if draft?
@@ -54,11 +53,11 @@ module.exports = new View (data) ->
                 disabled: applied
                 data    : shortcut: "a a enter"
                 =>
-                  @i class: "fa fa-check-sign fa-fixed-width"
-                  @text     "apply this draft"
+                  @i class: "fa fa-fw fa-check-square"
+                  @translate "apply this draft"
 
               @dropdown items: [
-                title : "make changes"
+                title : @cede => @translate "make changes"
                 href  : "#edit-answer"
                 icon  : "edit"
                 data  :
@@ -69,15 +68,15 @@ module.exports = new View (data) ->
 
       else if answer.isNew 
         @p class: "text-muted", =>
-          @i class: "fa fa-info-sign fa-fixed-width"
-          @text "Not published yet."
+          @i class: "fa fa-fw fa-info-circle"
+          @translate "Not published yet."
         @div class: "clearfix", => @div class: "btn-group pull-right", =>
           @a
             class : "btn btn-default"
             href  : "/questions/#{question._id}"
             => 
-              @i class: "fa fa-arrow-left fa-fixed-width"
-              @text "Back to question"
+              @i class: "fa fa-arrow-left fa-fw"
+              @translate "Back to question"
 
       else 
         @markdown answer.text
@@ -87,10 +86,10 @@ module.exports = new View (data) ->
             class : "btn btn-default"
             href  : "/questions/#{question._id}"
             => 
-              @i class: "fa fa-arrow-left fa-fixed-width"
-              @text "Back to question"
+              @i class: "fa fa-arrow-left fa-fw"
+              @translate "Back to question"
           @dropdown items: [
-            title : "make changes"
+            title : @cede => @translate "make changes"
             href  : "#edit"
             icon  : "edit"
             data  :
@@ -98,9 +97,9 @@ module.exports = new View (data) ->
               target  : "#answer-edit-dialog"
               shortcut: "e"
           ,
-            title : "remove answer"
+            title : @cede => @translate "remove answer"
             href  : "#remove"
-            icon  : "remove-sign"
+            icon  : "times-circle"
             data  :
               toggle  : "modal"
               target  : "#remove-dialog"
@@ -121,7 +120,7 @@ module.exports = new View (data) ->
         
     unless answer.isNew or draft?
       @modal 
-        title : "Remove this answer?"
+        title : @cede => @translate "Remove this answer?"
         id    : "remove-dialog"
         class : "modal-danger"
         =>
@@ -134,21 +133,21 @@ module.exports = new View (data) ->
               @div class: "well", =>
                 @markdown answer.text
               
-              @p "Removing an answer is roughly equivalent to unpublishing it. It can be undone. All drafts will be preserved."
+              @p => @translate "Removing an answer is roughly equivalent to unpublishing it. It can be undone. All drafts will be preserved."
 
               @div class: "form-group", =>
                 @button
                   type  : "submit"
                   class : "btn btn-danger"
                   =>
-                    @i class: "fa fa-remove-sign fa-fixed-width"
-                    @text "Remove!"
+                    @i class: "fa fa-fw fa-times-circle"
+                    @translate "Remove!"
     
     @h4 class: "text-muted", =>
-      @i class: "fa fa-time fa-fixed-width"
-      @text "Versions"
+      @i class: "fa fa-time fa-fw"
+      @translate "Versions"
     @draftsTable
-            drafts  : journal.filter (entry) -> entry.action is "draft" 
-            applied : answer?._draft
-            chosen  : draft?._id
-            root    : "/questions/#{question._id}/answers/"
+      drafts  : journal.filter (entry) -> entry.action is "draft" 
+      applied : answer?._draft
+      chosen  : draft?._id
+      root    : "/questions/#{question._id}/answers/"

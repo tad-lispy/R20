@@ -18,7 +18,7 @@ module.exports = new View (data) ->
   if draft then data.classes.push "draft"
 
 
-  data.subtitle = "The case of #{ moment(story._id.getTimestamp()).format 'LL' }"
+  data.subtitle = @cede => @translate "The case of %s", moment(story._id.getTimestamp()).format 'LL'
   
   layout data, =>
     data.scripts.push "/js/assign-question.js"
@@ -54,11 +54,11 @@ module.exports = new View (data) ->
                 disabled: applied
                 data    : shortcut: "a a enter"
                 =>
-                  @i class: "fa fa-check-sign"
-                  @text " apply this draft"
+                  @i class: "fa fa-fw fa-check-square"
+                  @translate "apply this draft"
 
               @dropdown items: [
-                title : "make changes"
+                title : @cede => @translate "make changes"
                 href  : "#edit-story"
                 icon  : "edit"
                 data  :
@@ -69,8 +69,8 @@ module.exports = new View (data) ->
 
       else if story.isNew 
         @p class: "text-muted", =>
-          @i class: "fa fa-info-sign"
-          @text " Not published yet "
+          @i class: "fa fa-fw fa-info-circle"
+          @translate "Not published yet"
 
       else 
         @markdown story.text
@@ -83,21 +83,21 @@ module.exports = new View (data) ->
               target  : "#story-edit-dialog"
               shortcut: "e"
             =>
-              @i class: "fa fa-edit fa-fixed-width"
-              @text " make changes"
+              @i class: "fa fa-edit fa-fw"
+              @translate "make changes"
 
           @dropdown items: [
-            title : "show drafts"
+            title : @cede => @translate "show drafts"
             href  : "#show-drafts"
-            icon  : "folder-close"
+            icon  : "folder"
             data  :
               toggle  : "modal"
               target  : "#drafts-dialog"
               shortcut: "d"
           ,
-            title : "remove story"
+            title : @cede => @translate "remove story"
             href  : "#remove"
-            icon  : "remove-sign"
+            icon  : "times-circle"
             data  :
               toggle  : "modal"
               target  : "#remove-dialog"
@@ -106,10 +106,10 @@ module.exports = new View (data) ->
 
     unless story.isNew and not draft?
       @modal 
-        title : "Edit story"
+        title : @cede => @translate "Edit story"
         id    : "story-edit-dialog"
         =>
-          @p "Could it be told beter? Make changes if so."
+          @p => @translate "Could it be told beter? Make changes if so."
           @storyForm
             method  : "POST"
             action  : "/stories/#{story._id}/drafts"
@@ -118,8 +118,8 @@ module.exports = new View (data) ->
 
     if draft? or story.isNew
       @h4 class: "text-muted", =>
-        @i class: "fa fa-timev fa-fixed-width"
-        @text "Versions"
+        @i class: "fa fa-timev fa-fw"
+        @translate "Versions"
       @draftsTable
         drafts  : journal.filter (entry) -> entry.action is "draft" 
         applied : story?._draft
@@ -128,7 +128,7 @@ module.exports = new View (data) ->
     
     else
       @modal 
-        title : "Drafts of this story"
+        title : @cede => @translate "Drafts of this story"
         id    : "drafts-dialog"
         =>
           @draftsTable
@@ -138,7 +138,7 @@ module.exports = new View (data) ->
             root    : "/stories/"
 
       @modal 
-        title : "Remove this story?"
+        title : @cede => @translate "Remove this story?"
         id    : "remove-dialog"
         class : "modal-danger"
         =>
@@ -151,22 +151,22 @@ module.exports = new View (data) ->
               @div class: "well", =>
                 @markdown story.text
               
-              @p "Removing a story is roughly equivalent to unpublishing it. It can be undone. All drafts will be preserved."
+              @p => @translate "Removing a story is roughly equivalent to unpublishing it. It can be undone. All drafts will be preserved."
 
               @div class: "form-group", =>
                 @button
                   type  : "submit"
                   class : "btn btn-danger"
                   =>
-                    @i class: "fa fa-remove-sign fa-fixed-width"
-                    @text "Remove!"
+                    @i class: "fa fa-remove-sign fa-fw"
+                    @translate "Remove!"
 
       # The questions
       @div class: "panel panel-primary", =>
         @div class: "panel-heading", =>
           @strong
             class: "panel-title"
-            "Legal questions abstracted from this story"
+            => @translate "Legal questions abstracted from this story"
 
           @div class: "btn-group pull-right", =>
             @button
@@ -177,8 +177,8 @@ module.exports = new View (data) ->
                 target  : "#assignment-list"
                 shortcut: "a q"
               =>
-                @i class: "fa fa-plus-sign"
-                @text " assign"
+                @i class: "fa fa-fw fa-link"
+                @translate "assign"
 
         @div 
           class : "panel-body collapse"
@@ -198,7 +198,7 @@ module.exports = new View (data) ->
                         type        : "text"
                         name        : "query"
                         class       : "form-control"
-                        placeholder : "Type to search for a question to assign..."
+                        placeholder : @cede => @translate "Type to search for a question to assign..."
                         value       : query
                       @div class: "input-group-btn", =>
                         @button
@@ -206,8 +206,8 @@ module.exports = new View (data) ->
                           type    : "submit"
                           disabled: true
                           =>
-                            @i class: "fa fa-search"
-                            @text " Search"
+                            @i class: "fa fa-fw fa-search"
+                            @translate "Search"
 
               @div id: "assign-questions-list", =>
                 @div class: "hide", id: "assign-question-template", =>
@@ -240,8 +240,8 @@ module.exports = new View (data) ->
                     target  : "#new-question-dialog"
                     shortcut: "n q"
                   =>
-                    @i class: "fa fa-star"
-                    @text " Add a brand new question"
+                    @i class: "fa fa-fw fa-star"
+                    @translate "Add a brand new question"
 
               @modal """
                "question-edit-dialog",
@@ -260,10 +260,11 @@ module.exports = new View (data) ->
                   question.text
                 
                 if question.answers.length then @p =>
-                  @text "Answers by: "
+                  @translate "Answers by: "
                   for answer in question.answers
-                    @text answer.author.name + " "
-                else @p class: "text-muted", "No answers yet"
+                    @text answer.author?.name or @cede => @translate "unknown author"
+                    @text " "
+                else @p class: "text-muted", => @translate "No answers yet"
                   
                 @div class: "btn-group", =>
                   @form
@@ -282,8 +283,8 @@ module.exports = new View (data) ->
                         type  : "submit"
                         class : "btn btn-danger btn-xs"
                         =>
-                          @i class: "fa fa-remove"
-                          @text " unasign"
+                          @i class: "fa fa-fw fa-unlink"
+                          @translate "unasign"
 
           else @a
             href: "#assign-question"
@@ -293,14 +294,14 @@ module.exports = new View (data) ->
               target: "#assignment-list"
             =>
               @h4 class: "text-muted", =>
-                @text " No questions abstracted yet. "
+                @translate "No questions abstracted yet. "
               @p class: "text-muted", =>
-                @i class: "fa fa-plus-sign"
-                @text " Do it now!"
+                @i class: "fa fa-fw fa-plus-sign"
+                @translate "Do it now!"
 
       @modal
         id      : "new-question-dialog"
-        title   : "Add new question"
+        title   : @cede => @translate "Add new question"
         =>
           @questionForm
             action  : "/questions/"

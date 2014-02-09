@@ -4,7 +4,7 @@ layout    = require "../layouts/default"
 
 module.exports = new View (data) ->
   
-  data.subtitle = "Legal questions of interest"
+  data.subtitle = @cede => @translate "Legal questions of interest"
 
   {
     query
@@ -23,7 +23,7 @@ module.exports = new View (data) ->
             type        : "text"
             name        : "query"
             class       : "form-control"
-            placeholder : "Type to search or create new..."
+            placeholder : @cede => @translate "Type to search or create new..."
             value       : query
             data        :
               shortcut    : "/"
@@ -32,12 +32,12 @@ module.exports = new View (data) ->
               class : "btn btn-primary"
               type  : "submit"
               =>
-                @i class: "fa fa-search"
-                @text " Search"
+                @i class: "fa fa-fw fa-search"
+                @translate "Search"
 
             @dropdown items: [
-              title : "new question"
-              icon  : "plus-sign"
+              title : @cede => @translate "new question"
+              icon  : "plus-circle"
               data  :
                 toggle  : "modal"
                 target  : "#question-new-dialog"
@@ -55,14 +55,14 @@ module.exports = new View (data) ->
           @div class: "panel-footer", =>
             if question.answers.length 
               @ul class: "list-inline", =>
-                @strong "#{question.answers.length} answers by:"
+                @strong => @translate "%d answers by:", question.answers.length
                 for answer in question.answers
-                  @li => @a href: "/questions/#{question._id}/##{answer._id}", answer.author?.name or "unknown author"
+                  @li => @a href: "/questions/#{question._id}/##{answer._id}", answer.author?.name or @cede => @translate "unknown author"
     
-            else @strong "No answers yet."
+            else @strong => @translate "No answers yet."
         
     @modal 
-      title : "New question"
+      title : @cede => @translate "New question"
       id    : "question-new-dialog"
       =>
         @questionForm
