@@ -1,6 +1,5 @@
 View      = require "teacup-view"
 url       = require "url"
-moment    = require "moment"
 
 module.exports = new View (options = {}) ->
   {
@@ -12,11 +11,12 @@ module.exports = new View (options = {}) ->
 
   type ?= draft.model.toLowerCase()
 
-  timestamp = draft._id.getTimestamp()
   author    = draft.meta.author
 
   @div class: "alert alert-#{if applied then 'success' else 'info'} clearfix", =>      
-    @text "This is a draft proposed #{moment(timestamp).fromNow()} by #{author.name}."
+    @translate "This is a draft proposed %s by %s.",
+      @cede => @moment draft
+      author?.name or @cede => @translate "unknown author"
 
     if applied 
       @text " " + "It is currently applied."
@@ -25,5 +25,5 @@ module.exports = new View (options = {}) ->
       href  : actualurl
       class : "btn btn-default btn-xs pull-right"
       =>
-        @i class: "fa fa-arrow-left"
-        @text " See actual #{type}"
+        @i class: "fa fa-fw fa-arrow-left"
+        @translate "See actual #{type}"

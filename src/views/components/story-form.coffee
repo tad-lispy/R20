@@ -25,13 +25,13 @@ module.exports = new View
           value : method
 
         @div class: "form-group", =>
-          @label for: "text", "What's the story?", class: "sr-only"
+          @label for: "text", class: "sr-only", => @translate "What's the story?"
           @textarea
             name        : "text"
             class       : "form-control"
             rows        : 8
             style       : "resize: none"
-            placeholder : "Give us the facts, we will give you the law..."
+            placeholder : @cede => @translate "Give us the facts, we will give you the law..."
             story?.text
 
         @div class: "form-group", =>
@@ -39,5 +39,5 @@ module.exports = new View
             type        : "submit"
             class       : "btn btn-primary"
             =>
-              @i class: "fa fa-check-sign"
-              @text " Ok"
+              @i class: "fa fa-fw fa-check"
+              @translate  "Ok"

@@ -40,5 +40,6 @@ module.exports = new View (options = {}) ->
               href: "#{item.url}"
               data: shortcut: item.shortcut
               =>
-                @i class: "fa fa-fixed-width fa-#{item.icon}"
-                @text " " + item.title
+                @i class: "fa fa-fw fa-#{item.icon}"
+                @text " "
+                @translate item.title

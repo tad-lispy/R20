@@ -1,4 +1,25 @@
 {
-	"Something happened.": "Coś się stało, ale nie wiemy co.",
-	"%s wrote a draft for a story.": "%s przesłał nowy szkic opisu przypadku."
+	"Something happened.": "Coś się stało, ale nie wiemy co :)",
+	"%s wrote a draft for a story.": "%s przesłał szkic z opisem przypadku.",
+	"%s applied his own draft to a story": "%s opublikował swój szkic z opisem przypdaku",
+	"What's the story?": "Co się stało?",
+	"Give us the facts, we will give you the law...": "Da mihi factum, dabo tibi ius...",
+	"Ok": "Ok",
+	"Start": "Start",
+	"Stories": "Przypadki",
+	"Questions": "Zagadnienia",
+	"Answers": "Odpowiedzi",
+	"About": "O nas",
+	"author": "autor",
+	"time": "czas",
+	"You are about to add a new legal question. Are you sure it's not already there?": "Zamierzasz dodać nowe zagadnienie prawne. Upewnij się proszę, czy już takiego nie mamy.",
+	"Question text:": "Tekst zagadnienia:",
+	"Enter the text of a question...": "Wpisz zagadnienie prawne...",
+	"ok": "ok",
+	"What seems to be the problem?": "W czym możemy pomóc?",
+	"unknown author": "nieznany autor",
+	"This is a draft proposed %s by %s.": "To jest szkic, który %s zaproponował %s.",
+	"See actual answer": "Zobacz obecnie opublikowaną odpowiedź",
+	"What's the correct answer?": "Jaka jest poprawna odpowiedź?",
+	"Here goes some serious legal knowledge...": "Miejsce na twoją jurysprudencję..."
 }

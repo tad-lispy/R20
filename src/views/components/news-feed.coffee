@@ -14,7 +14,7 @@ item      = new View
       url   : "#"
       icons : [ "cogs" ]
       class : "default"
-      body  : @translate "Something happened."
+      body  : => @translate "Something happened."
 
     @a 
       href  : options.url
@@ -63,7 +63,7 @@ module.exports = new View
             when "draft" then item
               icons   : [ "comment-o", "plus" ]
               url     : "/stories/#{entry.data._id}/drafts/#{entry._id}"
-              body    : @translate "%s wrote a draft for a story.",
+              body    : => @translate "%s wrote a draft for a story.",
                 entry.meta?.author?.name
               excerpt : entry.data.text
               time    : do entry._id.getTimestamp
@@ -77,11 +77,14 @@ module.exports = new View
                     icons   : [ "comment-o", "check" ]
                     url     : "/stories/#{applied.data._id}/"
                     body    : =>
-                      whose = if applied.meta.author._id.equals entry.meta.author._id
-                        "his own draft"
-                      else
-                        " a draft by #{applied.meta.author.name}"
-                      @p "#{entry.meta?.author?.name} applied #{whose} to a story"
+                      @p => 
+                        if applied.meta.author._id.equals entry.meta.author._id
+                          @translate "%s applied his own draft to a story",
+                            entry.meta?.author?.name
+                        else
+                          @translate "%s applied a draft by %s to a story",
+                            entry.meta?.author?.name
+                            applied.meta.author.name
                     excerpt : applied.data.text
                     time    : do entry._id.getTimestamp
                     class   : "success"

@@ -12,7 +12,7 @@ module.exports = new View (attributes) ->
         @input
           type        : "query"
           class       : "form-control"
-          placeholder : "What seems to be the problem?"
+          placeholder : @cede => @translate "What seems to be the problem?"
           name        : "query"
           value       : query
           data        :

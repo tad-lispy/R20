@@ -1,5 +1,4 @@
 View      = require "teacup-view"
-moment    = require "moment"
 _         = require "lodash"
 debug     = require "debug"
 
@@ -16,8 +15,8 @@ module.exports = new View (options) ->
   @table class: "table table-hover table-condensed table-striped", =>
     @tr =>
       @th => @span class: "sr-only", "state"
-      @th "author"
-      @th "time"
+      @th => @translate "author"
+      @th => @translate "time"
 
     for draft in drafts
       isChosen  = chosen?   and draft._id.equals chosen   
@@ -27,7 +26,7 @@ module.exports = new View (options) ->
       else                    icon = "circle-o"
       
       url     = root + draft.data._id + "/drafts/" + draft._id
-      time    = moment(draft._id.getTimestamp()).fromNow()
+      time    = @cede => @moment draft
       author  = draft.meta.author
 
       @tr class: (if isChosen then "active" else if isApplied then "success"), =>
@@ -42,8 +41,8 @@ module.exports = new View (options) ->
         @td =>
           if not isChosen then @a
             href: url
-            author?.name or "unknown author"
-          else @strong author?.name or "unknown author"
+            author?.name or @cede => @translate "unknown author"
+          else @strong author?.name or @cede => @translate "unknown author"
 
         @td =>
           if not isChosen then @a

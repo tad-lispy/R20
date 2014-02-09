@@ -11,9 +11,9 @@ module.exports = new View
     } = options
     
     if method is "PUT"
-      @p "Doesn't suit your legal taste? Please make adjustments as you see fit."
+      @p => @translate "Doesn't suit your legal taste? Please make adjustments as you see fit."
     else
-      @p "You are about to add a new legal question. Are you sure it's not already there?"
+      @p => @translate "You are about to add a new legal question. Are you sure it's not already there?"
 
 
     @form
@@ -30,16 +30,16 @@ module.exports = new View
           value : method
 
         @div class: "form-group", =>
-          @label for: "text", class: "sr-only", "Question text:"
+          @label for: "text", class: "sr-only", => @translate "Question text:"
           @div class: "input-group", =>
             @input
               type        : "text"
               name        : "text"
               class       : "form-control"
               value       : question?.text
-              placeholder : "Enter the text of a question..."
+              placeholder : @cede => @translate "Enter the text of a question..."
             @div class: "input-group-btn", =>
               @button
                 type        : "submit"
                 class       : "btn btn-primary"
-                "ok"
+                => @translate "ok"
