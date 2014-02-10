@@ -69,5 +69,7 @@
 	"See actual question": "Zobacz opublikowaną wersję",
 	"No answers yet": "Nie ma jeszcze odpowiedzi",
 	"unasign": "usuń dowiązanie",
-	"Add new question": "Dodaj nowe zagadnienie"
+	"Add new question": "Dodaj nowe zagadnienie",
+	"Log in": "Log in",
+	"Log out": "Log out"
 }

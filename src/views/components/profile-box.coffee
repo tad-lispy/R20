@@ -16,12 +16,18 @@ module.exports = new View (options = {}) ->
         @h6 participant.roles.join ", "
         unless _fake_login
           @ul class: "nav nav-pills nav-stacked", =>
-            @li => @a href: "#!/logout", title: @cede => @translate "Log out", =>
-              @i class: "fa fa-fw fa-power-off"
-              @translate  "Log out"
+            @li => @a
+              href: "#!/logout"
+              title: @cede => @translate "Log out"
+              =>
+                @i class: "fa fa-fw fa-power-off"
+                @translate "Log out"
       else 
         unless _fake_login 
           @ul class: "nav nav-pills nav-stacked", =>
-            @li => @a href: "#!/authenticate", title: @cede => @translate "Log in", =>
-              @i class: "fa fa-fw fa-ok-circle"
-              @translate  "Log in"
+            @li => @a
+              href: "#!/authenticate"
+              title: @cede => @translate "Log in"
+              =>
+                @i class: "fa fa-fw fa-check-circle"
+                @translate  "Log in"
