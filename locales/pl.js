@@ -71,5 +71,6 @@
 	"unasign": "usuń dowiązanie",
 	"Add new question": "Dodaj nowe zagadnienie",
 	"Log in": "Log in",
-	"Log out": "Log out"
+	"Log out": "Log out",
+	"%s published his own question": "%s published his own question"
 }

@@ -15,28 +15,31 @@ item      = new View
       icons : [ "cogs" ]
       class : "default"
       body  : => @translate "Something happened."
+      footer: if options.time? then moment(options.time).fromNow() else ""
 
-    @a 
-      href  : options.url
-      class : "list-group-item"
-      =>
-        @div class: "media", =>
+    @div class: "panel panel-default", => 
+      @a 
+        href  : options.url
+        class: "panel-body list-group-item", =>
+        =>
+          @div class: "media", =>
+            
+            @div class: "pull-left text-" + options.class, =>
+              @span class: "media-object fa-stack fa-lg", =>
+                @i class: "fa fa-stack-2x fa-" + options.icons[0]
+                @i class: "fa fa-stack-1x fa-" + options.icons[1] if options.icons[1]?
+            
+            @div class: "media-body", =>
+              if typeof options.body is "function" then do options.body
+              else @p options.body
+                
+              if options.excerpt? 
+                if typeof options.excerpt is "function" then do options.excerpt
+                else @div class: "excerpt", =>
+                  @strong _.string.stripTags @render => @markdown options.excerpt
           
-          @div class: "pull-left text-" + options.class, =>
-            @span class: "media-object fa-stack fa-lg", =>
-              @i class: "fa fa-stack-2x fa-" + options.icons[0]
-              @i class: "fa fa-stack-1x fa-" + options.icons[1] if options.icons[1]?
-          
-          @div class: "media-body", =>
-            if typeof options.body is "function" then do options.body
-            else @p options.body
-              
-            if options.excerpt? 
-              if typeof options.excerpt is "function" then do options.excerpt
-              else @div class: "excerpt", =>
-                @strong _.string.stripTags @render => @markdown options.excerpt
-        
-            @p class: "text-right", => @small moment(options.time).fromNow()
+          @p class: "text-right", => 
+            @small options.footer
 
 module.exports = new View
   components: __dirname
@@ -49,7 +52,7 @@ module.exports = new View
       entries
     } = options
 
-    @div class: "list-group news-feed", =>
+    @div class: "news-feed", =>
       for entry in entries
 
         switch entry.model 
@@ -60,14 +63,14 @@ module.exports = new View
 
           when "Story" then switch entry.action
           
-            when "draft" then item
-              icons   : [ "comment-o", "plus" ]
-              url     : "/stories/#{entry.data._id}/drafts/#{entry._id}"
-              body    : => @translate "%s wrote a draft for a story.",
-                entry.meta?.author?.name
-              excerpt : entry.data.text
-              time    : do entry._id.getTimestamp
-              class   : "info"
+            # when "draft" then item
+            #   icons   : [ "comment-o", "plus" ]
+            #   url     : "/stories/#{entry.data._id}/drafts/#{entry._id}"
+            #   body    : => @translate "%s wrote a draft for a story.",
+            #     entry.meta?.author?.name
+            #   excerpt : entry.data.text
+            #   time    : do entry._id.getTimestamp
+            #   class   : "info"
         
             when "apply" 
               applied = entry.data._entry
@@ -92,10 +95,10 @@ module.exports = new View
                   item
                     icons   : [ "link" ]
                     url     : "/stories/#{applied.data.main?._id or applied.populated "data.main"}/"
-                    body    : "#{entry.meta?.author?.name} applied a question reference to a story."
-                    excerpt : =>
+                    footer  : "#{entry.meta?.author?.name} applied a question reference to a story."
+                    body    : =>
                       @div class: "excerpt", =>
-                        @strong "S: " 
+                        @i class: "fa fa-fw text-muted fa-comment" 
                         @em _.string.stripTags @render =>
                           @markdown applied.data.main?.text or "UNPUBLISHED"
                       @div
@@ -105,80 +108,78 @@ module.exports = new View
                           overflow: hidden;
                         """
                         =>
-                          @strong "Q: " + _.string.stripTags @render =>
+                          @i class: "fa fa-fw text-muted fa-question-circle" 
+                          @strong _.string.stripTags @render =>
                             @markdown applied.data.referenced?.text or "UNPUBLISHED"
                     time    : do entry._id.getTimestamp
-                    class   : "success"
+                    class   : "info"
 
-                when "unreference"                   
-                  item
-                    icons   : [ "unlink" ]
-                    url     : "/stories/#{applied.data.main?._id or applied.populated "data.main"}/"
-                    body    : "#{applied.meta?.author?.name} removed a question from a story."
-                    excerpt : =>
-                      @div
-                        style: """          
-                          text-overflow: ellipsis;
-                          white-space: nowrap;
-                          overflow: hidden;
-                        """
-                        =>
-                          @strong "S: " 
-                          @em _.string.stripTags @render =>
-                            @markdown applied.data.main?.text or "UNPUBLISHED"
-                      @div
-                        style: """          
-                          text-overflow: ellipsis;
-                          white-space: nowrap;
-                          overflow: hidden;
-                        """
-                        =>
-                          @strong "Q: "
-                          @strong style: "text-decoration: line-through",
-                            _.string.stripTags @render =>
-                              @markdown applied.data.referenced?.text or "UNPUBLISHED"
-                    time    : do entry._id.getTimestamp
-                    class   : "danger"
+                # when "unreference"                   
+                #   item
+                #     icons   : [ "unlink" ]
+                #     url     : "/stories/#{applied.data.main?._id or applied.populated "data.main"}/"
+                #     footer  : "#{applied.meta?.author?.name} removed a question from a story."
+                #     body    : =>
+                #       @div class: "excerpt", =>
+                #         @i class: "fa fa-fw text-muted fa-comment" 
+                #         @em _.string.stripTags @render =>
+                #           @markdown applied.data.main?.text or "UNPUBLISHED"
+                #       @div
+                #         style: """          
+                #           text-overflow: ellipsis;
+                #           white-space: nowrap;
+                #           overflow: hidden;
+                #         """
+                #         =>
+                #           @i class: "fa fa-fw text-muted fa-question-circle" 
+                #           @strong _.string.stripTags @render =>
+                #             @markdown applied.data.referenced?.text or "UNPUBLISHED"
+                #     time    : do entry._id.getTimestamp
+                #     class   : "danger"
 
                     
-            when "remove" then item
-              icons   : [ "comment-o", "times" ]
-              url     : "/stories/#{entry.data._id}/"
-              body    : "#{entry.meta?.author?.name} removed a story."
-              excerpt : entry.data.text
-              time    : do entry._id.getTimestamp
-              class   : "danger"
+            # when "remove" then item
+            #   icons   : [ "comment-o", "times" ]
+            #   url     : "/stories/#{entry.data._id}/"
+            #   body    : "#{entry.meta?.author?.name} removed a story."
+            #   excerpt : entry.data.text
+            #   time    : do entry._id.getTimestamp
+            #   class   : "danger"
 
-            # Don't show that ATM - references are auto - applied. Info about applience is sufficient.
-            when "reference"    then @text ""
-            when "unreference"  then @text "" 
+            # # Don't show that ATM - references are auto - applied. Info about applience is sufficient.
+            # when "reference"    then @text ""
+            # when "unreference"  then @text "" 
 
           # Questions related entries
           # -------------------------
 
           when "Question" then switch entry.action
 
-            when "draft" then item
-              icons   : [ "question-circle" ]
-              url     : "/questions/#{entry.data._id}/drafts/#{entry._id}"
-              body    : "#{entry.meta?.author?.name} wrote a new draft for a question."
-              excerpt : entry.data.text
-              time    : do entry._id.getTimestamp
-              class   : "info"
+            # when "draft" then item
+            #   icons   : [ "question-circle" ]
+            #   url     : "/questions/#{entry.data._id}/drafts/#{entry._id}"
+            #   body    : "#{entry.meta?.author?.name} wrote a new draft for a question."
+            #   excerpt : entry.data.text
+            #   time    : do entry._id.getTimestamp
+            #   class   : "info"
             
             when "apply" 
               applied = entry.data._entry
               item 
-                icons   : [ "question-circle" ]
+                icons   : [ "plus-circle" ]
                 url     : "/questions/#{applied.data._id}/"
-                body    : =>
-                  whose = if applied.meta.author._id.equals entry.meta.author._id
-                    "his own draft"
+                footer  : @cede =>
+                  if applied.meta.author._id.equals entry.meta.author._id
+                    @translate "%s published his own question",
+                      applied.meta.author.name
                   else
-                    " a draft by #{applied.meta.author.name}"
+                    @translate "%s approved a draft of a question by %s",
+                      entry.meta.author.name,
+                      applied.meta.author.name
                     
-                  @p "#{entry.meta?.author?.name} applied #{whose} to a question"
-                excerpt : applied.data.text
+                body    : =>
+                  @i class: "fa fa-fw text-muted fa-question-circle" 
+                  @strong applied.data.text
                 time    : do entry._id.getTimestamp
                 class   : "success"
                     
@@ -260,6 +261,7 @@ module.exports = new View
                 url     : "/questions/#{entry.data.question?._id}##{entry.data._id}"
                 time    : do entry._id.getTimestamp
 
+          # TODO: only in debug
           else item
             time    : do entry._id.getTimestamp
 
