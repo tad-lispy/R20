@@ -70,7 +70,9 @@
 	"No answers yet": "Nie ma jeszcze odpowiedzi",
 	"unasign": "usuń dowiązanie",
 	"Add new question": "Dodaj nowe zagadnienie",
-	"Log in": "Log in",
-	"Log out": "Log out",
-	"%s published his own question": "%s published his own question"
+	"Log in": "Zaloguj się",
+	"Log out": "Wyloguj się",
+	"%s published his own question": "%s opublikował swoje pytanie",
+	"%s published his own answer": "%s opublikował swoją odpowiedź",
+	"Answers by: ": "Odpowiedzi udzielili: "
 }

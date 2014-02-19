@@ -56,22 +56,11 @@ module.exports = new View
       for entry in entries
 
         switch entry.model 
-          # TODO: OMG DRY!
-          
           # Stories related entries
           # -----------------------
 
           when "Story" then switch entry.action
           
-            # when "draft" then item
-            #   icons   : [ "comment-o", "plus" ]
-            #   url     : "/stories/#{entry.data._id}/drafts/#{entry._id}"
-            #   body    : => @translate "%s wrote a draft for a story.",
-            #     entry.meta?.author?.name
-            #   excerpt : entry.data.text
-            #   time    : do entry._id.getTimestamp
-            #   class   : "info"
-        
             when "apply" 
               applied = entry.data._entry
               switch applied.action
@@ -114,55 +103,12 @@ module.exports = new View
                     time    : do entry._id.getTimestamp
                     class   : "info"
 
-                # when "unreference"                   
-                #   item
-                #     icons   : [ "unlink" ]
-                #     url     : "/stories/#{applied.data.main?._id or applied.populated "data.main"}/"
-                #     footer  : "#{applied.meta?.author?.name} removed a question from a story."
-                #     body    : =>
-                #       @div class: "excerpt", =>
-                #         @i class: "fa fa-fw text-muted fa-comment" 
-                #         @em _.string.stripTags @render =>
-                #           @markdown applied.data.main?.text or "UNPUBLISHED"
-                #       @div
-                #         style: """          
-                #           text-overflow: ellipsis;
-                #           white-space: nowrap;
-                #           overflow: hidden;
-                #         """
-                #         =>
-                #           @i class: "fa fa-fw text-muted fa-question-circle" 
-                #           @strong _.string.stripTags @render =>
-                #             @markdown applied.data.referenced?.text or "UNPUBLISHED"
-                #     time    : do entry._id.getTimestamp
-                #     class   : "danger"
-
-                    
-            # when "remove" then item
-            #   icons   : [ "comment-o", "times" ]
-            #   url     : "/stories/#{entry.data._id}/"
-            #   body    : "#{entry.meta?.author?.name} removed a story."
-            #   excerpt : entry.data.text
-            #   time    : do entry._id.getTimestamp
-            #   class   : "danger"
-
-            # # Don't show that ATM - references are auto - applied. Info about applience is sufficient.
-            # when "reference"    then @text ""
-            # when "unreference"  then @text "" 
 
           # Questions related entries
           # -------------------------
 
           when "Question" then switch entry.action
 
-            # when "draft" then item
-            #   icons   : [ "question-circle" ]
-            #   url     : "/questions/#{entry.data._id}/drafts/#{entry._id}"
-            #   body    : "#{entry.meta?.author?.name} wrote a new draft for a question."
-            #   excerpt : entry.data.text
-            #   time    : do entry._id.getTimestamp
-            #   class   : "info"
-            
             when "apply" 
               applied = entry.data._entry
               item 
@@ -191,11 +137,6 @@ module.exports = new View
               time    : do entry._id.getTimestamp
               class   : "danger"
             
-            else item
-              body    : "Something (#{entry.action}) happened to a question"
-              url     : "/questions/#{entry.data._id}"
-              time    : do entry._id.getTimestamp
-
           
           # Answers related entries
           # -------------------------
@@ -203,39 +144,40 @@ module.exports = new View
           when "Answer" 
             switch entry.action
 
-              when "draft"
-                if not entry.data.question
-                  $ "Question (#{entry.populated "data.question"}) was apparently removed"
-                  continue
-
-                item
-                  icons   : [ "puzzle-piece" ]
-                  url     : "/questions/#{entry.data.question._id}/" +
-                    "answers/#{entry.data._id}/" +
-                    "drafts/#{entry._id}"
-                  body    : "#{entry.meta?.author?.name} wrote a new draft for an answer."
-                  excerpt : entry.data.question.text
-                  time    : do entry._id.getTimestamp
-                  class   : "info"
-                
               when "apply" 
+                $ "Answer applied"
                 applied   = entry.data._entry
                 if not applied.data.question
                   $ "Question (#{applied.populated "data.question"}) was apparently removed"
                   continue
 
                 item 
-                  icons   : [ "puzzle-piece" ]
+                  icons   : [ "plus-circle" ]
                   url     : "/questions/#{applied.data.question?._id}##{applied.data._id}/"
                   body    : =>
-                    whose = if applied.meta.author._id.equals entry.meta.author._id
-                      "his own draft"
+                    @p =>
+                      @i class: "fa fa-fw text-muted fa-question-circle" 
+                      @strong applied.data.question.text
+                    @p
+                      style: """          
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                        overflow: hidden;
+                      """
+                      =>
+                        @i class: "fa fa-fw text-muted fa-puzzle-piece" 
+                        
+                        @em _.string.stripTags @render =>
+                          @markdown applied.data.text
+
+                  footer  : @cede =>
+                    if applied.meta.author._id.equals entry.meta.author._id
+                      @translate "%s published his own answer",
+                        applied.meta.author.name
                     else
-                      " a draft by #{applied.meta.author.name}"
-                      
-                    @p "#{entry.meta?.author?.name} applied #{whose} to an answer"
-                  excerpt : applied.data.question.text
-                  time    : do entry._id.getTimestamp
+                      @translate "%s approved a draft of an answer by %s",
+                        entry.meta.author.name,
+                        applied.meta.author.name
                   class   : "success"
 
                       
@@ -256,12 +198,9 @@ module.exports = new View
                   time    : do entry._id.getTimestamp
                   class   : "danger"
               
-              else item
-                body    : "Something (#{entry.action}) happened to an answer"
-                url     : "/questions/#{entry.data.question?._id}##{entry.data._id}"
-                time    : do entry._id.getTimestamp
 
           # TODO: only in debug
-          else item
-            time    : do entry._id.getTimestamp
+          else 
+            if process.env.NODE_ENV is "development" then item
+              time    : do entry._id.getTimestamp
 
