@@ -294,9 +294,9 @@ module.exports = new View (data) ->
               target: "#assignment-list"
             =>
               @h4 class: "text-muted", =>
-                @translate "No questions abstracted yet. "
+                @translate "No questions abstracted yet."
               @p class: "text-muted", =>
-                @i class: "fa fa-fw fa-plus-sign"
+                @i class: "fa fa-fw fa-plus-circle"
                 @translate "Do it now!"
 
       @modal

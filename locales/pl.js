@@ -74,5 +74,13 @@
 	"Log out": "Wyloguj się",
 	"%s published his own question": "%s opublikował swoje pytanie",
 	"%s published his own answer": "%s opublikował swoją odpowiedź",
-	"Answers by: ": "Odpowiedzi udzielili: "
+	"Answers by: ": "Odpowiedzi udzielili: ",
+	"Type to search for story...": "Wpisz, czego szukasz...",
+	"new story": "nowy opis przypadku",
+	"No questions abstracted yet.": "Jeszcze nie wyciągnięto zagadnień.",
+	"New story": "Nowy opis przypdaku",
+	"Please tell us your story.": "Opowiedz nam o swoim przypadku.",
+	"Do it now!": "Pomóż nam!",
+	"%s applied a question reference to a story.": "%s przypisał pytanie do opisu przypadku.",
+	"%s applied a draft by %s to a story": "%s opublikował propozycję opisu przypadku, której autorem jest %s"
 }

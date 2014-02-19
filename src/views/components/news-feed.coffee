@@ -25,7 +25,7 @@ item      = new View
           @div class: "media", =>
             
             @div class: "pull-left text-" + options.class, =>
-              @span class: "media-object fa-stack fa-lg", =>
+              @span class: "media-object fa-stack fa-2x", =>
                 @i class: "fa fa-stack-2x fa-" + options.icons[0]
                 @i class: "fa fa-stack-1x fa-" + options.icons[1] if options.icons[1]?
             
@@ -66,10 +66,9 @@ module.exports = new View
               switch applied.action
                 when "draft"
                   item 
-                    icons   : [ "comment-o", "check" ]
+                    icons   : [ "plus" ]
                     url     : "/stories/#{applied.data._id}/"
-                    body    : =>
-                      @p => 
+                    footer  : @cede => 
                         if applied.meta.author._id.equals entry.meta.author._id
                           @translate "%s applied his own draft to a story",
                             entry.meta?.author?.name
@@ -77,20 +76,24 @@ module.exports = new View
                           @translate "%s applied a draft by %s to a story",
                             entry.meta?.author?.name
                             applied.meta.author.name
-                    excerpt : applied.data.text
-                    time    : do entry._id.getTimestamp
+                    body    : =>
+                     @p class: "excerpt", =>
+                       @i class: "fa fa-fw text-muted fa-comment" 
+                       @em _.string.stripTags @render =>
+                         @markdown applied.data.text or "UNPUBLISHED"
                     class   : "success"
                 when "reference"
                   item
                     icons   : [ "link" ]
                     url     : "/stories/#{applied.data.main?._id or applied.populated "data.main"}/"
-                    footer  : "#{entry.meta?.author?.name} applied a question reference to a story."
+                    footer  : @cede => @translate "%s applied a question reference to a story.",
+                      entry.meta?.author?.name
                     body    : =>
-                      @div class: "excerpt", =>
+                      @p class: "excerpt", =>
                         @i class: "fa fa-fw text-muted fa-comment" 
                         @em _.string.stripTags @render =>
                           @markdown applied.data.main?.text or "UNPUBLISHED"
-                      @div
+                      @p
                         style: """          
                           text-overflow: ellipsis;
                           white-space: nowrap;
@@ -112,7 +115,7 @@ module.exports = new View
             when "apply" 
               applied = entry.data._entry
               item 
-                icons   : [ "plus-circle" ]
+                icons   : [ "plus" ]
                 url     : "/questions/#{applied.data._id}/"
                 footer  : @cede =>
                   if applied.meta.author._id.equals entry.meta.author._id
@@ -152,7 +155,7 @@ module.exports = new View
                   continue
 
                 item 
-                  icons   : [ "plus-circle" ]
+                  icons   : [ "plus" ]
                   url     : "/questions/#{applied.data.question?._id}##{applied.data._id}/"
                   body    : =>
                     @p =>
