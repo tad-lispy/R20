@@ -53,6 +53,11 @@ module.exports = new View
     } = options
 
     @div class: "news-feed", =>
+      mentioned =
+        stories   : []
+        questions : []
+        answers   : []
+
       for entry in entries
 
         switch entry.model 
@@ -63,8 +68,12 @@ module.exports = new View
           
             when "apply" 
               applied = entry.data._entry
+
               switch applied.action
                 when "draft"
+                  if applied.data._id.toHexString() in mentioned.stories then continue
+                  else mentioned.stories.push applied.data._id.toHexString()
+
                   item 
                     icons   : [ "plus" ]
                     url     : "/stories/#{applied.data._id}/"
@@ -114,6 +123,9 @@ module.exports = new View
 
             when "apply" 
               applied = entry.data._entry
+              if applied.data._id.toHexString() in mentioned.questions then continue
+              else mentioned.questions.push applied.data._id.toHexString()
+
               item 
                 icons   : [ "plus" ]
                 url     : "/questions/#{applied.data._id}/"
@@ -132,15 +144,6 @@ module.exports = new View
                 time    : do entry._id.getTimestamp
                 class   : "success"
                     
-            when "remove" then item
-              icons   : [ "question-circle" ]
-              url     : "/questions/#{entry.data._id}/"
-              body    : "#{entry.meta?.author?.name} removed a question."
-              excerpt : entry.data.text
-              time    : do entry._id.getTimestamp
-              class   : "danger"
-            
-          
           # Answers related entries
           # -------------------------
 
@@ -148,8 +151,10 @@ module.exports = new View
             switch entry.action
 
               when "apply" 
-                $ "Answer applied"
                 applied   = entry.data._entry
+                if applied.data._id.toHexString() in mentioned.answers then continue
+                else mentioned.answers.push applied.data._id.toHexString()
+
                 if not applied.data.question
                   $ "Question (#{applied.populated "data.question"}) was apparently removed"
                   continue
@@ -184,24 +189,6 @@ module.exports = new View
                   class   : "success"
 
                       
-              when "remove"
-                if not entry.data.question
-                  $ "Question (#{entry.populated "data.question"}) was apparently removed"
-                  continue
-
-                if not entry.data.author
-                  $ "Author (participant #{entry.populated "data.author"}) was apparently removed"
-                  continue
-
-                item
-                  icons   : [ "puzzle-piece" ]
-                  url     : "/questions/#{entry.data.question}/answers/#{entry.data._id}"
-                  body    : "#{entry.meta?.author?.name} removed an answer" # TODO: by #{entry.data.author}
-                  excerpt : entry.data.text
-                  time    : do entry._id.getTimestamp
-                  class   : "danger"
-              
-
           # TODO: only in debug
           else 
             if process.env.NODE_ENV is "development" then item
