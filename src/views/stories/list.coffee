@@ -17,6 +17,7 @@ module.exports = new View (data) ->
   
   layout data, =>
 
+    # FORMULARZ WYSZUKIWANIA HISTORYJEK
     @form
       method: "GET"
       class : "form"
@@ -48,6 +49,7 @@ module.exports = new View (data) ->
 
     do @hr
 
+    # WYŚWIETLANIE HISTORYJEK
     if stories.length # then @div class: "list-group", =>
       for story in stories
         @div class: "panel panel-default", =>
@@ -72,4 +74,3 @@ module.exports = new View (data) ->
           method  : "POST"
           action  : "/stories/"
           csrf    : csrf
-
