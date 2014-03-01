@@ -29,7 +29,7 @@
     "i18n-2": "~0.4.6"
   },
   "devDependencies": {
-    "coffee-script": "~1.6.3",
+    "coffee-script": "^1.7.1",
     "mocha": "~1.16.2",
     "should": "~2.1.1"
   }
