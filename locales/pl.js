@@ -82,5 +82,6 @@
 	"Please tell us your story.": "Opowiedz nam o swoim przypadku.",
 	"Do it now!": "Pomóż nam!",
 	"%s applied a question reference to a story.": "%s przypisał pytanie do opisu przypadku.",
-	"%s applied a draft by %s to a story": "%s opublikował propozycję opisu przypadku, której autorem jest %s"
+	"%s applied a draft by %s to a story": "%s opublikował propozycję opisu przypadku, której autorem jest %s",
+	"Nothing like that found. Sorry :P": "Nothing like that found. Sorry :P"
 }

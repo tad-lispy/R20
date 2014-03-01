@@ -12,6 +12,7 @@ module.exports = new View (data) ->
     csrf
     query
     journal
+    participant
   } = data
   data.classes  ?=                []
   data.classes.push               "story"
@@ -74,35 +75,41 @@ module.exports = new View (data) ->
 
       else 
         @markdown story.text
+        if participant?
+          # TO ODPOWIADA ZA PRZYCISKI: 
+          # ZAPROPONUJ POPRAWKI
+          # DODAJ POPRAWKI
+          # ZAPISZ SZKIC
+          @div class: "clearfix", => @div class: "btn-group pull-right", =>
+            @button
+              class: "btn btn-default"
+              data:
+                toggle  : "modal"
+                target  : "#story-edit-dialog"
+                shortcut: "e"
+              =>
+                @i class: "fa fa-edit fa-fw"
+                @translate "make changes"
 
-        @div class: "clearfix", => @div class: "btn-group pull-right", =>
-          @button
-            class: "btn btn-default"
-            data:
-              toggle  : "modal"
-              target  : "#story-edit-dialog"
-              shortcut: "e"
-            =>
-              @i class: "fa fa-edit fa-fw"
-              @translate "make changes"
-
-          @dropdown items: [
-            title : @cede => @translate "show drafts"
-            href  : "#show-drafts"
-            icon  : "folder"
-            data  :
-              toggle  : "modal"
-              target  : "#drafts-dialog"
-              shortcut: "d"
-          ,
-            title : @cede => @translate "remove story"
-            href  : "#remove"
-            icon  : "times-circle"
-            data  :
-              toggle  : "modal"
-              target  : "#remove-dialog"
-              shortcut: "del enter"
-          ]
+            @dropdown items: [
+              title : @cede => @translate "show drafts"
+              href  : "#show-drafts"
+              icon  : "folder"
+              data  :
+                toggle  : "modal"
+                target  : "#drafts-dialog"
+                shortcut: "d"
+            ,
+              title : @cede => @translate "remove story"
+              href  : "#remove"
+              icon  : "times-circle"
+              data  :
+                toggle  : "modal"
+                target  : "#remove-dialog"
+                shortcut: "del enter"
+            ]
+            # TU SIĘ KOŃCZĄ PRZYCISKI
+         
 
     unless story.isNew and not draft?
       @modal 
