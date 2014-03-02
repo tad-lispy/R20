@@ -10,6 +10,7 @@ module.exports = new View (data) ->
     draft
     csrf
     journal
+    participant
   } = data
 
   data.classes ?= []
@@ -88,23 +89,24 @@ module.exports = new View (data) ->
             => 
               @i class: "fa fa-arrow-left fa-fw"
               @translate "Back to question"
-          @dropdown items: [
-            title : @cede => @translate "make changes"
-            href  : "#edit"
-            icon  : "edit"
-            data  :
-              toggle  : "modal"
-              target  : "#answer-edit-dialog"
-              shortcut: "e"
-          ,
-            title : @cede => @translate "remove answer"
-            href  : "#remove"
-            icon  : "times-circle"
-            data  :
-              toggle  : "modal"
-              target  : "#remove-dialog"
-              shortcut: "del enter"
-          ]
+          if participant?          
+            @dropdown items: [
+              title : @cede => @translate "make changes"
+              href  : "#edit"
+              icon  : "edit"
+              data  :
+                toggle  : "modal"
+                target  : "#answer-edit-dialog"
+                shortcut: "e"
+            ,
+              title : @cede => @translate "remove answer"
+              href  : "#remove"
+              icon  : "times-circle"
+              data  :
+                toggle  : "modal"
+                target  : "#remove-dialog"
+                shortcut: "del enter"
+            ]
         
     unless answer.isNew and not draft?
       @modal 

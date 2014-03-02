@@ -52,7 +52,11 @@ module.exports = new View (data) ->
         @div class: "panel panel-default", =>
           @a href: "/questions/#{question._id}", class: "panel-body list-group-item lead", =>
             @markdown question.text
-          @div class: "panel-footer", =>
+          
+          # PONIŻEJ BYŁO:
+          # @div class: "panel-footer"
+          # TO TAK DLA BEZPIECZEŃSTWA - JAKBY COŚ NIE ZADZIAŁAŁO          
+          @div class: "text-right", =>
             if question.answers.length 
               @ul class: "list-inline", =>
                 @strong => @translate "%d answers by:", question.answers.length

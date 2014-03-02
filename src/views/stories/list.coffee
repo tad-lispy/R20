@@ -17,6 +17,7 @@ module.exports = new View (data) ->
   
   layout data, =>
 
+    # FORMULARZ WYSZUKIWANIA HISTORYJEK
     @form
       method: "GET"
       class : "form"
@@ -48,12 +49,16 @@ module.exports = new View (data) ->
 
     do @hr
 
+    # WYŚWIETLANIE HISTORYJEK
     if stories.length # then @div class: "list-group", =>
       for story in stories
         @div class: "panel panel-default", =>
           @a href: "/stories/#{story._id}", class: "panel-body list-group-item lead", =>
             @markdown story.text
-          @div class: "panel-footer", =>
+          # PONIŻEJ BYŁO:
+          # @div class: "panel-footer"
+          # TO TAK DLA BEZPIECZEŃSTWA - JAKBY COŚ NIE ZADZIAŁAŁO
+          @div class: "text-right", => 
             if story.questions.length 
               @ul class: "list-inline", =>
                 @strong "%d legal questions:", story.questions.length
@@ -72,4 +77,3 @@ module.exports = new View (data) ->
           method  : "POST"
           action  : "/stories/"
           csrf    : csrf
-

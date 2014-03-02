@@ -12,6 +12,7 @@ module.exports = new View (data) ->
     csrf
     query
     journal
+    participant
   } = data
   data.classes  ?=                []
   data.classes.push               "story"
@@ -74,35 +75,41 @@ module.exports = new View (data) ->
 
       else 
         @markdown story.text
+        if participant?
+          # TO ODPOWIADA ZA PRZYCISKI: 
+          # ZAPROPONUJ POPRAWKI
+          # DODAJ POPRAWKI
+          # ZAPISZ SZKIC
+          @div class: "clearfix", => @div class: "btn-group pull-right", =>
+            @button
+              class: "btn btn-default"
+              data:
+                toggle  : "modal"
+                target  : "#story-edit-dialog"
+                shortcut: "e"
+              =>
+                @i class: "fa fa-edit fa-fw"
+                @translate "make changes"
 
-        @div class: "clearfix", => @div class: "btn-group pull-right", =>
-          @button
-            class: "btn btn-default"
-            data:
-              toggle  : "modal"
-              target  : "#story-edit-dialog"
-              shortcut: "e"
-            =>
-              @i class: "fa fa-edit fa-fw"
-              @translate "make changes"
-
-          @dropdown items: [
-            title : @cede => @translate "show drafts"
-            href  : "#show-drafts"
-            icon  : "folder"
-            data  :
-              toggle  : "modal"
-              target  : "#drafts-dialog"
-              shortcut: "d"
-          ,
-            title : @cede => @translate "remove story"
-            href  : "#remove"
-            icon  : "times-circle"
-            data  :
-              toggle  : "modal"
-              target  : "#remove-dialog"
-              shortcut: "del enter"
-          ]
+            @dropdown items: [
+              title : @cede => @translate "show drafts"
+              href  : "#show-drafts"
+              icon  : "folder"
+              data  :
+                toggle  : "modal"
+                target  : "#drafts-dialog"
+                shortcut: "d"
+            ,
+              title : @cede => @translate "remove story"
+              href  : "#remove"
+              icon  : "times-circle"
+              data  :
+                toggle  : "modal"
+                target  : "#remove-dialog"
+                shortcut: "del enter"
+            ]
+            # TU SIĘ KOŃCZĄ PRZYCISKI
+         
 
     unless story.isNew and not draft?
       @modal 
@@ -167,20 +174,23 @@ module.exports = new View (data) ->
           @strong
             class: "panel-title"
             => @translate "Legal questions abstracted from this story"
+          
+          # PRZYCISK POWIĄŻ
+          if participant? 
+            @div class: "btn-group pull-right", =>
+              @button
+                type  : "button"
+                class : "btn btn-default btn-xs"
+                data  :
+                  toggle  : "collapse"
+                  target  : "#assignment-list"
+                  shortcut: "a q"
+                =>
+                  @i class: "fa fa-fw fa-link"
+                  @translate "assign"
 
-          @div class: "btn-group pull-right", =>
-            @button
-              type  : "button"
-              class : "btn btn-default btn-xs"
-              data  :
-                toggle  : "collapse"
-                target  : "#assignment-list"
-                shortcut: "a q"
-              =>
-                @i class: "fa fa-fw fa-link"
-                @translate "assign"
-
-        @div 
+        # FORMULARZ WYSZUKIWANIA DO POWIĄZANIA PYTANIA 
+        if participant? then @div 
           class : "panel-body collapse"
           id    : "assignment-list"
           =>
@@ -266,7 +276,7 @@ module.exports = new View (data) ->
                     @text " "
                 else @p class: "text-muted", => @translate "No answers yet"
                   
-                @div class: "btn-group", =>
+                if participant? then @div class: "btn-group", =>
                   @form
                     action: "/stories/#{story._id}/questions/#{question._id}"
                     method: "post"

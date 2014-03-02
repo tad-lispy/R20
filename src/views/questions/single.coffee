@@ -75,8 +75,9 @@ module.exports = new View (data) ->
           @i class: "fa fa-info-circle fa-fw"
           @translate "Not published yet."
 
-      else 
+      else
         @strong question.text
+        
 
         @div class: "clearfix", => @div class: "btn-group pull-right", =>
           @button
@@ -90,32 +91,33 @@ module.exports = new View (data) ->
               @i class: "fa fa-comment fa-fw"
               @text " "
               @translate "sample stories (%d)", stories?.length or 0
-
-          @dropdown items: [
-            title : @cede => @translate "make changes"
-            href  : "#edit"
-            icon  : "edit"
-            data  :
-              toggle  : "modal"
-              target  : "#question-edit-dialog"
-              shortcut: "e"
-          ,
-            title : @cede => @translate "show drafts"
-            href  : "#drafts"
-            icon  : "folder-close"
-            data  :
-              toggle  : "modal"
-              target  : "#drafts-dialog"
-              shortcut: "d"
-          ,
-            title : @cede => @translate "remove question"
-            href  : "#remove"
-            icon  : "times-circle"
-            data  :
-              toggle  : "modal"
-              target  : "#remove-dialog"
-              shortcut: "del enter"
-          ]
+        
+          if participant?
+            @dropdown items: [
+              title : @cede => @translate "make changes"
+              href  : "#edit"
+              icon  : "edit"
+              data  :
+                toggle  : "modal"
+                target  : "#question-edit-dialog"
+                shortcut: "e"
+            ,
+              title : @cede => @translate "show drafts"
+              href  : "#drafts"
+              icon  : "folder-close"
+              data  :
+                toggle  : "modal"
+                target  : "#drafts-dialog"
+                shortcut: "d"
+            ,
+              title : @cede => @translate "remove question"
+              href  : "#remove"
+              icon  : "times-circle"
+              data  :
+                toggle  : "modal"
+                target  : "#remove-dialog"
+                shortcut: "del enter"
+            ]
         
     unless question.isNew and not draft?
       @modal 
@@ -184,7 +186,7 @@ module.exports = new View (data) ->
               @translate "by %s (%s):",
                 answer.author?.name or @cede => @translate "unknown author"
                 @cede => @moment answer
-            @a
+            if participant? then @a
               href  : "/questions/#{question._id}/answers/#{answer._id}"
               class: "btn btn-xs pull-right"
               => @i class: "fa fa-expand"
